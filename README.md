@@ -1,36 +1,141 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Presight Frontend
 
-## Getting Started
+A modern Web3-enabled frontend built with **Next.js 14**, **TailwindCSS**, and **RainbowKit** for seamless wallet integration.
 
-First, run the development server:
+## 🚀 Features
 
+- ✨ **Next.js 14** with App Router and TypeScript
+- 🎨 **TailwindCSS** for styling
+- 🔗 **RainbowKit** for wallet connection UI
+- 💎 **Wagmi** for Web3 utilities
+- ⛓️ **Viem** for Ethereum interactions
+- 📦 **Query Client** for efficient data fetching
+- 🔍 **ESLint** for code quality
+
+## 📋 Prerequisites
+
+- Node.js 18+ 
+- npm or yarn
+
+## 🛠️ Installation
+
+1. Install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Set up environment variables:
+```bash
+cp .env.example .env.local
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Add your WalletConnect Project ID to `.env.local`:
+   - Get a Project ID at [cloud.walletconnect.com](https://cloud.walletconnect.com)
+   - Update `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` in `.env.local`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🏃 Development
 
-## Learn More
+Run the development server:
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🏗️ Production Build
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Build for production:
+```bash
+npm run build
+npm run start
+```
 
-## Deploy on Vercel
+## 📁 Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+.
+├── app/
+│   ├── layout.tsx          # Root layout with providers
+│   ├── page.tsx            # Home page
+│   ├── globals.css         # Global styles
+│   └── providers.tsx       # RainbowKit & Wagmi config
+├── components/
+│   ├── Header.tsx          # Header with wallet connection
+│   └── ...                 # Additional components
+├── public/                 # Static assets
+├── .env.example            # Environment template
+└── package.json            # Dependencies
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🔗 Supported Networks
+
+- Mainnet
+- Polygon
+- Optimism
+- Arbitrum
+- Base
+- Sepolia (testnet, optional)
+
+## 🪝 Wagmi Hooks
+
+Use Wagmi hooks for Web3 interactions:
+
+```typescript
+import { useAccount, useBalance, useContractRead } from 'wagmi';
+
+export function MyComponent() {
+  const { address, isConnected } = useAccount();
+  const { data: balance } = useBalance({ address });
+  
+  return (
+    <div>
+      {isConnected && <p>Balance: {balance?.formatted}</p>}
+    </div>
+  );
+}
+```
+
+## 📚 Documentation
+
+- [Next.js Docs](https://nextjs.org/docs)
+- [TailwindCSS Docs](https://tailwindcss.com/docs)
+- [RainbowKit Docs](https://www.rainbowkit.com/docs)
+- [Wagmi Docs](https://wagmi.sh/)
+- [Viem Docs](https://viem.sh/)
+
+## 🔧 Configuration
+
+### RainbowKit Setup
+
+The RainbowKit configuration is in `app/providers.tsx`. Modify wallet options and chains as needed:
+
+```typescript
+const config = getDefaultConfig({
+  appName: 'Presight Frontend',
+  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
+  chains: [mainnet, polygon, optimism, arbitrum, base],
+  ssr: true,
+});
+```
+
+### TailwindCSS
+
+Customize TailwindCSS in `tailwind.config.ts`.
+
+### ESLint
+
+Extend ESLint rules in `.eslintrc.json`.
+
+## 🚀 Deployment
+
+Deploy easily to Vercel:
+
+```bash
+vercel deploy
+```
+
+Or use any Node.js hosting provider (AWS, Heroku, etc.).
+
+## 📝 License
+
+This project is open source and available under the MIT License.
