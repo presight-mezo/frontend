@@ -422,12 +422,11 @@ export function HeroSection() {
             transition={{ delay: 0.66, duration: 0.5 }}
           >
             <Link 
-              href="/app/dashboard" 
-              passHref 
-              legacyBehavior
+              href="/app/onboarding" 
+              onClick={(e: any) => morphTo(e, '/app/onboarding', '#0a0a0a')}
+              style={{ textDecoration: 'none' }}
             >
-              <motion.a
-                onClick={(e: any) => morphTo(e, '/app/dashboard', '#0a0a0a')}
+              <motion.div
                 whileHover={{ scale: 1.05, boxShadow: '0 8px 32px rgba(0,0,0,0.28)' }}
                 whileTap={{ scale: 0.97 }}
                 style={{
@@ -445,7 +444,7 @@ export function HeroSection() {
                 }}
               >
                 Let's get started
-              </motion.a>
+              </motion.div>
             </Link>
           </motion.div>
 

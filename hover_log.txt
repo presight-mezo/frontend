@@ -1,0 +1,20 @@
+23: colour on hover (matching the limoncello.studio effect).
+40: const hovered = false;
+59: background: hovered ? accent : '#f8f8f7',
+70: filter: hovered ? 'brightness(0) invert(1)' : 'none',
+84: color: hovered ? '#0a0a0a' : '#0a0a0a',
+96: color: hovered ? 'rgba(0,0,0,0.65)' : '#666',
+113: border: `1px solid ${hovered ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.2)'}`,
+116: color: hovered ? '#0a0a0a' : '#555',
+135: border: `1.5px solid ${hovered ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.18)'}`,
+140: color: hovered ? '#0a0a0a' : '#555',
+298: whileHover={{ scale: 1.03, boxShadow: `0 8px 28px ${accent}55` }}
+463: whileHover={{ scale: 1.02, boxShadow: `0 6px 20px ${accent}55` }}
+493: whileHover={isConnected ? { scale: 1.03, boxShadow: `0 8px 28px ${accent}55` } : {}}
+593: whileHover={{ scale: 1.03, boxShadow: `0 8px 28px ${accent}55` }}
+724: whileHover={{ scale: 1.04 }}
+769: whileHover={{ scale: 1.03, boxShadow: `0 8px 28px ${accent}55` }}
+826: whileHover={{ y: -4, boxShadow: isSelected ? '0 0 0 3px #16a34a, 0 16px 48px rgba(0,0,0,0.12)' : '0 16px 48px rgba(0,0,0,0.12)' }}
+937: whileHover={{ scale: 1.05, rotate: '-2deg' }}
+1029: whileHover={mode ? { scale: 1.03, boxShadow: `0 8px 28px ${accent}55` } : {}}
+1117: whileHover={{ scale: 1.05 }}
