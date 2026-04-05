@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Chromatic Void - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#484847",
+                        "on-background": "#ffffff",
+                        "secondary-dim": "#eb8d00",
+                        "on-surface-variant": "#adaaaa",
+                        "surface": "#0e0e0e",
+                        "on-primary-container": "#2f5000",
+                        "on-secondary-container": "#fff6f1",
+                        "on-tertiary-fixed": "#4f5051",
+                        "secondary-container": "#8a5100",
+                        "on-secondary-fixed": "#4f2c00",
+                        "primary-fixed-dim": "#96eb1b",
+                        "primary-container": "#93e816",
+                        "on-error": "#450900",
+                        "background": "#0e0e0e",
+                        "on-primary-fixed-variant": "#3d6600",
+                        "primary": "#a3fa2f",
+                        "inverse-on-surface": "#565555",
+                        "surface-dim": "#0e0e0e",
+                        "surface-tint": "#a3fa2f",
+                        "tertiary-dim": "#ebebeb",
+                        "on-primary-fixed": "#294700",
+                        "primary-fixed": "#a3fa2f",
+                        "primary-dim": "#96eb1b",
+                        "on-secondary": "#4a2900",
+                        "tertiary-fixed-dim": "#f0f1f1",
+                        "on-error-container": "#ffd2c8",
+                        "on-tertiary-container": "#555757",
+                        "inverse-surface": "#fcf9f8",
+                        "surface-container-low": "#131313",
+                        "tertiary-fixed": "#ffffff",
+                        "on-surface": "#ffffff",
+                        "tertiary-container": "#ebebeb",
+                        "on-tertiary": "#5e5f60",
+                        "tertiary": "#f9f9f9",
+                        "error-container": "#b92902",
+                        "surface-container": "#1a1919",
+                        "on-tertiary-fixed-variant": "#6c6d6e",
+                        "secondary": "#fe9800",
+                        "surface-container-high": "#201f1f",
+                        "surface-container-lowest": "#000000",
+                        "outline": "#767575",
+                        "surface-container-highest": "#262626",
+                        "secondary-fixed": "#ffc790",
+                        "secondary-fixed-dim": "#ffb466",
+                        "on-primary": "#365b00",
+                        "surface-bright": "#2c2c2c",
+                        "on-secondary-fixed-variant": "#774500",
+                        "inverse-primary": "#406a00",
+                        "error-dim": "#d53d18",
+                        "surface-variant": "#262626",
+                        "error": "#ff7351"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0e0e0e;
+            color: #ffffff;
+            font-family: 'Manrope', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(38, 38, 38, 0.4);
+            backdrop-filter: blur(12px);
+        }
+        .sidebar-item-active {
+            background: #262626;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="flex min-h-screen">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full z-40 w-24 flex flex-col items-center py-8 rounded-r-[3.5rem] bg-[#000000] border-r border-white/5 font-['Space_Grotesk'] tracking-tight">
+<div class="mb-12"><div class="w-14 h-14 bg-white rounded-full flex items-center justify-center">
+<span class="text-[#0e0e0e] font-black text-2xl">NI</span>
+</div></div>
+<nav class="flex flex-col gap-6 flex-1"><button class="text-white/60 hover:text-white w-12 h-12 rounded-full flex items-center justify-center bg-[#1a1a1a] transition-all duration-300">
+<span class="material-symbols-outlined text-xl" data-icon="favorite">favorite</span>
+</button>
+<button class="text-[#000000] w-12 h-12 rounded-full flex items-center justify-center bg-[#A8FF35] shadow-[0_0_20px_rgba(168,255,53,0.3)] transition-all duration-300">
+<span class="material-symbols-outlined text-xl" data-icon="calendar_today">calendar_today</span>
+</button>
+<button class="text-white/60 hover:text-white w-12 h-12 rounded-full flex items-center justify-center bg-[#1a1a1a] transition-all duration-300">
+<span class="material-symbols-outlined text-xl" data-icon="diamond">diamond</span>
+</button>
+<button class="text-white/60 hover:text-white w-12 h-12 rounded-full flex items-center justify-center bg-[#1a1a1a] transition-all duration-300">
+<span class="material-symbols-outlined text-xl" data-icon="settings">settings</span>
+</button></nav>
+<div class="mt-auto"><button class="text-white/80 hover:text-white w-12 h-12 bg-[#1a1a1a] rounded-full flex items-center justify-center transition-all duration-300">
+<span class="material-symbols-outlined text-2xl" data-icon="add">add</span>
+</button></div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-24 flex-1 flex flex-col bg-[#0e0e0e]">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-8 h-20 bg-[#0e0e0e]/80 backdrop-blur-xl font-['Space_Grotesk'] z-30">
+<div class="flex items-center gap-6">
+<nav class="flex items-center gap-2">
+<button class="bg-[#262626] text-white px-6 py-2.5 rounded-full font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-lg" data-icon="view_in_ar">view_in_ar</span>
+Check Box
+</button>
+<button class="text-[#f9f9f9]/70 hover:text-white px-6 py-2.5 rounded-full flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="bar_chart">bar_chart</span>
+Monitoring
+</button>
+<button class="text-[#f9f9f9]/70 hover:text-white px-6 py-2.5 rounded-full flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="chat_bubble">chat_bubble</span>
+Support
+</button>
+<button class="w-10 h-10 bg-[#262626] rounded-full flex items-center justify-center text-[#f9f9f9]/70 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-xl" data-icon="search">search</span>
+</button>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="text-right hidden sm:block">
+<div class="text-sm font-bold leading-tight">Bogdan Nikitin</div>
+<div class="text-[10px] text-on-surface-variant font-medium">@Nixtio</div>
+</div>
+<div class="relative">
+<img alt="Bogdan Nikitin" class="w-10 h-10 rounded-full object-cover border border-outline-variant/30" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDg5fES_R_2V9UqspaCkvla2sCXCJnkFNvtmkHZK9pQFGkKOWZlk8CtZZGwgHG1y8XukZekYKaUs0s2kD3lB9FvsihZI9yvZD6-fdMKux8eJBBxJL-1pSIYfHO3PK5LEa9-Ch_NDQQOqdsm-v5r9JkVfW5tg_ZAH7PzaT6D2_gJNYpnFMwKz8qIBi4OVyLJpsYmEK0qhT9y6l4ilvVVLhdkiUSSjnHj78R6Fh5wSkK8xW-RRei4erTn16TNViI3oQXLBiw_bAGP2PTm"/>
+<span class="absolute -top-1 -right-1 bg-error w-4 h-4 rounded-full border-2 border-[#0e0e0e] text-[8px] flex items-center justify-center font-bold">2</span>
+</div>
+</div>
+</header>
+<!-- Dashboard Canvas -->
+<section class="p-8 space-y-8">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+<h1 class="font-headline text-4xl font-bold tracking-tight text-on-background">CHECK BOX</h1>
+<div class="flex flex-wrap items-center gap-3">
+<div class="flex items-center gap-2 bg-[#1a1919] px-4 py-2 rounded-full border border-outline-variant/20 cursor-pointer hover:bg-surface-container-highest transition-colors">
+<span class="text-xs font-bold text-on-surface-variant">Date:</span>
+<span class="text-xs font-bold">Now</span>
+<span class="material-symbols-outlined text-sm" data-icon="expand_more">expand_more</span>
+</div>
+<div class="flex items-center gap-2 bg-[#1a1919] px-4 py-2 rounded-full border border-outline-variant/20 cursor-pointer hover:bg-surface-container-highest transition-colors">
+<span class="text-xs font-bold text-on-surface-variant">Product:</span>
+<span class="text-xs font-bold">All</span>
+<span class="material-symbols-outlined text-sm" data-icon="expand_more">expand_more</span>
+</div>
+<div class="flex items-center gap-2 bg-[#1a1919] px-4 py-2 rounded-full border border-outline-variant/20 cursor-pointer hover:bg-surface-container-highest transition-colors">
+<span class="text-xs font-bold text-on-surface-variant">Profile:</span>
+<span class="text-xs font-bold">Bogdan</span>
+<span class="material-symbols-outlined text-sm" data-icon="expand_more">expand_more</span>
+</div>
+<button class="w-10 h-10 bg-[#1a1919] rounded-full border border-outline-variant/20 flex items-center justify-center hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-xl" data-icon="tune">tune</span>
+</button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Left Column Group -->
+<div class="col-span-12 lg:col-span-7 grid grid-cols-2 gap-6">
+<!-- Stats Card: Customer -->
+<div class="col-span-1 bg-surface-container-low rounded-xl p-8 flex flex-col justify-between aspect-square lg:aspect-auto h-[280px]">
+<div class="flex justify-between items-start">
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">CUSTOMER</span>
+<span class="text-on-surface-variant">...</span>
+</div>
+<div class="space-y-1">
+<div class="flex items-baseline gap-2">
+<span class="text-5xl font-headline font-bold">2.4<span class="text-primary">%</span></span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm text-primary" data-icon="arrow_drop_up">arrow_drop_up</span>
+<span class="text-xs font-bold">1.1%</span>
+</div>
+<div class="text-[10px] text-on-surface-variant font-medium">Web Surfing</div>
+</div>
+<div class="h-16 w-full mt-4">
+<!-- SVG Sparkline -->
+<svg class="w-full h-full overflow-visible" viewbox="0 0 100 30">
+<path d="M0 25 Q 10 5, 20 20 T 40 10 T 60 25 T 80 5 T 100 15" fill="none" stroke="#a3fa2f" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+<!-- Stats Card: Product -->
+<div class="col-span-1 bg-surface-container-low rounded-xl p-8 flex flex-col justify-between h-[280px]">
+<div class="flex justify-between items-start">
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">PRODUCT</span>
+<span class="text-on-surface-variant">...</span>
+</div>
+<div class="space-y-1">
+<div class="flex items-baseline gap-2">
+<span class="text-5xl font-headline font-bold">2.8<span class="text-secondary">%</span></span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm text-secondary" data-icon="arrow_drop_down">arrow_drop_down</span>
+<span class="text-xs font-bold">3.2%</span>
+</div>
+<div class="text-[10px] text-on-surface-variant font-medium">Partners</div>
+</div>
+<div class="grid grid-cols-8 gap-1 items-end h-12">
+<div class="bg-[#333] rounded-full h-[30%]"></div>
+<div class="bg-primary rounded-full h-[60%]"></div>
+<div class="bg-[#333] rounded-full h-[40%]"></div>
+<div class="bg-secondary rounded-full h-[80%]"></div>
+<div class="bg-[#333] rounded-full h-[50%]"></div>
+<div class="bg-primary rounded-full h-[70%]"></div>
+<div class="bg-[#333] rounded-full h-[45%]"></div>
+<div class="bg-secondary rounded-full h-[90%]"></div>
+</div>
+</div>
+<!-- Volume Chart Card -->
+<div class="col-span-2 bg-surface-container-low rounded-xl p-8">
+<div class="flex justify-between items-center mb-8">
+<h3 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant">PRODUCT</h3>
+<span class="text-on-surface-variant">...</span>
+</div>
+<div class="grid grid-cols-9 gap-4 h-48 items-center justify-items-center">
+<!-- Capsule Bar Chart items preserved but styled to match ref -->
+<div class="flex flex-col items-center gap-2 h-full justify-center">
+<div class="w-10 h-24 bg-white rounded-full flex flex-col items-center justify-center text-[#0e0e0e] text-[10px] font-bold">52</div>
+<div class="w-10 h-16 bg-secondary rounded-full flex flex-col items-center justify-center text-[#0e0e0e] text-[10px] font-bold">81</div>
+</div>
+<div class="flex flex-col items-center gap-2 h-full justify-center">
+<div class="w-10 h-20 bg-primary/40 rounded-full flex flex-col items-center justify-center text-primary text-[10px] font-bold">96</div>
+<div class="w-6 h-6 border-2 border-secondary rounded-full"></div>
+</div>
+<div class="flex flex-col items-center gap-2 h-full justify-center">
+<div class="w-10 h-12 bg-primary/40 rounded-full flex flex-col items-center justify-center text-primary text-[10px] font-bold">48</div>
+<div class="w-10 h-12 bg-white rounded-full flex flex-col items-center justify-center text-[#0e0e0e] text-[10px] font-bold">51</div>
+</div>
+<div class="flex flex-col items-center gap-2 h-full justify-center">
+<div class="w-10 h-20 bg-primary rounded-full flex flex-col items-center justify-center text-[#0e0e0e] text-[10px] font-bold">80</div>
+<div class="w-10 h-10 bg-secondary rounded-full flex flex-col items-center justify-center text-[#0e0e0e] text-[10px] font-bold">49</div>
+</div>
+<div class="flex flex-col items-center gap-2 h-full justify-center">
+<div class="w-8 h-8 bg-secondary/40 rounded-full flex flex-col items-center justify-center text-secondary text-[10px] font-bold">34</div>
+<div class="w-10 h-16 bg-primary/40 rounded-full flex flex-col items-center justify-center text-primary text-[10px] font-bold">67</div>
+</div>
+<div class="flex flex-col items-center gap-2 h-full justify-center">
+<div class="w-10 h-24 bg-primary rounded-full flex flex-col items-center justify-center text-[#0e0e0e] text-[10px] font-bold">92</div>
+<div class="w-10 h-12 bg-white rounded-full flex flex-col items-center justify-center text-[#0e0e0e] text-[10px] font-bold">28</div>
+</div>
+<div class="flex flex-col items-center gap-2 h-full justify-center">
+<div class="w-10 h-16 bg-primary/40 rounded-full flex flex-col items-center justify-center text-primary text-[10px] font-bold">58</div>
+<div class="w-10 h-10 bg-secondary rounded-full flex flex-col items-center justify-center text-[#0e0e0e] text-[10px] font-bold">20</div>
+</div>
+<div class="flex flex-col items-center gap-2 h-full justify-center">
+<div class="w-10 h-20 bg-secondary rounded-full flex flex-col items-center justify-center text-[#0e0e0e] text-[10px] font-bold">84</div>
+<div class="w-10 h-12 bg-primary/40 rounded-full flex flex-col items-center justify-center text-primary text-[10px] font-bold">39</div>
+</div>
+<div class="flex flex-col items-center gap-2 h-full justify-center">
+<div class="w-10 h-10 bg-white rounded-full flex flex-col items-center justify-center text-[#0e0e0e] text-[10px] font-bold">36</div>
+<div class="w-10 h-20 bg-secondary rounded-full flex flex-col items-center justify-center text-[#0e0e0e] text-[10px] font-bold">72</div>
+</div>
+</div>
+<div class="mt-8 flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+<div class="flex gap-4">
+<span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-white"></span> Resources</span>
+<span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-primary"></span> Valid</span>
+<span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-secondary"></span> Invalid</span>
+</div>
+<span>Total: 1,012</span>
+</div>
+</div>
+</div>
+<!-- Right Column: Timeline Card -->
+<div class="col-span-12 lg:col-span-5 bg-surface-container-low rounded-xl p-8 flex flex-col h-full min-h-[584px]">
+<div class="flex justify-between items-center mb-12">
+<h3 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant">PROJECTS TIMELINE</h3>
+<span class="text-on-surface-variant">...</span>
+</div>
+<div class="flex-1 relative border-l border-outline-variant/10 ml-12 space-y-8">
+<!-- Redesigned project rows to match reference style bars -->
+<div class="relative py-2">
+<span class="absolute -left-[4.5rem] top-1/2 -translate-y-1/2 text-[10px] font-bold text-on-surface-variant">30.09</span>
+<div class="w-full h-8 bg-primary rounded-full flex items-center px-2 gap-4 relative">
+<div class="w-6 h-6 bg-white rounded-full flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-xs text-[#0e0e0e]" data-icon="cloud">cloud</span>
+</div>
+<span class="text-[10px] font-bold text-[#0e0e0e]">16</span>
+</div>
+</div>
+<div class="relative py-2">
+<span class="absolute -left-[4.5rem] top-1/2 -translate-y-1/2 text-[10px] font-bold text-on-surface-variant">29.09</span>
+<div class="w-full pl-[60%]">
+<div class="w-full h-8 bg-secondary rounded-full flex items-center px-2 gap-4">
+<div class="w-6 h-6 bg-[#0e0e0e] rounded-full flex items-center justify-center overflow-hidden">
+<span class="text-[8px] font-black text-white">X</span>
+</div>
+<span class="text-[10px] font-bold text-[#0e0e0e]">29</span>
+</div>
+</div>
+</div>
+<div class="relative py-2">
+<span class="absolute -left-[4.5rem] top-1/2 -translate-y-1/2 text-[10px] font-bold text-on-surface-variant">28.09</span>
+<div class="w-[30%] ml-[20%]">
+<div class="w-full h-8 bg-white rounded-full flex items-center justify-between px-2">
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border border-white"></div>
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border border-white"></div>
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border border-white"></div>
+</div>
+<span class="text-[10px] font-bold text-[#0e0e0e]">15</span>
+</div>
+</div>
+</div>
+<div class="relative py-2">
+<span class="absolute -left-[4.5rem] top-1/2 -translate-y-1/2 text-[10px] font-bold text-on-surface-variant">27.09</span>
+<div class="w-[50%] ml-[10%]">
+<div class="w-full h-8 bg-primary rounded-full flex items-center justify-between px-2">
+<div class="w-6 h-6 bg-secondary/80 rounded-full flex items-center justify-center"><span class="material-symbols-outlined text-xs" data-icon="sports_basketball">sports_basketball</span></div>
+<span class="text-[10px] font-bold text-[#0e0e0e]">21</span>
+</div>
+</div>
+</div>
+<div class="relative py-2">
+<span class="absolute -left-[4.5rem] top-1/2 -translate-y-1/2 text-[10px] font-bold text-on-surface-variant">26.09</span>
+<div class="w-[35%]">
+<div class="w-full h-8 bg-white rounded-full flex items-center justify-between px-2">
+<div class="w-6 h-6 bg-secondary-container rounded-full flex items-center justify-center"><span class="material-symbols-outlined text-xs" data-icon="chat">chat</span></div>
+<span class="text-[10px] font-bold text-[#0e0e0e]">10</span>
+</div>
+</div>
+</div>
+<div class="relative py-2">
+<span class="absolute -left-[4.5rem] top-1/2 -translate-y-1/2 text-[10px] font-bold text-on-surface-variant">25.09</span>
+<div class="w-[30%] ml-[25%]">
+<div class="w-full h-8 bg-secondary rounded-full flex items-center justify-between px-2">
+<div class="w-6 h-6 bg-[#1877F2] rounded-full flex items-center justify-center"><span class="material-symbols-outlined text-xs text-white" data-icon="facebook">facebook</span></div>
+<span class="text-[10px] font-bold text-[#0e0e0e]">15</span>
+</div>
+</div>
+<div class="w-[60%] ml-[40%] mt-2">
+<div class="w-full h-8 bg-primary rounded-full flex items-center justify-between px-2">
+<div class="flex -space-x-1">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border border-primary"></div>
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border border-primary"></div>
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border border-primary"></div>
+</div>
+<span class="text-[10px] font-bold text-[#0e0e0e]">19</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-auto pt-8 flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+<div class="flex gap-4">
+<span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-primary"></span> Customer</span>
+<span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-secondary"></span> Product</span>
+<span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-white"></span> Web</span>
+</div>
+<span>Total: 284</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+</body></html>

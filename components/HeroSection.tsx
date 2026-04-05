@@ -271,7 +271,7 @@ export function HeroSection() {
       style={{
         position: 'relative',
         minHeight: '100svh',
-        background: '#f0f0ef',
+        background: 'var(--color-background)',
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
@@ -422,12 +422,12 @@ export function HeroSection() {
             transition={{ delay: 0.66, duration: 0.5 }}
           >
             <Link 
-              href="/app/dashboard" 
-              passHref 
-              legacyBehavior
+              href="/app/dashboard"
+              onClick={(e: React.MouseEvent) => morphTo(e, '/app/dashboard', '#0a0a0a')}
+              style={{ textDecoration: 'none' }}
+              className="inline-flex"
             >
-              <motion.a
-                onClick={(e: any) => morphTo(e, '/app/dashboard', '#0a0a0a')}
+              <motion.div
                 whileHover={{ scale: 1.05, boxShadow: '0 8px 32px rgba(0,0,0,0.28)' }}
                 whileTap={{ scale: 0.97 }}
                 style={{
@@ -441,11 +441,10 @@ export function HeroSection() {
                   fontSize: 15,
                   fontWeight: 600,
                   letterSpacing: '-0.01em',
-                  textDecoration: 'none',
                 }}
               >
-                Let's get started
-              </motion.a>
+                Let&apos;s get started
+              </motion.div>
             </Link>
           </motion.div>
 

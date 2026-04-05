@@ -218,9 +218,13 @@ export function CTASection() {
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.55, duration: 0.5 }}
           >
-            <Link href="/app/dashboard" passHref legacyBehavior>
-              <motion.a
-                onClick={(e: any) => morphTo(e, '/app/dashboard', '#0a0a0a')}
+            <Link 
+              href="/app/dashboard"
+              onClick={(e: any) => morphTo(e, '/app/dashboard', '#0a0a0a')}
+              style={{ textDecoration: 'none' }}
+              className="inline-flex"
+            >
+              <motion.div
                 whileHover={{ scale: 1.05, background: '#f0f0ef', color: '#0a0a0a' }}
                 whileTap={{ scale: 0.97 }}
                 style={{
@@ -235,12 +239,11 @@ export function CTASection() {
                   fontWeight: 700,
                   letterSpacing: '-0.02em',
                   cursor: 'pointer',
-                  textDecoration: 'none',
                   transition: 'all 0.2s ease',
                 }}
               >
                 Start predicting
-              </motion.a>
+              </motion.div>
             </Link>
           </motion.div>
         </div>

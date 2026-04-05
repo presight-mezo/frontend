@@ -10,7 +10,7 @@ import { SiteFooter } from '@/components/SiteFooter';
 
 export default function Home() {
   return (
-    <div style={{ background: '#f0f0ef', minHeight: '100vh' }}>
+    <div className="bg-background min-h-screen">
       <HeroSection />
       <ValuePropSection />
       <PricingSection />

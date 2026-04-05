@@ -1,27 +1,65 @@
 @import "tailwindcss";
 
-:root {
-  --background: #f0f0ef;
-  --foreground: #0a0a0a;
-  --muted: #888888;
-  --border: rgba(0,0,0,0.08);
-  --card: rgba(255,255,255,0.7);
-  --accent-blue: #1a6dff;
-}
-
 * {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
+
+
+:root {
+  --color-background: #f0f0ef;
+  --color-foreground: #0a0a0a;
+  --color-muted: #71717a;
+  --color-border: rgba(0, 0, 0, 0.08);
+  --color-primary: #3b82f6;
+  --color-secondary: #f97316;
+  --color-accent-purple: #a855f7;
+  --color-accent-green: #22c55e;
+  --color-surface: #ffffff;
+  --color-on-surface-variant: #71717a;
+  --color-outline-variant: rgba(0, 0, 0, 0.08);
+  --color-error: #ef4444;
+  --color-surface-container-low: #ffffff;
+  --color-surface-container: #fafafa;
+  --color-surface-container-high: #f0f0ef;
+  --color-surface-container-highest: #e4e4e7;
+}
+
+@theme {
+  --color-background: var(--color-background);
+  --color-foreground: var(--color-foreground);
+  --color-muted: var(--color-muted);
+  --color-border: var(--color-border);
+  --color-primary: var(--color-primary);
+  --color-secondary: var(--color-secondary);
+  --color-accent-purple: var(--color-accent-purple);
+  --color-accent-green: var(--color-accent-green);
+  --color-surface: var(--color-surface);
+  --color-on-surface-variant: var(--color-on-surface-variant);
+  --color-outline-variant: var(--color-outline-variant);
+  --color-error: var(--color-error);
+  --color-surface-container-low: var(--color-surface-container-low);
+  --color-surface-container: var(--color-surface-container);
+  --color-surface-container-high: var(--color-surface-container-high);
+  --color-surface-container-highest: var(--color-surface-container-highest);
+
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-headline: var(--font-space-grotesk), sans-serif;
+  --font-handwritten: var(--font-caveat), cursive;
+
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  --radius-3xl: 2.5rem;
+}
+
 
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--color-background);
+  color: var(--color-foreground);
   font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -111,4 +149,13 @@ body {
 /* Handwritten font */
 .font-handwritten {
   font-family: var(--font-caveat), cursive;
+}
+
+/* Custom scrollbar hiding utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
