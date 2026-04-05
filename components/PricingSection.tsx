@@ -122,10 +122,7 @@ function PricingCard({
         </div>
       )}
 
-      {/* Dot */}
-      <div style={{ position: 'relative', zIndex: 10 }}>
-        <div style={{ width: 28, height: 28, borderRadius: '50%', background: isGreen ? '#22c55e' : '#3b82f6', opacity: 0.15 }} />
-      </div>
+
 
       {/* The White Pricing Card Content */}
       <div

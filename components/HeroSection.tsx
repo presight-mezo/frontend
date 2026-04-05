@@ -422,8 +422,9 @@ export function HeroSection() {
             transition={{ delay: 0.66, duration: 0.5 }}
           >
             <Link 
-              href="/app/dashboard"
-              onClick={(e: React.MouseEvent) => morphTo(e, '/app/dashboard', '#0a0a0a')}
+            <Link 
+              href="/app/onboarding" 
+              onClick={(e: any) => morphTo(e, '/app/onboarding', '#0a0a0a')}
               style={{ textDecoration: 'none' }}
               className="inline-flex"
             >
@@ -443,7 +444,7 @@ export function HeroSection() {
                   letterSpacing: '-0.01em',
                 }}
               >
-                Let&apos;s get started
+                Let's get started
               </motion.div>
             </Link>
           </motion.div>

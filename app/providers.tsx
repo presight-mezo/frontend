@@ -1,10 +1,11 @@
 'use client';
 
 import { ReactNode, useState } from 'react';
-import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { RainbowKitProvider, lightTheme } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
 import { config } from './config';
+import { PresightApiProvider } from '@/lib/ApiProvider';
 import '@rainbow-me/rainbowkit/styles.css';
 
 if (typeof globalThis !== 'undefined') {
@@ -20,7 +21,17 @@ export function Providers({ children }: { children: ReactNode }) {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>{children}</RainbowKitProvider>
+        <RainbowKitProvider 
+          theme={lightTheme({
+            accentColor: '#F7931A',
+            accentColorForeground: 'white',
+            borderRadius: 'large',
+          })}
+        >
+          <PresightApiProvider>
+            {children}
+          </PresightApiProvider>
+        </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

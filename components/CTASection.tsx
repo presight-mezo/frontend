@@ -81,7 +81,7 @@ export function CTASection() {
   // and trigger again when scrolled back into view
   const inView = useInView(ref, { once: false, margin: '-10%' });
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end end'] });
-  const scale = useTransform(scrollYProgress, [0, 0.6], [0.92, 1]);
+  const scale = useTransform(scrollYProgress, [0, 0.6], [0.85, 1]);
 
   return (
     <section
@@ -219,8 +219,9 @@ export function CTASection() {
             transition={{ delay: 0.55, duration: 0.5 }}
           >
             <Link 
-              href="/app/dashboard"
-              onClick={(e: any) => morphTo(e, '/app/dashboard', '#0a0a0a')}
+            <Link 
+              href="/app/onboarding" 
+              onClick={(e: any) => morphTo(e, '/app/onboarding', '#0a0a0a')}
               style={{ textDecoration: 'none' }}
               className="inline-flex"
             >
