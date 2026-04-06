@@ -9,6 +9,7 @@ import {
   yieldApi,
   resolverApi,
   troveApi,
+  profileApi,
 } from '@/lib/api';
 
 /**
@@ -216,5 +217,22 @@ export function useTrove(token?: string) {
   return {
     ...getTrove,
     isLoading: getTrove.loading,
+  };
+}
+
+/**
+ * Hook for profile operations
+ */
+export function useProfile(token?: string) {
+  const getProfile = useApiCall(() => profileApi.get(token || ''), false);
+  const onboardProfile = useApiCall(
+    (data: { defaultRiskMode: 'zero-risk' | 'full-stake' }) =>
+      profileApi.onboard(token || '', data),
+    false
+  );
+
+  return {
+    getProfile,
+    onboardProfile,
   };
 }

@@ -1,3 +1,9 @@
+import { OnboardingGuard } from "@/components/OnboardingGuard";
+
 export default function AppRootLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  return (
+    <OnboardingGuard>
+      {children}
+    </OnboardingGuard>
+  );
 }

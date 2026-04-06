@@ -186,6 +186,12 @@ export const profileApi = {
     apiRequest("/api/v1/profile", {
       token,
     }),
+  onboard: (token: string, data: { defaultRiskMode: 'zero-risk' | 'full-stake' }) =>
+    apiRequest("/api/v1/profile/onboard", {
+      method: "POST",
+      body: data,
+      token,
+    }),
 };
 
 /**

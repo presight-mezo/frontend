@@ -239,10 +239,12 @@ const rightObjects = [
 ];
 
 import { useBubbleTransition } from './TransitionLink';
+import { useGetStartedUrl } from '@/hooks/useGetStartedUrl';
 
 /* ─── Hero ────────────────────────────────────────────────────── */
 export function HeroSection() {
   const { morphTo } = useBubbleTransition();
+  const getStartedUrl = useGetStartedUrl();
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -422,8 +424,8 @@ export function HeroSection() {
             transition={{ delay: 0.66, duration: 0.5 }}
           >
             <Link 
-              href="/app/onboarding" 
-              onClick={(e: any) => morphTo(e, '/app/onboarding', '#0a0a0a')}
+              href={getStartedUrl} 
+              onClick={(e: any) => morphTo(e, getStartedUrl, '#0a0a0a')}
               style={{ textDecoration: 'none' }}
               className="inline-flex"
             >
@@ -443,7 +445,7 @@ export function HeroSection() {
                   letterSpacing: '-0.01em',
                 }}
               >
-                Let's get started
+                {getStartedUrl === '/app/dashboard' ? 'Go to dashboard' : "Let's get started"}
               </motion.div>
             </Link>
           </motion.div>

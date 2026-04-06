@@ -6,7 +6,7 @@ import { useAccount, useBalance } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSiweAuth } from '@/hooks/useSiweAuth';
-import { useMandate, useTrove } from '@/hooks/useApi';
+import { useMandate, useTrove, useProfile } from '@/hooks/useApi';
 import { parseEther, formatUnits } from 'viem';
 
 /* ─── Types ──────────────────────────────────────────────────── */
@@ -1174,13 +1174,19 @@ function OnboardingContent() {
         ? '#EF476F'
         : accent;
 
+  const { token } = useSiweAuth();
+  const { onboardProfile } = useProfile(token || undefined);
+
   const go = (next: number) => {
     setDir(next > step ? 1 : -1);
     setStep(next);
     if (next > step) setContinueSignal(s => s + 1); // trigger bg speed boost
   };
 
-  const handleDone = () => {
+  const handleDone = async () => {
+    if (selectedMode) {
+      await onboardProfile.execute({ defaultRiskMode: selectedMode as any });
+    }
     router.push('/app/dashboard');
   };
 

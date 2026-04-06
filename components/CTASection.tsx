@@ -73,9 +73,11 @@ function FloatingIcon({ type }: { type: string }) {
 }
 
 import { useBubbleTransition } from './TransitionLink';
+import { useGetStartedUrl } from '@/hooks/useGetStartedUrl';
 
 export function CTASection() {
   const { morphTo } = useBubbleTransition();
+  const getStartedUrl = useGetStartedUrl();
   const ref = useRef<HTMLDivElement>(null);
   // Set once: false so the icons "pop out" (disappear) when you scroll away, 
   // and trigger again when scrolled back into view
@@ -219,8 +221,8 @@ export function CTASection() {
             transition={{ delay: 0.55, duration: 0.5 }}
           >
             <Link 
-              href="/app/onboarding" 
-              onClick={(e: any) => morphTo(e, '/app/onboarding', '#0a0a0a')}
+              href={getStartedUrl} 
+              onClick={(e: any) => morphTo(e, getStartedUrl, '#0a0a0a')}
               style={{ textDecoration: 'none' }}
               className="inline-flex"
             >
@@ -242,7 +244,7 @@ export function CTASection() {
                   transition: 'all 0.2s ease',
                 }}
               >
-                Start predicting
+                {getStartedUrl === '/app/dashboard' ? 'Continue predicting' : 'Start predicting'}
               </motion.div>
             </Link>
           </motion.div>
