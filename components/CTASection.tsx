@@ -219,7 +219,6 @@ export function CTASection() {
             transition={{ delay: 0.55, duration: 0.5 }}
           >
             <Link 
-            <Link 
               href="/app/onboarding" 
               onClick={(e: any) => morphTo(e, '/app/onboarding', '#0a0a0a')}
               style={{ textDecoration: 'none' }}

@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useState } from 'react';
-import { useAccount } from 'wagmi';
+import { useCallback, useState, useEffect } from 'react';
+import { useAccount, useSignMessage } from 'wagmi';
 import { SiweMessage } from 'siwe';
 import { encodeSignatureAsToken, profileApi } from '@/lib/api';
 
@@ -19,6 +19,7 @@ export interface AuthState {
  */
 export function useSiweAuth() {
   const { address } = useAccount();
+  const { signMessageAsync } = useSignMessage();
   const [authState, setAuthState] = useState<AuthState>({
     isAuthenticated: false,
     isLoading: false,
@@ -28,8 +29,10 @@ export function useSiweAuth() {
    * Get SIWE message from user signature
    */
   const signIn = useCallback(
-    async (signer: any) => {
+    async () => {
+      console.log('useSiweAuth: Running signIn logic with address:', address);
       if (!address) {
+        console.warn('useSiweAuth: No address found! Returning early.');
         setAuthState((prev) => ({
           ...prev,
           error: 'No account connected',
@@ -44,19 +47,24 @@ export function useSiweAuth() {
       }));
 
       try {
-        const message = new SiweMessage({
+        const siweParams = {
           domain: window.location.host,
           address,
           statement: 'Sign in to Presight Prediction Market',
           uri: window.location.origin,
           version: '1',
           chainId: 31611, // Mezo Testnet
-          nonce: Math.random().toString(36).substring(7),
+          nonce: Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2),
           issuedAt: new Date().toISOString(),
-        });
+        };
+
+        console.log('useSiweAuth: Constructing SiweMessage with params:', siweParams);
+        const message = new SiweMessage(siweParams);
 
         const messageStr = message.prepareMessage();
-        const signature = await signer.signMessage({ message: messageStr });
+        const signature = await signMessageAsync({ 
+          message: messageStr,
+        });
 
         // Encode signature and message as token
         const token = encodeSignatureAsToken(messageStr, signature);
@@ -82,6 +90,7 @@ export function useSiweAuth() {
 
         return token;
       } catch (error) {
+        console.error('useSiweAuth: Fatal error during signIn process:', error);
         const errorMessage = error instanceof Error ? error.message : 'Sign-in failed';
         setAuthState({
           isAuthenticated: false,
@@ -128,6 +137,13 @@ export function useSiweAuth() {
     }
     return null;
   }, [address]);
+
+  // Automatically attempt to restore token on initialization when address changes
+  useEffect(() => {
+    if (address && !authState.isAuthenticated) {
+      restoreToken();
+    }
+  }, [address, restoreToken, authState.isAuthenticated]);
 
   return {
     ...authState,

@@ -67,11 +67,11 @@ export function PresightApiProvider({ children }: { children: React.ReactNode })
    */
   const handleSignIn = useCallback(async () => {
     try {
-      return await auth.signIn({ signMessage } as any);
+      return await auth.signIn();
     } catch (error) {
       console.error('Sign-in failed:', error);
     }
-  }, [auth, signMessage]);
+  }, [auth]);
 
   /**
    * Handle sign out

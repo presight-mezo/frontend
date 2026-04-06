@@ -422,7 +422,6 @@ export function HeroSection() {
             transition={{ delay: 0.66, duration: 0.5 }}
           >
             <Link 
-            <Link 
               href="/app/onboarding" 
               onClick={(e: any) => morphTo(e, '/app/onboarding', '#0a0a0a')}
               style={{ textDecoration: 'none' }}

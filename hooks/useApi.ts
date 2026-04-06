@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import {
   groupApi,
   marketApi,
@@ -8,6 +8,7 @@ import {
   mandateApi,
   yieldApi,
   resolverApi,
+  troveApi,
 } from '@/lib/api';
 
 /**
@@ -197,5 +198,23 @@ export function useResolver(token?: string) {
   return {
     getNotifications,
     resolveMarket,
+  };
+}
+
+/**
+ * Hook for trove operations
+ */
+export function useTrove(token?: string) {
+  const getTrove = useApiCall(() => troveApi.get(token || ''), false);
+
+  useEffect(() => {
+    if (token) {
+      getTrove.execute();
+    }
+  }, [token]);
+
+  return {
+    ...getTrove,
+    isLoading: getTrove.loading,
   };
 }

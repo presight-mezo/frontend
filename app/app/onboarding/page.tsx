@@ -1,10 +1,13 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAccount } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useSiweAuth } from '@/hooks/useSiweAuth';
+import { useMandate, useTrove } from '@/hooks/useApi';
+import { parseEther, formatUnits } from 'viem';
 
 /* ─── Types ──────────────────────────────────────────────────── */
 type Mode = 'zero-risk' | 'full-stake' | null;
@@ -20,49 +23,49 @@ const SCREEN_COLORS = [
 
 /* ─── Floating Tags Background ───────────────────────────────── */
 const BG_TAGS = [
-  { text: 'FRONTEND',     color: 0 },
-  { text: 'UX',           color: 1 },
-  { text: 'VIBE CHECK',   color: 2 },
-  { text: 'CLEAN CODE',   color: 1 },
-  { text: 'CREATIVE',     color: 0 },
-  { text: 'MOTION',       color: 2 },
-  { text: 'TASTE',        color: 2 },
+  { text: 'FRONTEND', color: 0 },
+  { text: 'UX', color: 1 },
+  { text: 'VIBE CHECK', color: 2 },
+  { text: 'CLEAN CODE', color: 1 },
+  { text: 'CREATIVE', color: 0 },
+  { text: 'MOTION', color: 2 },
+  { text: 'TASTE', color: 2 },
   { text: 'TYPE SYSTEMS', color: 1 },
-  { text: 'KEYFRAMES',    color: 0 },
-  { text: 'BUILDS',       color: 1 },
+  { text: 'KEYFRAMES', color: 0 },
+  { text: 'BUILDS', color: 1 },
   { text: 'CASE STUDIES', color: 0 },
-  { text: 'SCROLL LOVE',  color: 2 },
+  { text: 'SCROLL LOVE', color: 2 },
   { text: 'TORONTO CORE', color: 1 },
   { text: 'STUDIO VIBES', color: 0 },
-  { text: 'GSAP FANBOY',  color: 2 },
-  { text: 'NO FILLER',    color: 1 },
-  { text: 'LIVE SITES',   color: 0 },
-  { text: 'CANADA MODE',  color: 2 },
-  { text: 'UI NERD',      color: 0 },
+  { text: 'GSAP FANBOY', color: 2 },
+  { text: 'NO FILLER', color: 1 },
+  { text: 'LIVE SITES', color: 0 },
+  { text: 'CANADA MODE', color: 2 },
+  { text: 'UI NERD', color: 0 },
   { text: 'QUIETLY BOLD', color: 1 },
-  { text: 'SHIPPED',      color: 0 },
-  { text: 'BITCOIN',      color: 2 },
-  { text: 'MUSD',         color: 1 },
-  { text: 'PREDICTIONS',  color: 0 },
-  { text: 'ZERO RISK',    color: 2 },
-  { text: 'SOCIAL',       color: 1 },
-  { text: 'COMMUNITY',    color: 0 },
-  { text: 'MEZO',         color: 2 },
-  { text: 'GASLESS',      color: 1 },
-  { text: 'YIELD',        color: 0 },
-  { text: 'STAKE',        color: 2 },
-  { text: 'WALLET',       color: 1 },
-  { text: 'ON-CHAIN',     color: 0 },
-  { text: 'MARKETS',      color: 2 },
-  { text: 'PRESIGHT',     color: 1 },
-  { text: 'DARK MODE',    color: 0 },
-  { text: 'WEB3',         color: 2 },
+  { text: 'SHIPPED', color: 0 },
+  { text: 'BITCOIN', color: 2 },
+  { text: 'MUSD', color: 1 },
+  { text: 'PREDICTIONS', color: 0 },
+  { text: 'ZERO RISK', color: 2 },
+  { text: 'SOCIAL', color: 1 },
+  { text: 'COMMUNITY', color: 0 },
+  { text: 'MEZO', color: 2 },
+  { text: 'GASLESS', color: 1 },
+  { text: 'YIELD', color: 0 },
+  { text: 'STAKE', color: 2 },
+  { text: 'WALLET', color: 1 },
+  { text: 'ON-CHAIN', color: 0 },
+  { text: 'MARKETS', color: 2 },
+  { text: 'PRESIGHT', color: 1 },
+  { text: 'DARK MODE', color: 0 },
+  { text: 'WEB3', color: 2 },
 ];
 
 const TAG_COLORS = [
   { bg: '#f9c8c8', border: 'rgba(139,58,58,0.18)', text: '#8b3a3a' },  // soft pink
-  { bg: '#c8d9f9', border: 'rgba(42,74,139,0.18)',  text: '#2a4a8b' },  // soft blue
-  { bg: '#f9e8c8', border: 'rgba(139,90,42,0.18)',  text: '#8b5a2a' },  // soft amber
+  { bg: '#c8d9f9', border: 'rgba(42,74,139,0.18)', text: '#2a4a8b' },  // soft blue
+  { bg: '#f9e8c8', border: 'rgba(139,90,42,0.18)', text: '#8b5a2a' },  // soft amber
 ];
 
 function FloatingTagsBackground({ continueSignal }: { continueSignal: number }) {
@@ -162,10 +165,10 @@ function FloatingTagsBackground({ continueSignal }: { continueSignal: number }) 
         // Wrap around viewport
         const elW = tag.el.offsetWidth || 90;
         const elH = tag.el.offsetHeight || 28;
-        if (tag.x > W + elW)   tag.x = -elW;
-        if (tag.x < -elW)      tag.x = W + elW;
-        if (tag.y > H + elH)   tag.y = -elH;
-        if (tag.y < -elH)      tag.y = H + elH;
+        if (tag.x > W + elW) tag.x = -elW;
+        if (tag.x < -elW) tag.x = W + elW;
+        if (tag.y > H + elH) tag.y = -elH;
+        if (tag.y < -elH) tag.y = H + elH;
 
         // Parallax offset: layer 0 barely moves, layer 2 moves most
         const depth = (tag.layer - 1) * 0.018;
@@ -434,7 +437,7 @@ const variants = {
 };
 
 /* ─── Screen 1 — Welcome / Invite context ────────────────────── */
-function Screen1({ onNext, accent }: { onNext: () => void; accent: string }) {
+function Screen1({ onNext, accent, inviter, groupName }: { onNext: () => void; accent: string; inviter?: string | null; groupName?: string | null }) {
   const values = [
     {
       title: 'Social-first markets',
@@ -452,40 +455,42 @@ function Screen1({ onNext, accent }: { onNext: () => void; accent: string }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
-      {/* Invite pill */}
-      <motion.div
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.05, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 8,
-          background: `${accent}18`,
-          border: `1px solid ${accent}55`,
-          borderRadius: 100,
-          padding: '6px 14px',
-          alignSelf: 'flex-start',
-        }}
-      >
-        <div
+      {/* Invite pill — Only shows if params exist */}
+      {inviter && groupName && (
+        <motion.div
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
           style={{
-            width: 22,
-            height: 22,
-            borderRadius: '50%',
-            background: accent,
-            display: 'flex',
+            display: 'inline-flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 12,
+            gap: 8,
+            background: `${accent}18`,
+            border: `1px solid ${accent}55`,
+            borderRadius: 100,
+            padding: '6px 14px',
+            alignSelf: 'flex-start',
           }}
         >
-          👤
-        </div>
-        <span style={{ fontSize: 13, fontWeight: 600, color: '#0a0a0a', letterSpacing: '-0.01em' }}>
-          Rafi invited you to <strong>Bitcoin Maxis</strong>
-        </span>
-      </motion.div>
+          <div
+            style={{
+              width: 22,
+              height: 22,
+              borderRadius: '50%',
+              background: accent,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 12,
+            }}
+          >
+            👤
+          </div>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#0a0a0a', letterSpacing: '-0.01em' }}>
+            {inviter} invited you to <strong>{groupName}</strong>
+          </span>
+        </motion.div>
+      )}
 
       {/* Headline */}
       <motion.div
@@ -533,7 +538,7 @@ function Screen1({ onNext, accent }: { onNext: () => void; accent: string }) {
 
       {/* CTA */}
       <SlideButton onClick={onNext} accent={accent} delay={0.58}>
-        Join Bitcoin Maxis →
+        {groupName ? `Join ${groupName} →` : 'Get Started →'}
       </SlideButton>
     </div>
   );
@@ -542,6 +547,19 @@ function Screen1({ onNext, accent }: { onNext: () => void; accent: string }) {
 /* ─── Screen 2 — Passport Connect ───────────────────────────── */
 function Screen2({ onNext, accent }: { onNext: () => void; accent: string }) {
   const { isConnected, address } = useAccount();
+  const { isAuthenticated, signIn, isLoading, error } = useSiweAuth();
+
+  const handleSignIn = async () => {
+    console.log('--- handleSignIn triggered ---');
+    console.log('Current Screen2 address:', address);
+    try {
+      console.log('Attempting to signIn via useSiweAuth (v2)...');
+      const token = await signIn();
+      console.log('SignIn result token:', token);
+    } catch (err) {
+      console.error('SignIn error caught in handleSignIn:', err);
+    }
+  };
 
   const perms = [
     { text: 'Execute stakes on confirmed markets' },
@@ -591,121 +609,70 @@ function Screen2({ onNext, accent }: { onNext: () => void; accent: string }) {
         ))}
       </motion.div>
 
-      {/* Connect status card */}
-      <motion.div
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.42, duration: 0.5 }}
-        style={{
-          background: 'white',
-          borderRadius: 16,
-          border: '1px solid rgba(0,0,0,0.08)',
-          borderLeft: `4px solid ${accent}`,
-          padding: '20px',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-          <div
-            style={{
-              width: 44,
-              height: 44,
-              background: `linear-gradient(135deg, ${accent} 0%, #f59e0b 100%)`,
-              borderRadius: 10,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#0a0a0a',
-              fontWeight: 900,
-              fontSize: 20,
-            }}
-          >
-            M
-          </div>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#0a0a0a' }}>Mezo Passport</div>
-            <div style={{ fontSize: 11, color: '#888' }}>Smart account · Chain ID 31611</div>
-          </div>
-          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <motion.div
-              animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: '50%',
-                background: isConnected ? '#22c55e' : accent,
-              }}
-            />
-            <span style={{ fontSize: 12, fontWeight: 600, color: isConnected ? '#22c55e' : accent }}>
-              {isConnected ? 'Connected' : 'Waiting…'}
-            </span>
-          </div>
-        </div>
+      <ConnectButton.Custom>
+        {({ openConnectModal, mounted }) => {
+          const ready = mounted;
+          
+          const handleButtonClick = () => {
+            if (!ready) return;
+            if (!isConnected) {
+              openConnectModal();
+            } else if (!isAuthenticated) {
+              handleSignIn();
+            } else {
+              onNext();
+            }
+          };
 
-        {isConnected ? (
-          <div
-            style={{
-              background: '#f0fdf4',
-              border: '1px solid rgba(34,197,94,0.3)',
-              borderRadius: 8,
-              padding: '12px 16px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-            }}
-          >
-            <span style={{ fontSize: 18 }}>🎉</span>
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#15803d' }}>Passport connected</div>
-              <div style={{ fontSize: 11, color: '#888', fontFamily: 'monospace' }}>
-                {address ? `${address.slice(0, 6)}…${address.slice(-4)}` : ''}
-              </div>
+          const getButtonLabel = () => {
+            if (!ready) return 'Loading...';
+            if (!isConnected) return 'Connect Mezo Passport →';
+            if (isLoading) return 'Signing in...';
+            if (!isAuthenticated) return 'Sign In to Presight →';
+            return 'Continue →';
+          };
+
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <SlideButton 
+                onClick={handleButtonClick} 
+                disabled={!ready || isLoading} 
+                accent={accent} 
+                delay={0.42}
+              >
+                {getButtonLabel()}
+              </SlideButton>
+              {error && <div style={{ color: 'red', fontSize: 13, textAlign: 'center' }}>{error}</div>}
             </div>
-          </div>
-        ) : (
-          <ConnectButton.Custom>
-            {({ openConnectModal, mounted, account, chain }) => {
-              const ready = mounted;
-              const connected = ready && account && chain;
-              return (
-                <div
-                  {...(!ready && {
-                    'aria-hidden': true,
-                    style: { opacity: 0, pointerEvents: 'none', userSelect: 'none' },
-                  })}
-                >
-                  {!connected && (
-                    <SlideButton onClick={openConnectModal} accent={accent}>
-                      Connect Mezo Passport
-                    </SlideButton>
-                  )}
-                </div>
-              );
-            }}
-          </ConnectButton.Custom>
-        )}
-      </motion.div>
-
-      <SlideButton onClick={onNext} disabled={!isConnected} accent={accent} delay={0.55}>
-        {isConnected ? 'Continue →' : 'Connect to continue'}
-      </SlideButton>
+          );
+        }}
+      </ConnectButton.Custom>
     </div>
   );
 }
 
 /* ─── Screen 3 — MUSD Balance ────────────────────────────────── */
 function Screen3({ onNext, accent }: { onNext: () => void; accent: string }) {
-  const musdBalance = 0;
-  const btcCollateral = 0.5;
+  const { address } = useAccount();
+  const { token } = useSiweAuth();
+  const { data: balance, isLoading: isBalanceLoading } = useBalance({
+    address,
+    token: '0x507Ac33B7B1332b4488AE772fB116cb2E0EA0511', // mUSD Address on Mezo Testnet
+  });
+
+  const { data: troveData, isLoading: isTroveLoading } = useTrove(token);
+
+  const musdBalance = balance ? parseFloat(formatUnits(balance.value, balance.decimals)) : 0;
+  const btcCollateral = troveData ? parseFloat(troveData.troveBalance) : 0.5;
   const hasMusd = musdBalance > 0;
 
   const infoCards = [
     {
       title: 'BTC Collateral',
-      desc: `${btcCollateral} BTC locked in Mezo vault · ≈ $33,500`,
+      desc: isTroveLoading ? 'Loading vault...' : `${btcCollateral.toFixed(2)} BTC locked in Mezo vault · ≈ $${(btcCollateral * 67000).toLocaleString()}`,
     },
     {
-      title: hasMusd ? `${musdBalance} MUSD available` : 'You have 0 MUSD',
+      title: isBalanceLoading ? 'Checking balance...' : hasMusd ? `${musdBalance.toFixed(2)} MUSD available` : 'You have 0 MUSD',
       desc: hasMusd
         ? "You're ready to stake in prediction markets."
         : 'Mint MUSD against your BTC collateral to join any market.',
@@ -715,6 +682,14 @@ function Screen3({ onNext, accent }: { onNext: () => void; accent: string }) {
       desc: `From your ${btcCollateral} BTC · instant, gasless`,
     },
   ];
+
+  const handleAction = () => {
+    if (!hasMusd && !isBalanceLoading) {
+      window.open('https://mezo.org/borrow', '_blank');
+    } else {
+      onNext();
+    }
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
@@ -759,8 +734,8 @@ function Screen3({ onNext, accent }: { onNext: () => void; accent: string }) {
         ))}
       </motion.div>
 
-      <SlideButton onClick={onNext} accent={accent} delay={0.48}>
-        {hasMusd ? 'Continue →' : 'Continue anyway →'}
+      <SlideButton onClick={handleAction} accent={accent} delay={0.48}>
+        {isBalanceLoading ? 'Syncing...' : hasMusd ? 'Continue →' : 'Mint mUSD →'}
       </SlideButton>
     </div>
   );
@@ -770,6 +745,47 @@ function Screen3({ onNext, accent }: { onNext: () => void; accent: string }) {
 function Screen4({ onNext, accent }: { onNext: () => void; accent: string }) {
   const [limit, setLimit] = useState(200);
   const MAX = 1000;
+
+  const { token } = useSiweAuth();
+  const { setMandate, getMandate } = useMandate(token);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Sync existing mandate on mount
+  useEffect(() => {
+    if (token) {
+      getMandate.execute().then(res => {
+        if (res.data?.limitPerMarket) {
+          const formatted = parseFloat(formatUnits(BigInt(res.data.limitPerMarket), 18));
+          setLimit(Math.min(formatted, MAX));
+        }
+      });
+    }
+  }, [token]);
+
+  const handleApprove = async () => {
+    setIsSubmitting(true);
+    setErrorMsg(null);
+    try {
+      const limitWei = parseEther(limit.toString()).toString();
+      const result = await setMandate.execute({ limitPerMarket: limitWei });
+      if (result.error) {
+        setErrorMsg(result.error);
+      } else {
+        onNext();
+      }
+    } catch (e) {
+      setErrorMsg("Failed to approve mandate");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const benefits = [
+    { title: 'Gasless Staking', desc: 'Protocol covers your fees' },
+    { title: 'One-Click UX', desc: 'No transaction prompts' },
+    { title: 'Total Control', desc: 'Revoke limit anytime' }
+  ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
@@ -822,81 +838,104 @@ function Screen4({ onNext, accent }: { onNext: () => void; accent: string }) {
         </div>
 
         {/* Track */}
-        <div style={{ position: 'relative', marginBottom: 6 }}>
-          <div style={{ height: 5, background: '#ebebeb', borderRadius: 100, overflow: 'hidden' }}>
-            <div
-              style={{
-                width: `${(limit / MAX) * 100}%`,
-                height: '100%',
-                background: accent,
-                borderRadius: 100,
-                transition: 'width 0.1s',
-              }}
+        <div style={{ position: 'relative', height: 40, display: 'flex', alignItems: 'center', marginBottom: 12 }}>
+          <div style={{ position: 'absolute', width: '100%', height: 6, background: '#f0f0f0', borderRadius: 10, overflow: 'hidden' }}>
+            <motion.div
+              initial={false}
+              animate={{ width: `${(limit / MAX) * 100}%` }}
+              style={{ height: '100%', background: accent, borderRadius: 10 }}
             />
           </div>
           <input
             type="range"
-            min={10}
+            min={50}
             max={MAX}
-            step={10}
+            step={50}
             value={limit}
             onChange={(e) => setLimit(Number(e.target.value))}
             style={{
-              position: 'absolute',
-              inset: 0,
+              position: 'relative',
               width: '100%',
+              height: 40,
               opacity: 0,
               cursor: 'pointer',
-              height: 20,
-              top: -7,
+              zIndex: 10
+            }}
+          />
+          {/* Custom Thumb */}
+          <motion.div
+            initial={false}
+            animate={{ left: `calc(${(limit / MAX) * 100}% - 12px)` }}
+            style={{
+              position: 'absolute',
+              width: 24,
+              height: 24,
+              background: 'white',
+              border: `3px solid ${accent}`,
+              borderRadius: '50%',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+              pointerEvents: 'none'
             }}
           />
         </div>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            fontSize: 11,
-            color: '#bbb',
-            marginBottom: 20,
-          }}
-        >
-          <span>10 MUSD</span>
-          <span>1,000 MUSD</span>
-        </div>
-
         {/* Presets */}
-        <div style={{ display: 'flex', gap: 8 }}>
-          {[100, 250, 500].map((v) => (
-            <motion.button
-              key={v}
-              onClick={() => setLimit(v)}
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.97 }}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
+          {[100, 250, 500, 1000].map(val => (
+            <button
+              key={val}
+              onClick={() => setLimit(val)}
               style={{
                 flex: 1,
-                padding: '8px 0',
-                border: `1px solid ${limit === v ? accent : 'rgba(0,0,0,0.12)'}`,
-                borderRadius: 3,
-                background: limit === v ? accent : 'transparent',
-                color: limit === v ? '#0a0a0a' : '#555',
-                fontSize: 13,
-                fontWeight: 600,
+                padding: '8px 4px',
+                borderRadius: 8,
+                fontSize: 12,
+                fontWeight: 700,
+                background: limit === val ? accent : '#f8f8f8',
+                color: limit === val ? 'white' : '#666',
+                border: 'none',
                 cursor: 'pointer',
-                transition: 'all 0.2s ease',
+                transition: 'all 0.2s'
               }}
             >
-              {v}
-            </motion.button>
+              ${val}
+            </button>
           ))}
         </div>
       </motion.div>
 
+      {/* Benefits cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+        {benefits.map((b, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 + i * 0.1 }}
+            style={{
+              background: 'rgba(255,255,255,0.6)',
+              padding: '12px 8px',
+              borderRadius: 12,
+              border: '1px solid rgba(0,0,0,0.04)',
+              textAlign: 'center'
+            }}
+          >
+            <div style={{ fontSize: 11, fontWeight: 800, color: '#333', marginBottom: 2 }}>{b.title}</div>
+            <div style={{ fontSize: 10, color: '#888', lineHeight: 1.2 }}>{b.desc}</div>
+          </motion.div>
+        ))}
+      </div>
 
-
-      <SlideButton onClick={onNext} accent={accent} delay={0.5}>
-        Approve {limit} MUSD limit →
-      </SlideButton>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <SlideButton 
+          onClick={handleApprove} 
+          disabled={isSubmitting} 
+          accent={accent} 
+          delay={0.55}
+        >
+          {isSubmitting ? 'Registering...' : getMandate.data ? 'Update Limit →' : 'Enable Magic Staking →'}
+        </SlideButton>
+        {errorMsg && <div style={{ color: 'red', fontSize: 13, textAlign: 'center' }}>{errorMsg}</div>}
+      </div>
     </div>
   );
 }
@@ -932,7 +971,7 @@ function OnboardingModeCard({
   const accentColor = isGreen ? '#22c55e' : '#EF476F';
   const bgColor = isGreen ? '#e8ede4' : '#fde8ec';
   const gridColor = isGreen ? 'rgba(100,120,80,0.15)' : 'rgba(200,50,80,0.10)';
-  
+
   return (
     <motion.div
       onClick={onClick}
@@ -945,8 +984,8 @@ function OnboardingModeCard({
         position: 'relative',
         flex: 1,
         border: '1px solid rgba(0,0,0,0.07)',
-        boxShadow: isSelected 
-          ? `0 0 0 3px ${accentColor}, 0 8px 32px rgba(0,0,0,0.1)` 
+        boxShadow: isSelected
+          ? `0 0 0 3px ${accentColor}, 0 8px 32px rgba(0,0,0,0.1)`
           : '0 4px 24px rgba(0,0,0,0.07)',
         display: 'flex',
         flexDirection: 'column',
@@ -963,10 +1002,10 @@ function OnboardingModeCard({
       <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
         <defs>
           <pattern id={`grid-price-select-${variant}`} width="30" height="30" patternUnits="userSpaceOnUse">
-            <path d="M 30 0 L 0 0 0 30" fill="none" stroke={gridColor} strokeWidth="0.8"/>
+            <path d="M 30 0 L 0 0 0 30" fill="none" stroke={gridColor} strokeWidth="0.8" />
           </pattern>
         </defs>
-        <rect width="100%" height="100%" fill={`url(#grid-price-select-${variant})`}/>
+        <rect width="100%" height="100%" fill={`url(#grid-price-select-${variant})`} />
       </svg>
       <div
         style={{
@@ -1105,13 +1144,25 @@ function Screen5({ onDone, accent, onModeChange }: { onDone: () => void; accent:
   );
 }
 
-/* ─── Main Onboarding Page ───────────────────────────────────── */
 export default function OnboardingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <OnboardingContent />
+    </Suspense>
+  );
+}
+
+function OnboardingContent() {
   const [step, setStep] = useState(0);
   const [dir, setDir] = useState(1);
   const [continueSignal, setContinueSignal] = useState(0);
   const [selectedMode, setSelectedMode] = useState<Mode>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const inviter = searchParams.get('inviter');
+  const groupName = searchParams.get('group');
+
   const TOTAL = 5;
 
   const accent = SCREEN_COLORS[step];
@@ -1120,8 +1171,8 @@ export default function OnboardingPage() {
     step === 4 && selectedMode === 'zero-risk'
       ? '#22c55e'
       : step === 4 && selectedMode === 'full-stake'
-      ? '#EF476F'
-      : accent;
+        ? '#EF476F'
+        : accent;
 
   const go = (next: number) => {
     setDir(next > step ? 1 : -1);
@@ -1134,7 +1185,7 @@ export default function OnboardingPage() {
   };
 
   const screens = [
-    <Screen1 key="s1" onNext={() => go(1)} accent={SCREEN_COLORS[0]} />,
+    <Screen1 key="s1" onNext={() => go(1)} accent={SCREEN_COLORS[0]} inviter={inviter} groupName={groupName} />,
     <Screen2 key="s2" onNext={() => go(2)} accent={SCREEN_COLORS[1]} />,
     <Screen3 key="s3" onNext={() => go(3)} accent={SCREEN_COLORS[2]} />,
     <Screen4 key="s4" onNext={() => go(4)} accent={SCREEN_COLORS[3]} />,
@@ -1250,18 +1301,18 @@ export default function OnboardingPage() {
             />
 
             {/* Map grid lines */}
-            <motion.svg 
-              width="100%" height="100%" 
+            <motion.svg
+              width="100%" height="100%"
               style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, opacity: 0.3 }}
               animate={{ color: boardAccent }}
               transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
             >
               <defs>
                 <pattern id="grid-onboarding" width="30" height="30" patternUnits="userSpaceOnUse">
-                  <path d="M 30 0 L 0 0 0 30" fill="none" stroke="currentColor" strokeWidth="1"/>
+                  <path d="M 30 0 L 0 0 0 30" fill="none" stroke="currentColor" strokeWidth="1" />
                 </pattern>
               </defs>
-              <rect width="100%" height="100%" fill="url(#grid-onboarding)"/>
+              <rect width="100%" height="100%" fill="url(#grid-onboarding)" />
             </motion.svg>
 
             {/* Inner White Card Content */}

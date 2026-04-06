@@ -71,8 +71,9 @@ export function encodeSignatureAsToken(
   message: string,
   signature: string
 ): string {
-  const combined = `${message}|${signature}`;
-  return Buffer.from(combined).toString("base64");
+  const combined = JSON.stringify({ message, signature });
+  // Use btoa for browser-compatible base64 encoding
+  return btoa(combined);
 }
 
 /**
@@ -193,6 +194,16 @@ export const profileApi = {
 export const yieldApi = {
   getAccrued: (token: string) =>
     apiRequest("/api/v1/yield/accrued", {
+      token,
+    }),
+};
+
+/**
+ * Trove API endpoints
+ */
+export const troveApi = {
+  get: (token: string) =>
+    apiRequest("/api/v1/trove", {
       token,
     }),
 };
