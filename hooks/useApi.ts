@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useRef, useMemo } from 'react';
 import {
   groupApi,
   marketApi,
@@ -23,12 +23,17 @@ function useApiCall<T, P extends any[]>(
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const apiFunctionRef = useRef(apiFunction);
+  useEffect(() => {
+    apiFunctionRef.current = apiFunction;
+  }, [apiFunction]);
+
   const execute = useCallback(
     async (...args: P) => {
       setLoading(true);
       setError(null);
       try {
-        const result = await apiFunction(...args);
+        const result = await apiFunctionRef.current(...args);
         if (result.error) {
           setError(result.error);
           return { data: null, error: result.error };
@@ -43,7 +48,7 @@ function useApiCall<T, P extends any[]>(
         setLoading(false);
       }
     },
-    [apiFunction]
+    []
   );
 
   return { data, loading, error, execute };
@@ -54,35 +59,44 @@ function useApiCall<T, P extends any[]>(
  */
 export function useGroups(token?: string) {
   const createGroup = useApiCall(
-    (data: { name: string; description?: string }) =>
-      groupApi.create(token || '', data),
+    useCallback(
+      (data: { name: string; description?: string }) =>
+        groupApi.create(token || "", data),
+      [token]
+    ),
     false
   );
 
   const joinGroup = useApiCall(
-    (groupId: string) => groupApi.join(token || '', groupId),
+    useCallback((groupId: string) => groupApi.join(token || "", groupId), [token]),
     false
   );
 
   const getGroup = useApiCall(
-    (groupId: string) => groupApi.getGroup(groupId),
+    useCallback((groupId: string) => groupApi.getGroup(groupId), []),
     false
   );
 
   const getLeaderboard = useApiCall(
-    (groupId: string) => groupApi.getLeaderboard(groupId),
+    useCallback((groupId: string) => groupApi.getLeaderboard(groupId), []),
     false
   );
 
-  const listGroups = useApiCall(() => groupApi.list(), false);
+  const listGroups = useApiCall(
+    useCallback(() => groupApi.list(), []),
+    false
+  );
 
-  return {
-    createGroup,
-    joinGroup,
-    getGroup,
-    getLeaderboard,
-    listGroups,
-  };
+  return useMemo(
+    () => ({
+      createGroup,
+      joinGroup,
+      getGroup,
+      getLeaderboard,
+      listGroups,
+    }),
+    [createGroup, joinGroup, getGroup, getLeaderboard, listGroups]
+  );
 }
 
 /**
@@ -90,33 +104,39 @@ export function useGroups(token?: string) {
  */
 export function useMarkets(token?: string) {
   const createMarket = useApiCall(
-    (data: {
-      groupId: string;
-      question: string;
-      description?: string;
-      endTime: number;
-      stakeMode: 'full-stake' | 'zero-risk';
-      poolA?: string;
-      poolB?: string;
-    }) => marketApi.create(token || '', data),
+    useCallback(
+      (data: {
+        groupId: string;
+        question: string;
+        description?: string;
+        endTime: number;
+        stakeMode: "full-stake" | "zero-risk";
+        poolA?: string;
+        poolB?: string;
+      }) => marketApi.create(token || "", data),
+      [token]
+    ),
     false
   );
 
   const getMarket = useApiCall(
-    (marketId: string) => marketApi.getMarket(marketId),
+    useCallback((marketId: string) => marketApi.getMarket(marketId), []),
     false
   );
 
   const listMarkets = useApiCall(
-    (groupId?: string) => marketApi.list(groupId),
+    useCallback((groupId?: string) => marketApi.list(groupId), []),
     false
   );
 
-  return {
-    createMarket,
-    getMarket,
-    listMarkets,
-  };
+  return useMemo(
+    () => ({
+      createMarket,
+      getMarket,
+      listMarkets,
+    }),
+    [createMarket, getMarket, listMarkets]
+  );
 }
 
 /**
@@ -124,20 +144,26 @@ export function useMarkets(token?: string) {
  */
 export function useStakes(token?: string) {
   const placeStake = useApiCall(
-    (data: { marketId: string; outcome: 'YES' | 'NO'; amount: string }) =>
-      stakeApi.place(token || '', data),
+    useCallback(
+      (data: { marketId: string; outcome: "YES" | "NO"; amount: string }) =>
+        stakeApi.place(token || "", data),
+      [token]
+    ),
     false
   );
 
   const getStakes = useApiCall(
-    (marketId: string) => stakeApi.list(marketId),
+    useCallback((marketId: string) => stakeApi.list(marketId), []),
     false
   );
 
-  return {
-    placeStake,
-    getStakes,
-  };
+  return useMemo(
+    () => ({
+      placeStake,
+      getStakes,
+    }),
+    [placeStake, getStakes]
+  );
 }
 
 /**
@@ -145,26 +171,31 @@ export function useStakes(token?: string) {
  */
 export function useMandate(token?: string) {
   const setMandate = useApiCall(
-    (data: { limitPerMarket: string }) =>
-      mandateApi.set(token || '', data),
+    useCallback(
+      (data: { limitPerMarket: string }) => mandateApi.set(token || "", data),
+      [token]
+    ),
     false
   );
 
   const getMandate = useApiCall(
-    () => mandateApi.get(token || ''),
+    useCallback(() => mandateApi.get(token || ""), [token]),
     false
   );
 
   const revokeMandate = useApiCall(
-    () => mandateApi.revoke(token || ''),
+    useCallback(() => mandateApi.revoke(token || ""), [token]),
     false
   );
 
-  return {
-    setMandate,
-    getMandate,
-    revokeMandate,
-  };
+  return useMemo(
+    () => ({
+      setMandate,
+      getMandate,
+      revokeMandate,
+    }),
+    [setMandate, getMandate, revokeMandate]
+  );
 }
 
 /**
@@ -172,13 +203,16 @@ export function useMandate(token?: string) {
  */
 export function useYield(token?: string) {
   const getAccruedYield = useApiCall(
-    () => yieldApi.getAccrued(token || ''),
+    useCallback(() => yieldApi.getAccrued(token || ""), [token]),
     false
   );
 
-  return {
-    getAccruedYield,
-  };
+  return useMemo(
+    () => ({
+      getAccruedYield,
+    }),
+    [getAccruedYield]
+  );
 }
 
 /**
@@ -186,27 +220,36 @@ export function useYield(token?: string) {
  */
 export function useResolver(token?: string) {
   const getNotifications = useApiCall(
-    () => resolverApi.getNotifications(token || ''),
+    useCallback(() => resolverApi.getNotifications(token || ""), [token]),
     false
   );
 
   const resolveMarket = useApiCall(
-    (marketId: string, data: { outcome: 'YES' | 'NO' }) =>
-      resolverApi.resolve(token || '', marketId, data),
+    useCallback(
+      (marketId: string, data: { outcome: "YES" | "NO" }) =>
+        resolverApi.resolve(token || "", marketId, data),
+      [token]
+    ),
     false
   );
 
-  return {
-    getNotifications,
-    resolveMarket,
-  };
+  return useMemo(
+    () => ({
+      getNotifications,
+      resolveMarket,
+    }),
+    [getNotifications, resolveMarket]
+  );
 }
 
 /**
  * Hook for trove operations
  */
 export function useTrove(token?: string) {
-  const getTrove = useApiCall(() => troveApi.get(token || ''), false);
+  const getTrove = useApiCall(
+    useCallback(() => troveApi.get(token || ""), [token]),
+    false
+  );
 
   useEffect(() => {
     if (token) {
@@ -214,25 +257,37 @@ export function useTrove(token?: string) {
     }
   }, [token]);
 
-  return {
-    ...getTrove,
-    isLoading: getTrove.loading,
-  };
+  return useMemo(
+    () => ({
+      ...getTrove,
+      isLoading: getTrove.loading,
+    }),
+    [getTrove]
+  );
 }
 
 /**
  * Hook for profile operations
  */
 export function useProfile(token?: string) {
-  const getProfile = useApiCall(() => profileApi.get(token || ''), false);
+  const getProfile = useApiCall(
+    useCallback(() => profileApi.get(token || ""), [token]),
+    false
+  );
   const onboardProfile = useApiCall(
-    (data: { defaultRiskMode: 'zero-risk' | 'full-stake' }) =>
-      profileApi.onboard(token || '', data),
+    useCallback(
+      (data: { defaultRiskMode: "zero-risk" | "full-stake" }) =>
+        profileApi.onboard(token || "", data),
+      [token]
+    ),
     false
   );
 
-  return {
-    getProfile,
-    onboardProfile,
-  };
+  return useMemo(
+    () => ({
+      getProfile,
+      onboardProfile,
+    }),
+    [getProfile, onboardProfile]
+  );
 }

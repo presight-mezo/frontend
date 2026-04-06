@@ -15,18 +15,17 @@ export function useGetStartedUrl() {
         const res = await getProfile.execute();
         if (res.data) {
           const { onboardingCompleted, hasMandate } = res.data as any;
-          if (onboardingCompleted || hasMandate) {
-            setUrl('/app/dashboard');
-          } else {
-            setUrl('/app/onboarding');
+          const targetUrl = onboardingCompleted || hasMandate ? '/app/dashboard' : '/app/onboarding';
+          if (url !== targetUrl) {
+            setUrl(targetUrl);
           }
         }
       };
       checkStatus();
-    } else {
+    } else if (url !== '/app/onboarding') {
       setUrl('/app/onboarding');
     }
-  }, [isAuthenticated, token, getProfile.execute]);
+  }, [isAuthenticated, token]);
 
   return url;
 }

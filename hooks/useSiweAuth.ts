@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useMemo } from 'react';
 import { useAccount, useSignMessage } from 'wagmi';
 import { SiweMessage } from 'siwe';
 import { encodeSignatureAsToken, profileApi } from '@/lib/api';
@@ -145,10 +145,13 @@ export function useSiweAuth() {
     }
   }, [address, restoreToken, authState.isAuthenticated]);
 
-  return {
-    ...authState,
-    signIn,
-    signOut,
-    restoreToken,
-  };
+  return useMemo(
+    () => ({
+      ...authState,
+      signIn,
+      signOut,
+      restoreToken,
+    }),
+    [authState, signIn, signOut, restoreToken]
+  );
 }
