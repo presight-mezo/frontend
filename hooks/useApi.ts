@@ -83,7 +83,7 @@ export function useGroups(token?: string) {
   );
 
   const listGroups = useApiCall(
-    useCallback(() => groupApi.list(), []),
+    useCallback(() => groupApi.list(token || ""), [token]),
     false
   );
 
@@ -111,6 +111,7 @@ export function useMarkets(token?: string) {
         description?: string;
         endTime: number;
         stakeMode: "full-stake" | "zero-risk";
+        resolverAddress: string;
         poolA?: string;
         poolB?: string;
       }) => marketApi.create(token || "", data),

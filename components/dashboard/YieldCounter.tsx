@@ -17,10 +17,15 @@ const YieldCounter: React.FC<YieldCounterProps> = ({
 }) => {
   const [accrued, setAccrued] = useState(initialAmount);
 
+  // Sync internal state with prop changes (from API refreshes)
+  useEffect(() => {
+    setAccrued(initialAmount);
+  }, [initialAmount]);
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setAccrued((prev) => prev + ratePerSecond * 10);
-    }, 10000); // tick every 10s for demo smoothness
+      setAccrued((prev) => prev + ratePerSecond);
+    }, 1000); // tick every 1s for better "live" feel
 
     return () => clearInterval(interval);
   }, [ratePerSecond]);

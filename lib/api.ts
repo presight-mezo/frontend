@@ -99,7 +99,7 @@ export const groupApi = {
   getLeaderboard: (groupId: string) =>
     apiRequest(`/api/v1/groups/${groupId}/leaderboard`),
 
-  list: () => apiRequest("/api/v1/groups"),
+  list: (token: string) => apiRequest("/api/v1/groups", { token }),
 };
 
 /**
@@ -114,6 +114,7 @@ export const marketApi = {
       description?: string;
       endTime: number;
       stakeMode: "full-stake" | "zero-risk";
+      resolverAddress: string;
       poolA?: string;
       poolB?: string;
     }

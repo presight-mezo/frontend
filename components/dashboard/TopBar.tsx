@@ -3,100 +3,164 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAccount } from "wagmi";
+import { useSiweAuth } from "@/hooks/useSiweAuth";
+import { useYield, useMandate, useResolver, useGroups } from "@/hooks/useApi";
 import WalletBadge from "@/components/dashboard/WalletBadge";
+import YieldCounter from "@/components/dashboard/YieldCounter";
 import Image from "next/image";
-
-const navItems = [
-  { icon: "candlestick_chart", label: "Markets", href: "/app/dashboard" },
-  { icon: "groups", label: "Groups", href: "/app/groups" },
-  { icon: "person", label: "Profile", href: "/app/settings" },
-];
-
-const MOCK_ADDRESS = "0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b";
+import { useEffect, useMemo } from "react";
 
 const TopBar = () => {
   const pathname = usePathname();
+  const { address } = useAccount();
+  const { token, isAuthenticated } = useSiweAuth();
+
+  // Data hooks
+  const { getAccruedYield } = useYield(token);
+  const { getMandate } = useMandate(token);
+  const { getNotifications } = useResolver(token);
+  const { getGroup } = useGroups(token);
+
+  // Extract group ID from pathname
+  const groupId = useMemo(() => {
+    const segments = pathname.split("/").filter(Boolean);
+    const groupsIndex = segments.indexOf("groups");
+    return groupsIndex !== -1 && segments[groupsIndex + 1] ? segments[groupsIndex + 1] : null;
+  }, [pathname]);
+
+  // Fetch group details when group ID changes
+  useEffect(() => {
+    if (groupId) {
+      getGroup.execute(groupId);
+    }
+  }, [groupId, getGroup.execute]);
+
+  // Global data fetch on auth
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      getAccruedYield.execute();
+      getMandate.execute();
+      getNotifications.execute();
+    }
+  }, [isAuthenticated, token, getAccruedYield.execute, getMandate.execute, getNotifications.execute]);
+
+  // Simple breadcrumb logic based on pathname
+  const getBreadcrumbs = () => {
+    const segments = pathname.split("/").filter(Boolean);
+    // Remove 'app' from segments for cleaner breadcrumbs
+    let crumbs = segments.filter((s: string) => s !== "app" && s !== "(dashboard)");
+    
+    // Replace group ID with group name
+    if (groupId && getGroup.data) {
+      crumbs = crumbs.map((crumb: string) => 
+        crumb === groupId ? (getGroup.data as any)?.name || groupId : crumb
+      );
+    }
+    
+    return (
+      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest leading-none">
+        <span className="text-gray-400">Presight</span>
+        <span className="text-gray-300">/</span>
+        {crumbs.map((crumb: string, i: number) => (
+          <React.Fragment key={crumb}>
+            <span className="text-black group-hover:text-primary transition-colors">
+              {crumb.replace(/-/g, " ")}
+            </span>
+            {i < crumbs.length - 1 && <span className="text-gray-300">/</span>}
+          </React.Fragment>
+        ))}
+      </div>
+    );
+  };
+
+  const notificationCount = getNotifications.data?.length || 0;
+  const isMandateActive = !!getMandate.data;
+  const accruedYield = (getAccruedYield.data as any)?.accruedAmount || 0;
 
   return (
     <header className="sticky top-0 flex justify-between items-center w-full !pl-[140px] !pr-[32px] h-20 bg-white/80 backdrop-blur-xl border-b border-black/[0.05] font-headline z-30">
-      {/* Left: Nav + Search */}
-      <div className="flex items-center gap-4 flex-1">
-        <nav className="flex items-center gap-1">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link key={item.href} href={item.href}>
-                <button
-                  className={`!px-4 !py-2.5 rounded-full flex items-center gap-2 transition-all font-bold text-sm uppercase tracking-wide ${
-                    isActive
-                      ? "bg-black text-white shadow-md hover:scale-105 active:scale-95"
-                      : "text-gray-500 hover:text-black hover:bg-gray-100"
-                  }`}
-                >
-                  <span
-                    className="material-symbols-outlined text-lg"
-                    style={{ fontVariationSettings: isActive ? "'wght' 600" : "'wght' 400" }}
-                  >
-                    {item.icon}
-                  </span>
-                  {item.label}
-                </button>
-              </Link>
-            );
-          })}
-        </nav>
+      {/* Left: Breadcrumbs */}
+      <div className="flex items-center gap-8 flex-1">
+        <div className="group cursor-default pt-0.5">
+          {getBreadcrumbs()}
+        </div>
 
-        {/* Search */}
-        <div className="hidden md:flex items-center flex-1 max-w-sm bg-gray-100 px-4 py-2 rounded-full border border-black/[0.05] group focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/10 transition-all">
+        {/* Search - More prominent and centered-ish */}
+        <div className="hidden md:flex items-center flex-1 max-w-md bg-gray-50 px-5 py-2.5 rounded-2xl border border-black/[0.03] group focus-within:bg-white focus-within:border-primary/20 focus-within:ring-4 focus-within:ring-primary/5 transition-all duration-300">
           <span
-            className="material-symbols-outlined text-gray-400 group-focus-within:text-black transition-colors text-lg"
-            style={{ fontVariationSettings: "'wght' 400" }}
+            className="material-symbols-outlined text-gray-400 group-focus-within:text-primary transition-colors text-lg"
+            style={{ fontVariationSettings: "'wght' 500" }}
           >
             search
           </span>
           <input
             type="text"
             placeholder="Search markets, groups, or questions…"
-            className="bg-transparent border-none focus:ring-0 text-sm ml-2 w-full text-black placeholder:text-gray-400 font-medium"
+            className="bg-transparent border-none focus:ring-0 text-sm ml-3 w-full text-black placeholder:text-gray-400 font-medium"
           />
+          <div className="flex items-center gap-1 px-1.5 py-1 bg-black/[0.03] rounded-md border border-black/[0.05]">
+             <span className="text-[10px] font-black text-gray-400">⌘</span>
+             <span className="text-[10px] font-black text-gray-400">K</span>
+          </div>
         </div>
       </div>
 
-      {/* Right: Mandate + Wallet + Avatar */}
-      <div className="flex items-center gap-3">
-        {/* Mandate Status Pill */}
-        <Link href="/app/onboard" className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-accent-green/10 border border-accent-green/20 rounded-full hover:bg-accent-green/20 transition-all cursor-pointer group">
-          <span className="w-1.5 h-1.5 rounded-full bg-accent-green animate-pulse" />
-          <span className="text-[10px] font-bold uppercase tracking-widest text-accent-green group-hover:text-accent-green/80">
-            Mandate Active
-          </span>
-        </Link>
+      {/* Right: Stats + Wallet + Avatar */}
+      <div className="flex items-center gap-4">
+        {isAuthenticated && (
+          <>
+            {/* Yield Counter (Live) */}
+            <div className="hidden xl:block">
+              <YieldCounter 
+                initialAmount={accruedYield}
+                className="!bg-accent-green/5 !border-accent-green/10 !text-accent-green" 
+              />
+            </div>
 
-        <WalletBadge address={MOCK_ADDRESS} />
+            {/* Mandate Status Pill */}
+            {isMandateActive && (
+              <Link href="/app/onboarding" className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-accent-orange/10 border border-accent-orange/20 rounded-full hover:bg-accent-orange/20 transition-all cursor-pointer group">
+                <span className="w-1.5 h-1.5 rounded-full bg-accent-orange animate-pulse" />
+                <span className="text-[10px] font-bold uppercase tracking-widest text-accent-orange group-hover:text-accent-orange/80">
+                  Mandate Active
+                </span>
+              </Link>
+            )}
+          </>
+        )}
 
-        <div className="flex items-center gap-3 pl-2 border-l border-black/[0.05]">
+        <WalletBadge address={address || ""} />
+
+        <div className="flex items-center gap-3 pl-3 border-l border-black/[0.05]">
           <div className="relative">
-            <button className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-all">
+            <button className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center hover:bg-white hover:shadow-sm border border-black/[0.03] transition-all group">
               <span
-                className="material-symbols-outlined text-lg text-gray-600"
+                className="material-symbols-outlined text-xl text-gray-400 group-hover:text-black"
                 style={{ fontVariationSettings: "'wght' 400" }}
               >
                 notifications
               </span>
             </button>
-            <span className="absolute -top-0.5 -right-0.5 bg-orange-500 w-4 h-4 rounded-full border-2 border-white text-[8px] flex items-center justify-center font-bold text-white shadow-sm">
-              2
-            </span>
+            {notificationCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-orange-500 w-4.5 h-4.5 rounded-full border-2 border-white text-[9px] flex items-center justify-center font-black text-white shadow-sm animate-bounce-subtle">
+                {notificationCount}
+              </span>
+            )}
           </div>
 
-          <div className="relative">
-            <Image
-              alt="Connected wallet avatar"
-              className="w-9 h-9 rounded-full object-cover border border-black/[0.05] shadow-sm"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDg5fES_R_2V9UqspaCkvla2sCXCJnkFNvtmkHZK9pQFGkKOWZlk8CtZZGwgHG1y8XukZekYKaUs0s2kD3lB9FvsihZI9yvZD6-fdMKux8eJBBxJL-1pSIYfHO3PK5LEa9-Ch_NDQQOqdsm-v5r9JkVfW5tg_ZAH7PzaT6D2_gJNYpnFMwKz8qIBi4OVyLJpsYmEK0qhT9y6l4ilvVVLhdkiUSSjnHj78R6Fh5wSkK8xW-RRei4erTn16TNViI3oQXLBiw_bAGP2PTm"
-              width={36}
-              height={36}
-            />
+          <div className="relative group cursor-pointer">
+            <div className="w-10 h-10 rounded-xl p-[1px] bg-gradient-to-tr from-primary to-accent-blue transition-transform group-hover:scale-105">
+              <div className="w-full h-full bg-white rounded-[11px] flex items-center justify-center overflow-hidden">
+                <Image
+                  alt="Avatar"
+                  className="w-full h-full object-cover"
+                  src={`https://effigy.im/a/${address || '0x0000000000000000000000000000000000000000'}.png`}
+                  width={40}
+                  height={40}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
