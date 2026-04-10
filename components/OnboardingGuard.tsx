@@ -17,8 +17,13 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
     // Wait for auth to settle
     if (isAuthLoading) return;
 
+    // Handle Unauthenticated State
     if (!isAuthenticated || !token) {
-      setIsReady(true);
+      if (pathname.startsWith("/app") && pathname !== "/app/onboarding") {
+        router.push("/");
+      } else {
+        setIsReady(true);
+      }
       return;
     }
 

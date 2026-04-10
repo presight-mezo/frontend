@@ -18,11 +18,11 @@ export interface AuthState {
  * Generates a SIWE message, gets user signature, and exchanges for backend token
  */
 export function useSiweAuth() {
-  const { address } = useAccount();
+  const { address, status } = useAccount();
   const { signMessageAsync } = useSignMessage();
   const [authState, setAuthState] = useState<AuthState>({
     isAuthenticated: false,
-    isLoading: false,
+    isLoading: true, // Start as loading to prevent premature redirects by guards
   });
 
   /**
@@ -135,15 +135,24 @@ export function useSiweAuth() {
         return token;
       }
     }
+    
+    // If we couldn't restore a session, we still need to stop the loading state
+    setAuthState(prev => ({ ...prev, isLoading: false }));
     return null;
   }, [address]);
 
-  // Automatically attempt to restore token on initialization when address changes
+  // Automatically attempt to restore token on initialization when address settles
   useEffect(() => {
+    // If wagmi is still initializing, wait
+    if (status === 'connecting' || status === 'reconnecting') return;
+
     if (address && !authState.isAuthenticated) {
       restoreToken();
+    } else if (status === 'disconnected') {
+      // If no wallet is connected, we're definitely done loading auth
+      setAuthState(prev => ({ ...prev, isLoading: false }));
     }
-  }, [address, restoreToken, authState.isAuthenticated]);
+  }, [address, status, restoreToken, authState.isAuthenticated]);
 
   return useMemo(
     () => ({

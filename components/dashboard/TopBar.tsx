@@ -64,7 +64,10 @@ const TopBar = () => {
         <span className="text-gray-300">/</span>
         {crumbs.map((crumb: string, i: number) => (
           <React.Fragment key={crumb}>
-            <span className="text-black group-hover:text-primary transition-colors">
+            <span 
+              className="text-black group-hover:text-primary transition-colors truncate max-w-[120px] md:max-w-[250px]"
+              title={crumb}
+            >
               {crumb.replace(/-/g, " ")}
             </span>
             {i < crumbs.length - 1 && <span className="text-gray-300">/</span>}
@@ -149,7 +152,7 @@ const TopBar = () => {
             )}
           </div>
 
-          <div className="relative group cursor-pointer">
+          <Link href={`/app/profile/${address}`} className="relative group cursor-pointer">
             <div className="w-10 h-10 rounded-xl p-[1px] bg-gradient-to-tr from-primary to-accent-blue transition-transform group-hover:scale-105">
               <div className="w-full h-full bg-white rounded-[11px] flex items-center justify-center overflow-hidden">
                 <Image
@@ -161,7 +164,7 @@ const TopBar = () => {
                 />
               </div>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </header>

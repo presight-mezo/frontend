@@ -2,7 +2,9 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useSiweAuth } from "@/hooks/useSiweAuth";
+import { useDisconnect } from "wagmi";
 
 const navItems = [
   { icon: "home", href: "/app/dashboard", label: "Dashboard" },
@@ -13,6 +15,9 @@ const navItems = [
 
 const Sidebar = () => {
   const pathname = usePathname();
+  const router = useRouter();
+  const { signOut } = useSiweAuth();
+  const { disconnect } = useDisconnect();
 
   return (
     <aside className="h-full w-full flex flex-col items-center rounded-r-[2.5rem] bg-white border-r border-black/5 font-headline tracking-tight relative">
@@ -53,14 +58,19 @@ const Sidebar = () => {
           })}
         </nav>
 
-        {/* Create Group / Market */}
+        {/* Logout */}
         <div className="mt-auto pb-14">
           <button
-            title="Create Market"
-            className="text-gray-400 hover:text-black w-12 h-12 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95"
+            onClick={() => {
+              signOut();
+              disconnect();
+              router.push("/");
+            }}
+            title="Logout"
+            className="text-red-500 hover:text-red-600 w-12 h-12 bg-red-50/50 hover:bg-red-50 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95"
           >
             <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'wght' 400" }}>
-              add
+              logout
             </span>
           </button>
         </div>

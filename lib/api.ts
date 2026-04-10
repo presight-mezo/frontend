@@ -187,12 +187,20 @@ export const profileApi = {
     apiRequest("/api/v1/profile", {
       token,
     }),
+  update: (token: string, data: { username?: string; bio?: string; avatarUrl?: string; twitter?: string }) =>
+    apiRequest("/api/v1/profile", {
+      method: "PATCH",
+      body: data,
+      token,
+    }),
   onboard: (token: string, data: { defaultRiskMode: 'zero-risk' | 'full-stake' }) =>
     apiRequest("/api/v1/profile/onboard", {
       method: "POST",
       body: data,
       token,
     }),
+  getGlobal: (address: string) =>
+    apiRequest(`/api/v1/profile/${address}/global`),
 };
 
 /**

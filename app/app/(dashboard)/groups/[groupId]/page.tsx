@@ -43,7 +43,7 @@ export default function GroupLandingPage({ params }: { params: Promise<{ groupId
   const markets = (marketsData as any[]) || [];
 
   const handleCopyInvite = () => {
-    const url = `${window.location.origin}/app/groups/${groupId}?invite=true`;
+    const url = `${window.location.origin}/group/${groupId}`;
     navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

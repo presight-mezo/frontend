@@ -283,12 +283,27 @@ export function useProfile(token?: string) {
     ),
     false
   );
+  const updateProfile = useApiCall(
+    useCallback(
+      (data: { username?: string; bio?: string; avatarUrl?: string; twitter?: string }) =>
+        profileApi.update(token || "", data),
+      [token]
+    ),
+    false
+  );
+
+  const getGlobalProfile = useApiCall(
+    useCallback((address: string) => profileApi.getGlobal(address), []),
+    false
+  );
 
   return useMemo(
     () => ({
       getProfile,
       onboardProfile,
+      updateProfile,
+      getGlobalProfile,
     }),
-    [getProfile, onboardProfile]
+    [getProfile, onboardProfile, updateProfile, getGlobalProfile]
   );
 }

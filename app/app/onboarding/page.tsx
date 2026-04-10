@@ -6,8 +6,21 @@ import { useAccount, useBalance } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSiweAuth } from '@/hooks/useSiweAuth';
-import { useMandate, useTrove, useProfile } from '@/hooks/useApi';
+import { useMandate, useTrove, useProfile, useGroups } from '@/hooks/useApi';
 import { parseEther, formatUnits } from 'viem';
+import {
+  Users,
+  ShieldCheck,
+  Zap,
+  Lock,
+  ArrowUpRight,
+  Wallet,
+  TrendingUp,
+  Activity,
+  UserCheck,
+  CircleCheckBig,
+  Smartphone
+} from 'lucide-react';
 
 /* ─── Types ──────────────────────────────────────────────────── */
 type Mode = 'zero-risk' | 'full-stake' | null;
@@ -438,21 +451,6 @@ const variants = {
 
 /* ─── Screen 1 — Welcome / Invite context ────────────────────── */
 function Screen1({ onNext, accent, inviter, groupName }: { onNext: () => void; accent: string; inviter?: string | null; groupName?: string | null }) {
-  const values = [
-    {
-      title: 'Social-first markets',
-      desc: 'Predict alongside your circle, not faceless strangers.',
-    },
-    {
-      title: 'Only your yield is ever at stake',
-      desc: 'Your Bitcoin principal stays safe, always. Only the interest plays.',
-    },
-    {
-      title: 'Bitcoin-native, gasless',
-      desc: 'Stake in MUSD, the native Mezo stablecoin. Zero gas limits.',
-    },
-  ];
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
       {/* Invite pill — Only shows if params exist */}
@@ -518,23 +516,60 @@ function Screen1({ onNext, accent, inviter, groupName }: { onNext: () => void; a
         </p>
       </motion.div>
 
-      {/* Value props — Limoncello cards */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.28, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-        style={{ display: 'flex', flexDirection: 'column', gap: 0, border: '1px solid rgba(0,0,0,0.08)', overflow: 'hidden', borderRadius: 16 }}
-      >
-        {values.map((v, i) => (
-          <LimonCard
-            key={i}
-            accent={accent}
-            title={v.title}
-            desc={v.desc}
-            delay={0.35 + i * 0.07}
-          />
-        ))}
-      </motion.div>
+      {/* Value props — Unique Feature Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.28, duration: 0.5 }}
+          className="col-span-1 md:col-span-2 p-8 rounded-3xl border border-black/5 flex flex-col justify-between min-h-[220px] relative overflow-hidden"
+          style={{ background: `${accent}15` }}
+        >
+          <div className="relative z-10 w-fit p-4 rounded-2xl bg-white shadow-sm mb-4">
+            <Users size={32} strokeWidth={1.5} style={{ color: accent }} />
+          </div>
+          <div className="relative z-10">
+            <h3 className="text-xl font-extrabold text-black tracking-tight mb-2">Social-first markets</h3>
+            <p className="text-sm text-gray-600 leading-relaxed max-w-[280px]">Predict alongside your circle, not faceless strangers. Private groups, shared conviction.</p>
+          </div>
+          {/* Decorative element */}
+          <div className="absolute -right-4 -bottom-4 opacity-5">
+            <Users size={180} strokeWidth={1} />
+          </div>
+        </motion.div>
+
+        <div className="flex flex-col gap-4">
+          <motion.div
+            initial={{ opacity: 0, x: 16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.35, duration: 0.5 }}
+            className="flex-1 p-6 rounded-3xl border border-black/5 bg-[#f8f8f7] flex flex-col gap-3 group hover:border-[#0a0a0a]/10 transition-colors"
+          >
+            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
+              <ShieldCheck size={20} className="text-gray-400 group-hover:text-black transition-colors" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-black uppercase tracking-wider mb-1">Safe Principal</h4>
+              <p className="text-xs text-gray-500 leading-normal">Your BTC stays safe. Interest plays.</p>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.42, duration: 0.5 }}
+            className="flex-1 p-6 rounded-3xl border border-black/5 bg-[#f8f8f7] flex flex-col gap-3 group hover:border-[#0a0a0a]/10 transition-colors"
+          >
+            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
+              <Zap size={20} className="text-gray-400 group-hover:text-black transition-colors" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-black uppercase tracking-wider mb-1">Gasless</h4>
+              <p className="text-xs text-gray-500 leading-normal">Mezo Passport magic. Zero gas.</p>
+            </div>
+          </motion.div>
+        </div>
+      </div>
 
       {/* CTA */}
       <SlideButton onClick={onNext} accent={accent} delay={0.58}>
@@ -592,27 +627,84 @@ function Screen2({ onNext, accent }: { onNext: () => void; accent: string }) {
         </p>
       </motion.div>
 
-      {/* Permission cards — Limoncello style */}
+      {/* Passport Visual Card */}
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.18, duration: 0.5 }}
-        style={{ display: 'flex', flexDirection: 'column', gap: 0, border: '1px solid rgba(0,0,0,0.08)', overflow: 'hidden', borderRadius: 16 }}
+        initial={{ rotateY: -10, rotateX: 5, opacity: 0 }}
+        animate={{ rotateY: 0, rotateX: 0, opacity: 1 }}
+        transition={{ delay: 0.1, duration: 0.8 }}
+        className="relative w-full aspect-[1.6/1] rounded-[24px] p-8 overflow-hidden shadow-2xl mx-auto mb-4 border border-white/20 perspective-1000"
+        style={{
+          background: `linear-gradient(135deg, ${accent}dd 0%, ${accent} 100%)`,
+        }}
       >
-        {perms.map((p, i) => (
-          <LimonCard
-            key={i}
-            accent={accent}
-            title={p.text}
-            delay={0.22 + i * 0.07}
-          />
-        ))}
+        {/* Decorative patterns */}
+        <div className="absolute top-0 right-0 p-8 opacity-20">
+          <Smartphone size={120} strokeWidth={1} />
+        </div>
+
+        <div className="relative z-10 flex flex-col h-full justify-between text-black">
+          <div className="flex justify-between items-start">
+            <div>
+              <div className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-1">Mezo Network</div>
+              <div className="text-xl font-black tracking-tighter">Digital Passport</div>
+            </div>
+            <div className="w-12 h-12 rounded-xl bg-white/40 backdrop-blur-md flex items-center justify-center border border-white/20">
+              <Smartphone size={24} />
+            </div>
+          </div>
+
+          <div>
+            <div className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-2">Account Address</div>
+            <div className="font-mono text-sm tracking-widest bg-black/5 px-4 py-2.5 rounded-xl truncate border border-black/5">
+              {address || '0x0000...0000'}
+            </div>
+          </div>
+
+          <div className="flex justify-between items-end">
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full ${isAuthenticated ? 'bg-black animate-pulse' : 'bg-black/20'}`} />
+              <span className="text-[10px] font-black uppercase tracking-widest opacity-60">
+                {isAuthenticated ? 'Status: Authenticated' : 'Status: Pending Connection'}
+              </span>
+            </div>
+            {isAuthenticated && (
+              <motion.div
+                initial={{ scale: 0, rotate: -20 }}
+                animate={{ scale: 1, rotate: -12 }}
+                className="bg-white/40 backdrop-blur-md border border-white/40 px-5 py-2.5 rounded-2xl shadow-lg"
+              >
+                <div className="text-[10px] font-black uppercase tracking-widest leading-none mb-1 opacity-60">Verified</div>
+                <div className="text-xs font-black">Smart Account</div>
+              </motion.div>
+            )}
+          </div>
+        </div>
       </motion.div>
+
+      {/* Permissions Icons */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {perms.map((p, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 + i * 0.1 }}
+            className="p-4 rounded-2xl border border-black/5 bg-[#f8f8f7] flex items-center gap-3"
+          >
+            <div className="p-2 rounded-lg bg-white shadow-sm flex-shrink-0">
+              {i === 0 ? <Activity size={16} style={{ color: accent }} /> :
+                i === 1 ? <TrendingUp size={16} style={{ color: accent }} /> :
+                  <Lock size={16} style={{ color: accent }} />}
+            </div>
+            <span className="text-xs font-bold text-gray-700 leading-tight">{p.text}</span>
+          </motion.div>
+        ))}
+      </div>
 
       <ConnectButton.Custom>
         {({ openConnectModal, mounted }) => {
           const ready = mounted;
-          
+
           const handleButtonClick = () => {
             if (!ready) return;
             if (!isConnected) {
@@ -634,10 +726,10 @@ function Screen2({ onNext, accent }: { onNext: () => void; accent: string }) {
 
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <SlideButton 
-                onClick={handleButtonClick} 
-                disabled={!ready || isLoading} 
-                accent={accent} 
+              <SlideButton
+                onClick={handleButtonClick}
+                disabled={!ready || isLoading}
+                accent={accent}
                 delay={0.42}
               >
                 {getButtonLabel()}
@@ -716,27 +808,109 @@ function Screen3({ onNext, accent }: { onNext: () => void; accent: string }) {
         </p>
       </motion.div>
 
-      {/* Info cards — Limoncello style */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.18, duration: 0.5 }}
-        style={{ display: 'flex', flexDirection: 'column', gap: 0, border: '1px solid rgba(0,0,0,0.08)', overflow: 'hidden', borderRadius: 16 }}
-      >
-        {infoCards.map((c, i) => (
-          <LimonCard
-            key={i}
-            accent={accent}
-            title={c.title}
-            desc={c.desc}
-            delay={0.22 + i * 0.07}
-          />
-        ))}
-      </motion.div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* BTC Collateral Card */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1, duration: 0.5 }}
+          className="relative overflow-hidden rounded-[24px] border border-black/[0.03] shadow-lg group p-6 min-h-[160px] flex flex-col justify-between"
+          style={{ background: `linear-gradient(135deg, #F7931A 0%, #FFAB40 100%)` }}
+        >
+          <div className="absolute top-0 right-0 p-4 opacity-10">
+            <Wallet size={80} strokeWidth={1} />
+          </div>
+          <div className="relative z-10 flex justify-between items-start">
+            <div className="w-10 h-10 rounded-xl bg-white/40 backdrop-blur-md flex items-center justify-center border border-white/20">
+              <Wallet size={20} className="text-black" />
+            </div>
+            <div className="text-right">
+              <div className="text-[10px] font-black uppercase tracking-widest opacity-40">BTC Collateral</div>
+              <div className="text-2xl font-black tracking-tighter text-black">
+                {isTroveLoading ? '---' : btcCollateral.toFixed(2)} <span className="text-sm opacity-60">BTC</span>
+              </div>
+            </div>
+          </div>
+          <div className="relative z-10">
+            <h4 className="text-[10px] font-black uppercase tracking-widest mb-1 opacity-60">Mezo Vault Position</h4>
+            <p className="text-[10px] font-bold opacity-40">≈ ${(btcCollateral * 67000).toLocaleString()}</p>
+          </div>
+        </motion.div>
 
-      <SlideButton onClick={handleAction} accent={accent} delay={0.48}>
-        {isBalanceLoading ? 'Syncing...' : hasMusd ? 'Continue →' : 'Mint mUSD →'}
-      </SlideButton>
+        {/* MUSD Balance Card */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="relative overflow-hidden rounded-[24px] border border-black/[0.03] shadow-lg group p-6 min-h-[160px] flex flex-col justify-between"
+          style={{ background: `linear-gradient(135deg, #00C2A8 0%, #40E0D0 100%)` }}
+        >
+          <div className="absolute top-0 right-0 p-4 opacity-10">
+            <Activity size={80} strokeWidth={1} />
+          </div>
+          <div className="relative z-10 flex justify-between items-start">
+            <div className="w-10 h-10 rounded-xl bg-white/40 backdrop-blur-md flex items-center justify-center border border-white/20">
+              <Activity size={20} className="text-black" />
+            </div>
+            <div className="text-right">
+              <div className="text-[10px] font-black uppercase tracking-widest opacity-40">MUSD Balance</div>
+              <div className="text-2xl font-black tracking-tighter text-black">
+                {isBalanceLoading ? '---' : musdBalance.toFixed(2)} <span className="text-sm opacity-60">MUSD</span>
+              </div>
+            </div>
+          </div>
+          <div className="relative z-10">
+            <h4 className="text-[10px] font-black uppercase tracking-widest mb-1 opacity-60">Prediction Liquidity</h4>
+            <p className="text-[10px] font-bold opacity-40">Available to stake</p>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Mint Hint Card */}
+      {!hasMusd && !isBalanceLoading && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="p-4 rounded-2xl border border-black/5 bg-[#f8f8f7] flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center">
+              <ArrowUpRight size={16} className="text-mezo-teal" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-black">Need MUSD?</div>
+              <div className="text-[10px] text-gray-500">Mint against your {btcCollateral} BTC BTC collateral.</div>
+            </div>
+          </div>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => window.open('https://mezo.org/borrow', '_blank')}
+            className="px-3 py-1.5 bg-white border border-black/5 rounded-lg text-[10px] font-black uppercase tracking-widest text-black shadow-sm"
+          >
+            Mint →
+          </motion.button>
+        </motion.div>
+      )}
+
+      <div className="flex flex-col gap-4">
+        <SlideButton onClick={handleAction} accent={accent} delay={0.48}>
+          {isBalanceLoading ? 'Syncing...' : hasMusd ? 'Continue →' : 'Mint mUSD →'}
+        </SlideButton>
+
+        {!hasMusd && (
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            onClick={onNext}
+            className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-gray-600 transition-colors text-center"
+          >
+            Skip for now →
+          </motion.button>
+        )}
+      </div>
     </div>
   );
 }
@@ -812,129 +986,125 @@ function Screen4({ onNext, accent }: { onNext: () => void; accent: string }) {
         </p>
       </motion.div>
 
-      {/* Slider card */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.18, duration: 0.5 }}
-        style={{
-          background: 'white',
-          borderRadius: 16,
-          border: '1px solid rgba(0,0,0,0.08)',
-          borderLeft: `4px solid ${accent}`,
-          padding: '24px 20px',
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 20 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: '#555' }}>Mandate limit</span>
-          <motion.span
-            key={limit}
-            initial={{ scale: 0.85, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-0.04em', color: '#0a0a0a' }}
-          >
-            {limit} <span style={{ fontSize: 16, fontWeight: 600, color: '#888' }}>MUSD</span>
-          </motion.span>
-        </div>
+      <div className="relative flex flex-col items-center">
+        {/* Mandate Hub Visualization */}
+        <div className="w-full grid grid-cols-1 md:grid-cols-12 gap-8 items-center bg-white/40 border border-black/[0.03] rounded-[32px] p-8 backdrop-blur-md shadow-sm relative overflow-hidden">
 
-        {/* Track */}
-        <div style={{ position: 'relative', height: 40, display: 'flex', alignItems: 'center', marginBottom: 12 }}>
-          <div style={{ position: 'absolute', width: '100%', height: 6, background: '#f0f0f0', borderRadius: 10, overflow: 'hidden' }}>
-            <motion.div
-              initial={false}
-              animate={{ width: `${(limit / MAX) * 100}%` }}
-              style={{ height: '100%', background: accent, borderRadius: 10 }}
-            />
+          {/* Decorative Topographic Background */}
+          <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+            <svg width="100%" height="100%" viewBox="0 0 400 400">
+              <path d="M0 100 Q 100 50 200 100 T 400 100" fill="none" stroke={accent} strokeWidth="2" />
+              <path d="M0 150 Q 80 120 180 160 T 400 150" fill="none" stroke={accent} strokeWidth="2" />
+              <path d="M0 200 Q 120 180 220 220 T 400 200" fill="none" stroke={accent} strokeWidth="2" />
+            </svg>
           </div>
-          <input
-            type="range"
-            min={50}
-            max={MAX}
-            step={50}
-            value={limit}
-            onChange={(e) => setLimit(Number(e.target.value))}
-            style={{
-              position: 'relative',
-              width: '100%',
-              height: 40,
-              opacity: 0,
-              cursor: 'pointer',
-              zIndex: 10
-            }}
-          />
-          {/* Custom Thumb */}
-          <motion.div
-            initial={false}
-            animate={{ left: `calc(${(limit / MAX) * 100}% - 12px)` }}
-            style={{
-              position: 'absolute',
-              width: 24,
-              height: 24,
-              background: 'white',
-              border: `3px solid ${accent}`,
-              borderRadius: '50%',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-              pointerEvents: 'none'
-            }}
-          />
-        </div>
-        {/* Presets */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
-          {[100, 250, 500, 1000].map(val => (
-            <button
-              key={val}
-              onClick={() => setLimit(val)}
-              style={{
-                flex: 1,
-                padding: '8px 4px',
-                borderRadius: 8,
-                fontSize: 12,
-                fontWeight: 700,
-                background: limit === val ? accent : '#f8f8f8',
-                color: limit === val ? 'white' : '#666',
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-            >
-              ${val}
-            </button>
-          ))}
-        </div>
-      </motion.div>
 
-      {/* Benefits cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-        {benefits.map((b, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 + i * 0.1 }}
-            style={{
-              background: 'rgba(255,255,255,0.6)',
-              padding: '12px 8px',
-              borderRadius: 12,
-              border: '1px solid rgba(0,0,0,0.04)',
-              textAlign: 'center'
-            }}
-          >
-            <div style={{ fontSize: 11, fontWeight: 800, color: '#333', marginBottom: 2 }}>{b.title}</div>
-            <div style={{ fontSize: 10, color: '#888', lineHeight: 1.2 }}>{b.desc}</div>
-          </motion.div>
-        ))}
+          {/* Left Side: Radial Gauge */}
+          <div className="md:col-span-5 flex flex-col items-center justify-center relative py-4">
+            <div className="relative w-48 h-48 flex items-center justify-center">
+              {/* Background Arc */}
+              <svg width="200" height="200" viewBox="0 0 200 200" className="transform -rotate-[220deg]">
+                <circle
+                  cx="100" cy="100" r="80" fill="transparent"
+                  stroke={`${accent}15`} strokeWidth="12"
+                  strokeDasharray="375 502" strokeLinecap="round"
+                />
+                {/* Active Arc */}
+                <motion.circle
+                  cx="100" cy="100" r="80" fill="transparent"
+                  stroke={accent} strokeWidth="12" strokeLinecap="round"
+                  initial={false}
+                  animate={{ strokeDasharray: `${(limit / MAX) * 375} 502` }}
+                  transition={{ type: 'spring', damping: 20, stiffness: 100 }}
+                />
+              </svg>
+
+              {/* Central Value Display */}
+              <div className="absolute flex flex-col items-center justify-center text-center">
+                <motion.div key={limit} initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="text-4xl font-black text-black tracking-tighter">
+                  {limit}
+                </motion.div>
+                <div className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">MUSD</div>
+              </div>
+
+              {/* HUD Elements */}
+              <div className="absolute -top-2 -right-2">
+                <div className={`w-3 h-3 rounded-full ${limit > 0 ? 'bg-green-500' : 'bg-gray-300'} animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]`} />
+              </div>
+            </div>
+
+            <div className="mt-4 px-4 py-1.5 rounded-full bg-black/[0.03] border border-black/[0.05] text-[9px] font-black uppercase tracking-widest text-gray-500">
+              Protocol Limit Status: <span className={limit > 0 ? "text-green-600" : ""}>{limit > 0 ? 'ACTIVE' : 'PENDING'}</span>
+            </div>
+          </div>
+
+          {/* Right Side: Controls */}
+          <div className="md:col-span-7 flex flex-col gap-6 relative z-10">
+            <div>
+              <div className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">Configuration</div>
+              <div className="text-xl font-black tracking-tight text-black uppercase">Spending Mandate</div>
+              <p className="text-[11px] text-gray-500 font-medium leading-relaxed mt-2 max-w-[280px]">Set the maximum MUSD Presight can stake for you per market. Change this safely anytime.</p>
+            </div>
+
+            <div className="space-y-4">
+              {/* Tactical Slider */}
+              <div className="relative h-10 flex items-center group">
+                <div className="absolute w-full h-1 bg-gray-100 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={false}
+                    animate={{ width: `${(limit / MAX) * 100}%` }}
+                    className="h-full"
+                    style={{ backgroundColor: accent }}
+                  />
+                </div>
+                <input
+                  type="range"
+                  min={50}
+                  max={MAX}
+                  step={50}
+                  value={limit}
+                  onChange={(e) => setLimit(Number(e.target.value))}
+                  className="absolute w-full h-full opacity-0 cursor-pointer z-10"
+                />
+                <motion.div
+                  initial={false}
+                  animate={{ left: `calc(${(limit / MAX) * 100}% - 12px)` }}
+                  className="absolute w-6 h-6 bg-white rounded-full shadow-md pointer-events-none flex items-center justify-center border-2"
+                  style={{ borderColor: accent }}
+                >
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: accent }} />
+                </motion.div>
+              </div>
+
+              {/* Preset Grid */}
+              <div className="grid grid-cols-4 gap-2">
+                {[100, 250, 500, 1000].map(val => (
+                  <button
+                    key={val}
+                    onClick={() => setLimit(val)}
+                    className={`py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${limit === val
+                      ? 'bg-black text-white shadow-lg'
+                      : 'bg-white text-gray-400 border border-black/5 hover:border-black/10'
+                      }`}
+                  >
+                    ${val}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <SlideButton 
-          onClick={handleApprove} 
-          disabled={isSubmitting} 
-          accent={accent} 
+      <div className="flex flex-col gap-12 mt-4">
+        <SlideButton
+          onClick={handleApprove}
+          disabled={isSubmitting}
+          accent={accent}
           delay={0.55}
         >
           {isSubmitting ? 'Registering...' : getMandate.data ? 'Update Limit →' : 'Enable Magic Staking →'}
         </SlideButton>
-        {errorMsg && <div style={{ color: 'red', fontSize: 13, textAlign: 'center' }}>{errorMsg}</div>}
+        {errorMsg && <div className="text-red-500 text-xs text-center font-bold">{errorMsg}</div>}
       </div>
     </div>
   );
@@ -969,107 +1139,74 @@ function OnboardingModeCard({
 }) {
   const isGreen = variant === 'green';
   const accentColor = isGreen ? '#22c55e' : '#EF476F';
-  const bgColor = isGreen ? '#e8ede4' : '#fde8ec';
-  const gridColor = isGreen ? 'rgba(100,120,80,0.15)' : 'rgba(200,50,80,0.10)';
+  const bgColor = isGreen ? '#f0fdf4' : '#fff1f2';
 
   return (
     <motion.div
       onClick={onClick}
-      initial={{ opacity: 0, x: isGreen ? -30 : 30 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+      whileHover={{ y: -5 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`relative flex-1 p-8 rounded-[32px] border-2 transition-all cursor-pointer overflow-hidden ${isSelected ? 'shadow-2xl' : 'shadow-sm'
+        }`}
       style={{
-        background: bgColor,
-        borderRadius: 18,
-        position: 'relative',
-        flex: 1,
-        border: '1px solid rgba(0,0,0,0.07)',
-        boxShadow: isSelected
-          ? `0 0 0 3px ${accentColor}, 0 8px 32px rgba(0,0,0,0.1)`
-          : '0 4px 24px rgba(0,0,0,0.07)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '36px 20px',
-        gap: 16,
-        overflow: 'hidden',
-        cursor: 'pointer',
-        transform: isSelected ? 'scale(1.02)' : 'scale(1)',
-        transition: 'all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)',
+        backgroundColor: isSelected ? 'white' : bgColor,
+        borderColor: isSelected ? accentColor : 'transparent',
       }}
     >
-      <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-        <defs>
-          <pattern id={`grid-price-select-${variant}`} width="30" height="30" patternUnits="userSpaceOnUse">
-            <path d="M 30 0 L 0 0 0 30" fill="none" stroke={gridColor} strokeWidth="0.8" />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill={`url(#grid-price-select-${variant})`} />
-      </svg>
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: '40%',
-          background: `linear-gradient(to bottom, rgba(255,255,255,0) 0%, ${bgColor} 100%)`,
-          pointerEvents: 'none',
-          zIndex: 1,
-        }}
-      />
-
-      <div style={{ position: 'relative', zIndex: 10 }}>
-        <div style={{ width: 28, height: 28, borderRadius: '50%', background: accentColor, opacity: 0.15 }} />
+      {/* Background Icon Watermark */}
+      <div className="absolute -right-4 -top-4 opacity-[0.03] text-black">
+        {isGreen ? <ShieldCheck size={160} /> : <TrendingUp size={160} />}
       </div>
-      <div
-        style={{
-          background: 'white',
-          borderRadius: 16,
-          padding: '24px 24px',
-          width: '100%',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.06)',
-          position: 'relative',
-          zIndex: 10,
-          textAlign: 'left'
-        }}
-      >
-        <div style={{ fontSize: 11, color: '#888', fontWeight: 600, letterSpacing: '0.06em', marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>{title}</span>
-          {isSelected && <span style={{ color: accentColor, fontSize: 16 }}>●</span>}
-        </div>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 18 }}>
-          <span style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-0.04em', color: '#0a0a0a' }}>
-            {price}
-          </span>
-          {priceStyle === 'handwritten' && (
-            <span style={{ fontFamily: 'var(--font-caveat), cursive', fontSize: 24, color: '#00C2A8', fontWeight: 700 }}>
-              safe!
-            </span>
+
+      <div className="relative z-10">
+        <div className="flex justify-between items-center mb-6">
+          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${isSelected ? 'bg-gray-50' : 'bg-white'}`}>
+            {isGreen ? <ShieldCheck size={24} style={{ color: accentColor }} /> : <TrendingUp size={24} style={{ color: accentColor }} />}
+          </div>
+          {isSelected && (
+            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black text-[9px] font-black uppercase tracking-widest text-white">
+              <CircleCheckBig size={10} /> Selected
+            </motion.div>
           )}
-          {suffix && <span style={{ fontSize: 16, color: '#888', fontWeight: 500 }}>{suffix}</span>}
         </div>
-        <div style={{ fontSize: 18, fontWeight: 700, color: '#0a0a0a', marginBottom: 22, letterSpacing: '-0.02em' }}>
-          {buttonLabel}
+
+        <div className="mb-8">
+          <div className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">{title}</div>
+          <div className="flex items-baseline gap-2">
+            <h3 className="text-3xl font-black tracking-tighter text-black uppercase">{price}</h3>
+            {priceStyle === 'handwritten' && (
+              <span className="text-xs font-black px-2 py-0.5 bg-green-100 text-green-700 rounded-md uppercase tracking-widest">Safe</span>
+            )}
+          </div>
         </div>
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#0a0a0a', marginBottom: 8 }}>Usage</div>
-          {usageItems.map((item) => (
-            <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-              <span style={{ color: '#22c55e', fontSize: 13, fontWeight: 700 }}>✓</span>
-              <span style={{ fontSize: 13, color: '#444' }}>{item}</span>
+
+        <div className="space-y-6">
+          <div>
+            <div className="text-[10px] font-black uppercase tracking-widest text-gray-300 mb-3 ml-1">Usage</div>
+            <div className="space-y-3">
+              {usageItems.map(item => (
+                <div key={item} className="flex items-center gap-3">
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: accentColor }} />
+                  <span className="text-xs font-bold text-gray-600">{item}</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <div>
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#0a0a0a', marginBottom: 8 }}>Features</div>
-          {featureItems.map((item) => (
-            <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-              <span style={{ color: '#22c55e', fontSize: 13, fontWeight: 700 }}>✓</span>
-              <span style={{ fontSize: 13, color: '#444' }}>{item}</span>
+          </div>
+
+          <div className="p-5 rounded-2xl bg-gray-50 border border-gray-100">
+            <div className="text-[10px] font-black uppercase tracking-widest text-gray-300 mb-3">Key Features</div>
+            <div className="space-y-2.5">
+              {featureItems.map(item => (
+                <div key={item} className="flex items-start gap-2.5">
+                  <div className="mt-1">
+                    <CircleCheckBig size={12} style={{ color: accentColor }} />
+                  </div>
+                  <span className="text-[11px] font-bold text-gray-500 leading-tight">{item}</span>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
       </div>
     </motion.div>
@@ -1162,6 +1299,7 @@ function OnboardingContent() {
 
   const inviter = searchParams.get('inviter');
   const groupName = searchParams.get('group');
+  const groupId = searchParams.get('groupId');
 
   const TOTAL = 5;
 
@@ -1176,6 +1314,7 @@ function OnboardingContent() {
 
   const { token } = useSiweAuth();
   const { onboardProfile } = useProfile(token || undefined);
+  const { joinGroup } = useGroups(token || undefined);
 
   const go = (next: number) => {
     setDir(next > step ? 1 : -1);
@@ -1187,7 +1326,14 @@ function OnboardingContent() {
     if (selectedMode) {
       await onboardProfile.execute({ defaultRiskMode: selectedMode as any });
     }
-    router.push('/app/dashboard');
+
+    if (groupId) {
+      console.log('[Onboarding] Joining group:', groupId);
+      await joinGroup.execute(groupId);
+      router.push(`/app/groups/${groupId}`);
+    } else {
+      router.push('/app/dashboard');
+    }
   };
 
   const screens = [
@@ -1280,27 +1426,28 @@ function OnboardingContent() {
           {/* Card container — Map Layout */}
           <motion.div
             style={{
-              borderRadius: 24,
+              borderRadius: 32,
               position: 'relative',
-              border: '1px solid rgba(0,0,0,0.06)',
-              boxShadow: '0 8px 48px rgba(0,0,0,0.07), 0 2px 12px rgba(0,0,0,0.03)',
+              backgroundColor: 'white',
+              border: '1px solid rgba(0,0,0,0.05)',
+              boxShadow: '0 12px 64px rgba(0,0,0,0.08), 0 2px 16px rgba(0,0,0,0.04)',
               overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               padding: 'clamp(16px, 3vw, 24px)',
-              paddingBottom: '20px',
+              paddingBottom: '24px',
               gap: 16,
             }}
           >
             {/* Animated Background layer */}
             <motion.div
               animate={{ backgroundColor: boardAccent }}
-              transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+              transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
               style={{
                 position: 'absolute',
                 inset: 0,
-                opacity: 0.12,
+                opacity: 0.08,
                 pointerEvents: 'none',
                 zIndex: 0,
               }}
@@ -1309,26 +1456,23 @@ function OnboardingContent() {
             {/* Map grid lines */}
             <motion.svg
               width="100%" height="100%"
-              style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, opacity: 0.3 }}
+              style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, opacity: 0.2 }}
               animate={{ color: boardAccent }}
-              transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+              transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
             >
               <defs>
-                <pattern id="grid-onboarding" width="30" height="30" patternUnits="userSpaceOnUse">
-                  <path d="M 30 0 L 0 0 0 30" fill="none" stroke="currentColor" strokeWidth="1" />
+                <pattern id="grid-onboarding" width="40" height="40" patternUnits="userSpaceOnUse">
+                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" />
                 </pattern>
               </defs>
               <rect width="100%" height="100%" fill="url(#grid-onboarding)" />
             </motion.svg>
 
-            {/* Inner White Card Content */}
+            {/* Inner Content Section */}
             <div
               style={{
-                background: 'white',
-                borderRadius: 20,
-                padding: 'clamp(20px,5vw,36px)',
+                background: 'transparent',
                 width: '100%',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.04)',
                 position: 'relative',
                 zIndex: 10,
               }}
@@ -1341,7 +1485,7 @@ function OnboardingContent() {
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  transition={{ duration: 0.38, ease: [0.25, 0.1, 0.25, 1] }}
+                  transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
                 >
                   {screens[step]}
                 </motion.div>
