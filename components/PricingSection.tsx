@@ -71,7 +71,7 @@ function PricingCard({
       ref={ref}
       initial={{ opacity: 0, x: isGreen ? -30 : 30 }}
       animate={inView ? { opacity: 1, x: 0 } : {}}
-      transition={{ delay: delay + 0.3, duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
+      transition={{ delay: delay + 0.3, duration: 0.7, ease: [0.25, 0.1, 0.25, 1] as any }}
       whileHover={{ y: -4, boxShadow: '0 16px 48px rgba(0,0,0,0.12)' }}
       style={{
         background: bgColor,
@@ -84,8 +84,8 @@ function PricingCard({
         flexDirection: isGreen ? 'column' : 'column-reverse',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '36px 20px',
-        gap: 16,
+        padding: '52px 20px',
+        gap: 24,
         overflow: 'hidden',
       }}
     >
@@ -122,6 +122,17 @@ function PricingCard({
         </div>
       )}
 
+      {/* Decorative dot on the board */}
+      <div style={{ 
+        width: 28, 
+        height: 28, 
+        borderRadius: '50%', 
+        background: isGreen ? '#22c55e' : '#3b82f6', 
+        opacity: 0.15,
+        flexShrink: 0,
+        position: 'relative',
+        zIndex: 5
+      }} />
 
 
       {/* The White Pricing Card Content */}
@@ -219,7 +230,7 @@ export function PricingSection() {
       <motion.h2
         initial={{ opacity: 0, y: 24 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+        transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] as any }}
         style={{
           textAlign: 'center',
           fontSize: 'clamp(28px, 4vw, 42px)',

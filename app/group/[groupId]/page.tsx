@@ -168,7 +168,7 @@ function LimonCard({ accent, title, desc, delay = 0 }: { accent: string; title: 
     <motion.div
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ delay, duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
+      transition={{ delay, duration: 0.45, ease: [0.25, 0.1, 0.25, 1] as any }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{

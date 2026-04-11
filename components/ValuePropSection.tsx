@@ -24,7 +24,7 @@ function UnderlineWord({ children }: { children: string }) {
       <motion.span
         initial={{ scaleX: 0 }}
         animate={drawn ? { scaleX: 1 } : { scaleX: 0 }}
-        transition={{ duration: 0.55, ease: [0.4, 0, 0.2, 1] }}
+        transition={{ duration: 0.55, ease: [0.4, 0, 0.2, 1] as any }}
         style={{
           position: 'absolute',
           bottom: -6,
@@ -55,7 +55,7 @@ export function ValuePropSection() {
         <motion.h2
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
+          transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] as any }}
           style={{
             fontSize: 'clamp(30px, 4.5vw, 48px)',
             fontWeight: 800,
@@ -72,7 +72,7 @@ export function ValuePropSection() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.15, duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+          transition={{ delay: 0.15, duration: 0.6, ease: [0.25, 0.1, 0.25, 1] as any }}
           style={{ textAlign: 'center' }}
         >
           <p style={{ fontSize: 15, color: '#666', lineHeight: 1.6, marginBottom: 6 }}>

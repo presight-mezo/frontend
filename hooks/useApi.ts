@@ -108,13 +108,10 @@ export function useMarkets(token?: string) {
       (data: {
         groupId: string;
         question: string;
-        description?: string;
-        endTime: number;
-        stakeMode: "full-stake" | "zero-risk";
+        deadline: string;           // ISO date string — matches backend
+        mode: 'full-stake' | 'zero-risk'; // matches backend field name
         resolverAddress: string;
-        poolA?: string;
-        poolB?: string;
-      }) => marketApi.create(token || "", data),
+      }) => marketApi.create(token || '', data),
       [token]
     ),
     false
@@ -146,8 +143,8 @@ export function useMarkets(token?: string) {
 export function useStakes(token?: string) {
   const placeStake = useApiCall(
     useCallback(
-      (data: { marketId: string; outcome: "YES" | "NO"; amount: string }) =>
-        stakeApi.place(token || "", data),
+      (data: { marketId: string; direction: 'YES' | 'NO'; amount: string }) =>
+        stakeApi.place(token || '', data),
       [token]
     ),
     false

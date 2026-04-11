@@ -5,10 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useMarkets } from '@/hooks/useApi';
 import { useSiweAuth } from '@/hooks/useSiweAuth';
 import { useAccount } from 'wagmi';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { Badge } from '@/components/ui/Badge';
-import { Calendar, Trash2, HelpCircle } from 'lucide-react';
+import { X, HelpCircle, Loader2 } from 'lucide-react';
 
 interface CreateMarketModalProps {
   isOpen: boolean;
@@ -21,7 +18,7 @@ export function CreateMarketModal({ isOpen, groupId, onClose, onSuccess }: Creat
   const { token } = useSiweAuth();
   const { address } = useAccount();
   const { createMarket } = useMarkets(token || undefined);
-  
+
   const [question, setQuestion] = useState('');
   const [durationInDays, setDurationInDays] = useState('7');
   const [stakeMode, setStakeMode] = useState<'full-stake' | 'zero-risk'>('zero-risk');
@@ -29,7 +26,6 @@ export function CreateMarketModal({ isOpen, groupId, onClose, onSuccess }: Creat
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Sync address when modal opens
   useState(() => {
     if (address && !resolverAddress) setResolverAddress(address);
   });
@@ -41,13 +37,15 @@ export function CreateMarketModal({ isOpen, groupId, onClose, onSuccess }: Creat
     setIsSubmitting(true);
     setError(null);
 
-    const endTime = Math.floor(Date.now() / 1000) + (parseInt(durationInDays) * 86400);
+    // Backend expects `deadline` as an ISO date string in the future
+    const deadlineMs = Date.now() + parseInt(durationInDays) * 86400 * 1000;
+    const deadline = new Date(deadlineMs).toISOString();
 
     const res = await createMarket.execute({
       groupId,
       question,
-      endTime,
-      stakeMode,
+      deadline,       // ISO string — matches backend field name
+      mode: stakeMode, // 'mode' — matches backend field name
       resolverAddress,
     });
 
@@ -58,133 +56,185 @@ export function CreateMarketModal({ isOpen, groupId, onClose, onSuccess }: Creat
     } else if (res.data) {
       onSuccess();
       onClose();
+      setQuestion('');
+      setDurationInDays('7');
+      setStakeMode('zero-risk');
     }
   };
+
+  const inputClass =
+    'w-full px-4 py-3.5 bg-white/70 border border-white/80 rounded-[16px] text-[14px] font-medium text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-black/5 focus:border-gray-300 transition-all shadow-sm';
 
   return (
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/30 backdrop-blur-md"
           />
+
+          {/* Modal */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            initial={{ opacity: 0, scale: 0.90, y: 28 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden"
+            exit={{ opacity: 0, scale: 0.90, y: 28 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 26 }}
+            className="relative w-full max-w-lg glass-card shadow-2xl shadow-black/15 overflow-hidden"
           >
-            <div className="p-8 border-b border-gray-50 flex items-center justify-between">
+            {/* Top accent strip */}
+            <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#0a0a0a] via-gray-500 to-[#0a0a0a]" />
+
+            {/* Header */}
+            <div className="flex items-start justify-between p-7 pb-5 border-b border-black/5">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 leading-tight">Create Prediction Market</h2>
-                <p className="text-sm text-gray-400 mt-1 uppercase tracking-widest font-bold">Define the future of your group</p>
+                <h2 className="text-[22px] font-bold text-gray-900 tracking-tight">Create Prediction Market</h2>
+                <p className="text-[12px] text-gray-400 font-bold uppercase tracking-widest mt-1">Define the future of your group</p>
               </div>
-              <button onClick={onClose} className="p-2 text-gray-300 hover:text-gray-900 transition-colors">
-                 <Trash2 size={20} />
-              </button>
+              <motion.button
+                onClick={onClose}
+                className="w-8 h-8 rounded-full bg-white/60 border border-white/80 flex items-center justify-center text-gray-400 hover:text-gray-700 transition-colors mt-0.5 ml-4 shrink-0"
+                whileHover={{ scale: 1.1, backgroundColor: 'rgba(0,0,0,0.06)' }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <X size={14} />
+              </motion.button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-8 space-y-6 max-h-[75vh] overflow-y-auto custom-scrollbar">
-              <div>
-                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">
-                  The Question
-                </label>
-                <Input
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="p-7 space-y-5 max-h-[72vh] overflow-y-auto no-scrollbar">
+
+              {/* Question */}
+              <div className="space-y-2">
+                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1">The Question</label>
+                <input
+                  type="text"
                   placeholder="Will BTC hit $100k by next week?"
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   required
+                  className={inputClass}
                 />
               </div>
 
+              {/* Duration + Risk Mode */}
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                   <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">
-                    Duration
-                  </label>
+                {/* Duration */}
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1">Duration</label>
                   <select
                     value={durationInDays}
                     onChange={(e) => setDurationInDays(e.target.value)}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-black/5 focus:border-black outline-none transition-all text-sm font-bold"
+                    className="w-full px-4 py-3.5 bg-white/70 border border-white/80 rounded-[16px] text-[14px] font-bold text-gray-900 focus:outline-none focus:ring-4 focus:ring-black/5 focus:border-gray-300 transition-all shadow-sm appearance-none cursor-pointer"
                   >
                     <option value="1">1 Day</option>
                     <option value="3">3 Days</option>
-                    <option value="7">7 Days (Week)</option>
+                    <option value="7">7 Days</option>
                     <option value="14">14 Days</option>
-                    <option value="30">30 Days (Month)</option>
+                    <option value="30">30 Days</option>
                   </select>
                 </div>
-                
-                <div>
-                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">
-                    Risk Mode
-                  </label>
-                  <div className="flex bg-gray-50 p-1 rounded-2xl border border-gray-50">
-                    <button
+
+                {/* Risk Mode toggle */}
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1">Risk Mode</label>
+                  <div className="flex bg-white/50 p-1 rounded-[16px] border border-white/80 gap-1">
+                    <motion.button
                       type="button"
                       onClick={() => setStakeMode('zero-risk')}
-                      className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${stakeMode === 'zero-risk' ? 'bg-white shadow-sm text-emerald-500' : 'text-gray-400'}`}
+                      className={`flex-1 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-[12px] transition-all ${
+                        stakeMode === 'zero-risk'
+                          ? 'bg-white shadow text-blue-600 border border-blue-100/60'
+                          : 'text-gray-400 hover:text-gray-600'
+                      }`}
+                      whileTap={{ scale: 0.96 }}
                     >
-                      Zero Risk
-                    </button>
-                    <button
+                      😎 Zero
+                    </motion.button>
+                    <motion.button
                       type="button"
                       onClick={() => setStakeMode('full-stake')}
-                      className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${stakeMode === 'full-stake' ? 'bg-white shadow-sm text-orange-500' : 'text-gray-400'}`}
+                      className={`flex-1 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-[12px] transition-all ${
+                        stakeMode === 'full-stake'
+                          ? 'bg-white shadow text-orange-600 border border-orange-100/60'
+                          : 'text-gray-400 hover:text-gray-600'
+                      }`}
+                      whileTap={{ scale: 0.96 }}
                     >
-                      Full Stake
-                    </button>
+                      🔥 Full
+                    </motion.button>
                   </div>
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">
-                  Trusted Resolver
-                </label>
-                <Input
+              {/* Resolver */}
+              <div className="space-y-2">
+                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1">Trusted Resolver</label>
+                <input
+                  type="text"
                   placeholder="0x... (defaults to you)"
                   value={resolverAddress}
                   onChange={(e) => setResolverAddress(e.target.value)}
                   required
+                  className={inputClass}
                 />
               </div>
-              
-              <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100 flex gap-3 items-start">
-                <HelpCircle size={18} className="text-gray-400 shrink-0 mt-0.5" />
+
+              {/* Info box */}
+              <div className="flex gap-3 items-start p-4 bg-white/50 rounded-[16px] border border-white/80">
+                <HelpCircle size={16} className="text-gray-400 shrink-0 mt-0.5" />
                 <p className="text-[11px] leading-relaxed text-gray-500 font-medium">
-                  <strong>Zero Risk Mode</strong> stakes only accrued yield, keeping principals safe. 
-                  <strong>Full Stake Mode</strong> requires direct MUSD principal locks. 
-                  The <strong>Resolver</strong> is the person responsible for calling the outcome once the deadline expires.
+                  <strong className="text-gray-700">😎 Zero Risk</strong> stakes only your accrued yield — principal stays safe.{' '}
+                  <strong className="text-gray-700">🔥 Full Stake</strong> locks your actual MUSD.{' '}
+                  The <strong className="text-gray-700">Resolver</strong> calls the outcome when the deadline hits.
                 </p>
               </div>
 
-              {error && (
-                <p className="text-sm text-red-500 bg-red-50 p-4 rounded-2xl border border-red-100 animate-in fade-in zoom-in-95">
-                  {error}
-                </p>
-              )}
+              {/* Error */}
+              <AnimatePresence>
+                {error && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="text-[13px] text-red-600 font-medium bg-red-50 px-4 py-3 rounded-[14px] border border-red-100"
+                  >
+                    {error}
+                  </motion.p>
+                )}
+              </AnimatePresence>
 
-              <div className="flex gap-4 pt-4">
-                <Button
+              {/* Actions */}
+              <div className="flex gap-3 pt-1">
+                <motion.button
                   type="button"
-                  variant="ghost"
                   onClick={onClose}
-                  className="flex-1 rounded-2xl h-14"
+                  className="flex-1 py-3.5 rounded-full text-[14px] font-bold text-gray-600 bg-white/60 border border-white/80 hover:border-gray-300 shadow-sm transition-all"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
                 >
                   Discard
-                </Button>
-                <Button
+                </motion.button>
+                <motion.button
                   type="submit"
-                  disabled={isSubmitting || !question.trim()}
-                  className="flex-1 bg-black text-white hover:bg-gray-800 rounded-2xl h-14 font-black uppercase tracking-widest"
+                  disabled={isSubmitting || !question.trim() || !resolverAddress.trim()}
+                  className="flex-1 btn-primary disabled:opacity-50 disabled:cursor-not-allowed justify-center py-3.5"
+                  whileHover={{ scale: isSubmitting ? 1 : 1.03, boxShadow: '0 6px 28px rgba(0,0,0,0.22)' }}
+                  whileTap={{ scale: 0.97 }}
                 >
-                  {isSubmitting ? 'Deploying...' : 'Deploy Market'}
-                </Button>
+                  {isSubmitting ? (
+                    <span className="flex items-center gap-2 justify-center">
+                      <Loader2 size={15} className="animate-spin" /> Deploying...
+                    </span>
+                  ) : (
+                    'Deploy Market'
+                  )}
+                </motion.button>
               </div>
             </form>
           </motion.div>

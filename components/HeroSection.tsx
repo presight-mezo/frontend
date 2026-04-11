@@ -61,33 +61,13 @@ function CryptoToken({ color1, color2, symbol, size = 72 }: { color1: string; co
 
 function DollarBills() {
   return (
-    <div style={{ position: 'relative', width: 120, height: 72 }}>
-      <div style={{ position: 'absolute', bottom: -4, left: '5%', right: '5%', height: 8, background: 'rgba(0,0,0,0.10)', filter: 'blur(6px)', borderRadius: '50%' }} />
-      {/* Stacked bills */}
-      {[12, 6, 0].map((rot, i) => (
-        <div key={i} style={{
-          position: 'absolute',
-          top: i * 3,
-          left: i * 2,
-          width: 114,
-          height: 56,
-          background: 'linear-gradient(135deg, #6aaf5c 0%, #3a8a2d 50%, #4e9e40 100%)',
-          borderRadius: 4,
-          border: '1px solid rgba(255,255,255,0.2)',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-          transform: `rotate(${rot - 6}deg)`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <div style={{
-            width: '80%', height: '70%',
-            border: '1px solid rgba(255,255,255,0.18)',
-            borderRadius: 2,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <span style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em' }}>$100</span>
-          </div>
-        </div>
-      ))}
+    <div style={{ position: 'relative', width: 500, height: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', transform: 'translate(60px, -40px)' }}>
+      {/* image */}
+      <img
+        src="/ca104004-ccf3-474b-b210-eed03467aaca.png"
+        alt="Dollar bills"
+        style={{ width: '100%', height: '100%', objectFit: 'contain', zIndex: 1, filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.1))' }}
+      />
     </div>
   );
 }
@@ -136,7 +116,7 @@ function PaymentCard() {
       <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.08em', marginBottom: 6 }}>PAYMENT OPTIONS</div>
       {[
         { label: 'Full Stake', icon: '🔥', sub: 'MUSD' },
-        { label: 'Zero Risk', icon: '🛡️', sub: 'Yield' },
+        { label: 'Zero Risk', icon: '😎', sub: 'Yield' },
         { label: 'Passport', icon: '🔑', sub: 'Gasless' },
       ].map((item) => (
         <div key={item.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
@@ -200,7 +180,7 @@ function AppPreviewStrip() {
           key={i}
           initial={{ x: 60, y: 60, opacity: 0 }}
           animate={{ x: 0, y: 0, opacity: 1 }}
-          transition={{ delay: 1.0 + i * 0.08, duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+          transition={{ delay: 1.0 + i * 0.08, duration: 0.6, ease: [0.25, 0.1, 0.25, 1] as any }}
           style={{
             flex: '0 0 140px',
             background: card.bg,
@@ -223,18 +203,18 @@ const companyLogos = ['Mezo Testnet', 'Bitcoin', 'Zero Risk', 'Full Stake', 'Gas
 
 /* ─── LEFT side floating objects ─────────────────────────────── */
 const leftObjects = [
-  { id: 'notepad', top: '4%', el: <NotePad />, anim: 'float-1', rotate: '-8deg' },
-  { id: 'bnb', top: '32%', el: <CryptoToken color1="#f5c842" color2="#d4a017" symbol="₿" size={64} />, anim: 'float-3', rotate: '-6deg' },
+  { id: 'notepad', top: '4%', el: <img src="/4da498c9-1707-4559-b9fe-784a23b20ee6.png" alt="Icon" style={{ width: 250, height: 250, objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.15))' }} />, anim: 'float-1', rotate: '-8deg' },
+  { id: 'bnb', top: '32%', el: <img src="/986e7952-91f0-49c7-a6e1-32d9c46714be.png" alt="Bitcoin" style={{ width: 200, height: 200, objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.15))' }} />, anim: 'float-3', rotate: '-6deg' },
   { id: 'inv', top: '58%', el: <InvoiceFloat />, anim: 'float-2', rotate: '3deg' },
-  { id: 'tron', top: '82%', el: <CryptoToken color1="#e84142" color2="#b01d1e" symbol="T" size={56} />, anim: 'float-4', rotate: '10deg' },
+  { id: 'tron', top: '82%', el: <img src="/0e18aa64-f55b-4a9f-aa47-2c7350e95110.png" alt="Tron" style={{ width: 180, height: 180, objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.15))' }} />, anim: 'float-4', rotate: '10deg' },
 ];
 
 /* ─── RIGHT side floating objects ────────────────────────────── */
 const rightObjects = [
-  { id: 'eth', top: '6%', el: <CryptoToken color1="#a18fff" color2="#6244d9" symbol="Ξ" size={68} />, anim: 'float-2', rotate: '10deg' },
-  { id: 'bills', top: '26%', el: <DollarBills />, anim: 'float-1', rotate: '-5deg' },
+  { id: 'eth', top: '15%', el: <img src="/34a7a0c6-edfd-4eb7-870a-272b0ab91e8a.png" alt="ETH" style={{ width: 100, height: 100, objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.15))' }} />, anim: 'float-2', rotate: '10deg' },
+  { id: 'bills', top: '20%', el: <DollarBills />, anim: 'float-1', rotate: '-5deg' },
   { id: 'card', top: '52%', el: <PaymentCard />, anim: 'float-5', rotate: '4deg' },
-  { id: 'usdc', top: '74%', el: <CryptoToken color1="#2775ca" color2="#1557a0" symbol="$" size={52} />, anim: 'float-3', rotate: '-8deg' },
+  { id: 'usdc', top: '74%', el: <img src="/255f26d8-2fc5-4467-ad3d-66162077432a.png" alt="USDC" style={{ width: 140, height: 140, objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.15))' }} />, anim: 'float-3', rotate: '-8deg' },
   { id: 'notif', top: '86%', el: <NotificationBubble />, anim: 'float-4', rotate: '-3deg' },
 ];
 
@@ -332,7 +312,7 @@ export function HeroSection() {
         <motion.div
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.55, ease: [0.25, 0.1, 0.25, 1] }}
+          transition={{ delay: 0.3, duration: 0.55, ease: [0.25, 0.1, 0.25, 1] as any }}
           style={{ position: 'relative', marginBottom: 32, height: 130, width: '100%', maxWidth: 360, marginInline: 'auto' }}
         >
           {[
@@ -393,7 +373,7 @@ export function HeroSection() {
           <motion.h1
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.42, duration: 0.65, ease: [0.25, 0.1, 0.25, 1] }}
+            transition={{ delay: 0.42, duration: 0.65, ease: [0.25, 0.1, 0.25, 1] as any }}
             style={{
               fontSize: 'clamp(48px, 7vw, 78px)',
               fontWeight: 800,
@@ -411,7 +391,7 @@ export function HeroSection() {
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.54, duration: 0.55, ease: [0.25, 0.1, 0.25, 1] }}
+            transition={{ delay: 0.54, duration: 0.55, ease: [0.25, 0.1, 0.25, 1] as any }}
             style={{ fontSize: 16, color: '#666', marginBottom: 26, lineHeight: 1.55, maxWidth: 380 }}
           >
             Feels like a group chat with financial stakes.<br />Staking exclusively in MUSD on Mezo.
@@ -423,29 +403,21 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.66, duration: 0.5 }}
           >
-            <Link 
-              href={getStartedUrl} 
+            <Link
+              href={getStartedUrl}
               onClick={(e: any) => morphTo(e, getStartedUrl, '#0a0a0a')}
               style={{ textDecoration: 'none' }}
-              className="inline-flex"
+              className="inline-flex group"
             >
               <motion.div
-                whileHover={{ scale: 1.05, boxShadow: '0 8px 32px rgba(0,0,0,0.28)' }}
+                whileHover={{ scale: 1.035, boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}
                 whileTap={{ scale: 0.97 }}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  background: '#0a0a0a',
-                  color: 'white',
-                  borderRadius: 100,
-                  padding: '14px 28px',
-                  fontSize: 15,
-                  fontWeight: 600,
-                  letterSpacing: '-0.01em',
-                }}
+                className="relative overflow-hidden inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-[15px] font-bold tracking-tight bg-[#F7C948] text-[#0a0a0a] shadow-sm transition-all duration-300 border border-[#F7C948]/20"
               >
-                {getStartedUrl === '/app/dashboard' ? 'Go to dashboard' : "Let's get started"}
+                <span className="absolute inset-0 bg-[#0a0a0a] pointer-events-none -translate-x-[101%] group-hover:translate-x-0 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]" />
+                <span className="relative z-10 transition-colors duration-500 group-hover:text-white flex items-center gap-2">
+                  {getStartedUrl === '/app/dashboard' ? 'Go to dashboard' : "Let's get started"}
+                </span>
               </motion.div>
             </Link>
           </motion.div>

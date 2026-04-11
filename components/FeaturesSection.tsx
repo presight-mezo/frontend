@@ -135,7 +135,7 @@ export function FeaturesSection() {
       <motion.h2
         initial={{ opacity: 0, y: 24 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+        transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] as any }}
         style={{
           textAlign: 'center',
           fontSize: 'clamp(24px, 3.5vw, 40px)',
@@ -164,7 +164,7 @@ export function FeaturesSection() {
             key={feat.id}
             initial={{ opacity: 0, y: 30 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: i * 0.08, duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+            transition={{ delay: i * 0.08, duration: 0.6, ease: [0.25, 0.1, 0.25, 1] as any }}
             whileHover={{ y: -4 }}
             style={{
               background: 'white',

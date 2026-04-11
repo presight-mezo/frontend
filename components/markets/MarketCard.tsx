@@ -2,9 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-import { Users, Clock, TrendingUp, ChevronRight } from 'lucide-react';
+import { Clock, ChevronRight } from 'lucide-react';
 import { formatUnits } from 'viem';
 
 interface MarketCardProps {
@@ -29,21 +27,14 @@ export function MarketCard({ market, onClick }: MarketCardProps) {
     const updateTimer = () => {
       const now = Math.floor(Date.now() / 1000);
       const diff = market.endTime - now;
-
-      if (diff <= 0) {
-        setTimeLeft('Ended');
-        return;
-      }
-
+      if (diff <= 0) { setTimeLeft('Ended'); return; }
       const days = Math.floor(diff / 86400);
       const hours = Math.floor((diff % 86400) / 3600);
       const mins = Math.floor((diff % 3600) / 60);
-
       if (days > 0) setTimeLeft(`${days}d ${hours}h`);
       else if (hours > 0) setTimeLeft(`${hours}h ${mins}m`);
       else setTimeLeft(`${mins}m`);
     };
-
     updateTimer();
     const interval = setInterval(updateTimer, 60000);
     return () => clearInterval(interval);
@@ -52,81 +43,113 @@ export function MarketCard({ market, onClick }: MarketCardProps) {
   const yesAmount = BigInt(market.yesAmount || '0');
   const noAmount = BigInt(market.noAmount || '0');
   const totalAmount = yesAmount + noAmount;
-  
   const yesPercent = totalAmount > BigInt(0) ? Number((yesAmount * BigInt(100)) / totalAmount) : 50;
   const noPercent = 100 - yesPercent;
-
   const totalMUSD = parseFloat(formatUnits(totalAmount, 18)).toFixed(2);
+
+  const isZeroRisk = market.stakeMode === 'zero-risk';
 
   return (
     <motion.div
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.2 }}
+      onClick={onClick}
+      className="glass-card cursor-pointer p-6 relative overflow-hidden group"
+      whileHover={{ y: -6, boxShadow: '0 20px 48px rgba(0,0,0,0.12)' }}
+      transition={{ type: 'spring', stiffness: 320, damping: 22 }}
     >
-      <Card 
-        onClick={onClick}
-        className="group cursor-pointer bg-white border-gray-100 hover:border-black/10 hover:shadow-2xl hover:shadow-black/5 transition-all p-0 overflow-hidden"
-      >
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <Badge 
-              mode={market.stakeMode}
-            />
-            <div className="flex items-center gap-2 text-gray-400 font-bold text-[10px] uppercase tracking-widest">
-              <Clock size={12} />
-              {timeLeft}
-            </div>
+      {/* Subtle gradient accent top strip */}
+      <div
+        className="absolute top-0 left-0 right-0 h-[3px]"
+        style={{
+          background: isZeroRisk
+            ? 'linear-gradient(90deg, #3b82f6, #60a5fa)'
+            : 'linear-gradient(90deg, #f97316, #fb923c)',
+        }}
+      />
+
+      {/* Header row */}
+      <div className="flex items-center justify-between mb-5">
+        {/* Stake mode badge */}
+        <div
+          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
+            isZeroRisk
+              ? 'bg-blue-50/80 text-blue-700 border-blue-200/60'
+              : 'bg-orange-50/80 text-orange-700 border-orange-200/60'
+          }`}
+        >
+          <span className="text-[12px]">{isZeroRisk ? '😎' : '🔥'}</span>
+          {isZeroRisk ? 'Zero Risk' : 'Full Stake'}
+        </div>
+
+        {/* Timer */}
+        <div className="flex items-center gap-1.5 text-gray-400 font-bold text-[10px] uppercase tracking-widest bg-white/50 px-2.5 py-1 rounded-full border border-white/70">
+          <Clock size={11} />
+          {timeLeft || '—'}
+        </div>
+      </div>
+
+      {/* Question */}
+      <h3 className="text-[18px] font-bold text-gray-900 mb-5 leading-snug tracking-tight group-hover:text-black transition-colors">
+        {market.question}
+      </h3>
+
+      {/* Progress bars */}
+      <div className="space-y-2.5 mb-5">
+        {/* YES */}
+        <div className="space-y-1.5">
+          <div className="flex justify-between items-center text-[11px] font-bold">
+            <span className="text-gray-500">Yes</span>
+            <span className="text-gray-800">{yesPercent}%</span>
           </div>
-
-          <h3 className="text-xl font-bold text-gray-900 mb-4 leading-tight group-hover:text-black transition-colors">
-            {market.question}
-          </h3>
-
-          <div className="space-y-4">
-            {/* Probability Bar */}
-            <div className="relative h-12 w-full rounded-2xl overflow-hidden flex bg-gray-50 border border-gray-50">
-              <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: `${yesPercent}%` }}
-                className="h-full bg-btc-orange flex items-center pl-4 relative"
-              >
-                <span className="text-xs font-black text-white uppercase tracking-tighter">Yes</span>
-              </motion.div>
-              <motion.div 
-                initial={{ width: '100%' }}
-                animate={{ width: `${noPercent}%` }}
-                className="h-full bg-mezo-teal flex items-center justify-end pr-4"
-              >
-                 <span className="text-xs font-black text-white uppercase tracking-tighter">No</span>
-              </motion.div>
-              
-              <div className="absolute inset-0 flex justify-between items-center px-4 pointer-events-none">
-                <span className="text-[10px] font-bold text-white/90">{yesPercent}%</span>
-                <span className="text-[10px] font-bold text-white/90">{noPercent}%</span>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between pt-2">
-              <div className="flex items-center gap-4">
-                <div className="flex flex-col">
-                  <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Total Volume</span>
-                  <span className="text-sm font-black text-gray-900">{totalMUSD} MUSD</span>
-                </div>
-                <div className="h-4 w-px bg-gray-100" />
-                <div className="flex flex-col">
-                  <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Resolver</span>
-                  <span className="text-sm font-black text-gray-900 truncate max-w-[80px]">
-                    {market.resolverAddress === '0x' ? 'System' : market.resolverAddress?.slice(0, 6)}
-                  </span>
-                </div>
-              </div>
-              <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-300 group-hover:bg-black group-hover:text-white transition-all transform group-hover:scale-110">
-                <ChevronRight size={16} />
-              </div>
-            </div>
+          <div className="h-[7px] w-full bg-white/60 rounded-full overflow-hidden border border-white/70">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${yesPercent}%` }}
+              transition={{ duration: 0.9, ease: [0.25, 0.1, 0.25, 1] as any }}
+              className="h-full bg-emerald-400 rounded-full"
+            />
           </div>
         </div>
-      </Card>
+        {/* NO */}
+        <div className="space-y-1.5">
+          <div className="flex justify-between items-center text-[11px] font-bold">
+            <span className="text-gray-500">No</span>
+            <span className="text-gray-800">{noPercent}%</span>
+          </div>
+          <div className="h-[7px] w-full bg-white/60 rounded-full overflow-hidden border border-white/70">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${noPercent}%` }}
+              transition={{ duration: 0.9, ease: [0.25, 0.1, 0.25, 1] as any, delay: 0.08 }}
+              className="h-full bg-gray-300 rounded-full"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Footer row */}
+      <div className="flex items-center justify-between pt-3 border-t border-black/5">
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col">
+            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Volume</span>
+            <span className="text-[13px] font-bold text-gray-900">{totalMUSD} MUSD</span>
+          </div>
+          <div className="h-4 w-px bg-black/8" />
+          <div className="flex flex-col">
+            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Resolver</span>
+            <span className="text-[13px] font-bold text-gray-900 truncate max-w-[72px]">
+              {market.resolverAddress === '0x' ? 'System' : market.resolverAddress?.slice(0, 6)}
+            </span>
+          </div>
+        </div>
+
+        <motion.div
+          className="w-8 h-8 rounded-full bg-white/70 border border-white flex items-center justify-center text-gray-300"
+          whileHover={{ scale: 1.15, backgroundColor: '#0a0a0a', color: '#fff' }}
+          transition={{ type: 'spring', stiffness: 380, damping: 20 }}
+        >
+          <ChevronRight size={15} />
+        </motion.div>
+      </div>
     </motion.div>
   );
 }

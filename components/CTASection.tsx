@@ -10,34 +10,23 @@ const floaters = [
   { id: 'f3', type: 'tether', top: '25%', right: '8%', rotate: 15, delay: 0.2 },
   { id: 'f4', type: 'card-right', bottom: '25%', right: '6%', rotate: 8, delay: 0.4 },
   { id: 'f5', type: 'eth', top: '55%', left: '12%', rotate: 20, delay: 0.5 },
-  { id: 'f6', type: 'usdc', bottom: '10%', right: '22%', rotate: -10, delay: 0.6 },
+  { id: 'f6', type: 'usdc', bottom: '10%', right: '15%', rotate: -10, delay: 0.6 },
 ];
 
 function FloatingIcon({ type }: { type: string }) {
   if (type === 'usdc') {
     return (
-      <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#2775CA] to-[#1a5a9c] shadow-2xl shadow-blue-500/20 border border-white/40 text-white font-bold text-2xl">
-        $
-      </div>
+      <img src="/255f26d8-2fc5-4467-ad3d-66162077432a.png" alt="USDC" className="w-32 h-32 object-contain drop-shadow-2xl" />
     );
   }
   if (type === 'eth') {
     return (
-      <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-[#627EEA] to-[#4a5fb4] shadow-2xl shadow-indigo-500/20 border border-white/40 text-white">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M11.999 0L11.83 0.57V16.336L11.999 16.505L19.5 12.072L11.999 0Z" fill="white" opacity="0.8"/>
-          <path d="M12.001 0L4.5 12.072L12.001 16.505V9.458V0Z" fill="white"/>
-          <path d="M11.999 17.818L11.866 17.98V23.778L11.999 24L19.505 13.386L11.999 17.818Z" fill="white" opacity="0.8"/>
-          <path d="M12.001 24V17.818L4.50494 13.386L12.001 24Z" fill="white"/>
-        </svg>
-      </div>
+      <img src="/34a7a0c6-edfd-4eb7-870a-272b0ab91e8a.png" alt="ETH" className="w-28 h-28 object-contain drop-shadow-2xl" />
     );
   }
   if (type === 'tether') {
     return (
-      <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#26A17B] to-[#1c785b] shadow-2xl shadow-emerald-500/20 border border-white/40 text-white font-bold text-2xl">
-        ₮
-      </div>
+      <img src="/0e18aa64-f55b-4a9f-aa47-2c7350e95110.png" alt="Tron" className="w-32 h-32 object-contain drop-shadow-2xl" />
     );
   }
   if (type === 'card-left') {
@@ -64,9 +53,7 @@ function FloatingIcon({ type }: { type: string }) {
   }
   if (type === 'pin') {
     return (
-      <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-[#FF4C4C] to-[#C90000] shadow-2xl shadow-red-500/20 text-white border border-white/40">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11V5H18V3H6V5H8V11L6 14V16H11V22H13V16H18V14L16 11Z"/></svg>
-      </div>
+      <img src="/986e7952-91f0-49c7-a6e1-32d9c46714be.png" alt="BNB" className="w-28 h-28 object-contain drop-shadow-2xl" />
     );
   }
   return null;
@@ -224,27 +211,17 @@ export function CTASection() {
               href={getStartedUrl} 
               onClick={(e: any) => morphTo(e, getStartedUrl, '#0a0a0a')}
               style={{ textDecoration: 'none' }}
-              className="inline-flex"
+              className="inline-flex group"
             >
               <motion.div
-                whileHover={{ scale: 1.05, background: '#f0f0ef', color: '#0a0a0a' }}
+                whileHover={{ scale: 1.035, boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}
                 whileTap={{ scale: 0.97 }}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: '#ffffff',
-                  color: '#0a0a0a',
-                  borderRadius: 100,
-                  padding: '16px 36px',
-                  fontSize: 17,
-                  fontWeight: 700,
-                  letterSpacing: '-0.02em',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                }}
+                className="relative overflow-hidden inline-flex items-center gap-2 rounded-full px-9 py-4 text-[17px] font-bold tracking-tight bg-white text-[#0a0a0a] shadow-[0_4px_16px_rgba(0,0,0,0.1)] transition-all duration-300 border border-white/20"
               >
-                {getStartedUrl === '/app/dashboard' ? 'Continue predicting' : 'Start predicting'}
+                <span className="absolute inset-0 bg-[#0a0a0a] pointer-events-none -translate-x-[101%] group-hover:translate-x-0 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]" />
+                <span className="relative z-10 transition-colors duration-500 group-hover:text-white flex items-center gap-2">
+                  {getStartedUrl === '/app/dashboard' ? 'Continue predicting' : 'Start predicting'}
+                </span>
               </motion.div>
             </Link>
           </motion.div>

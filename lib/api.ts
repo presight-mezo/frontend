@@ -111,12 +111,9 @@ export const marketApi = {
     data: {
       groupId: string;
       question: string;
-      description?: string;
-      endTime: number;
-      stakeMode: "full-stake" | "zero-risk";
+      deadline: string;        // ISO date string — required by backend
+      mode: "full-stake" | "zero-risk"; // backend field name is 'mode'
       resolverAddress: string;
-      poolA?: string;
-      poolB?: string;
     }
   ) =>
     apiRequest("/api/v1/markets", {
@@ -142,7 +139,7 @@ export const stakeApi = {
     token: string,
     data: {
       marketId: string;
-      outcome: "YES" | "NO";
+      direction: "YES" | "NO"; // backend field name is 'direction'
       amount: string;
     }
   ) =>
