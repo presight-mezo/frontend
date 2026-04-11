@@ -6,7 +6,7 @@ import { useGroups, useMarkets } from '@/hooks/useApi';
 import { useSiweAuth } from '@/hooks/useSiweAuth';
 import { MarketCard } from '@/components/markets/MarketCard';
 import { CreateMarketModal } from '@/components/markets/CreateMarketModal';
-import { Plus, Users, Share2, ArrowLeft, Loader2, Info, TrendingUp } from 'lucide-react';
+import { Plus, Users, Share2, ArrowLeft, Loader2, Info, TrendingUp, Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function GroupLandingPage({ params }: { params: Promise<{ groupId: string }> }) {
@@ -248,6 +248,55 @@ export default function GroupLandingPage({ params }: { params: Promise<{ groupId
           </motion.div>
         )}
       </motion.div>
+
+      {/* Members Section */}
+      <div className="space-y-10">
+        <div className="flex items-baseline justify-between border-b-2 border-gray-50 pb-6">
+          <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tight">Predictors</h2>
+          <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+            {group?.members?.length || 0} Members
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {group?.members?.map((member: any, idx: number) => (
+            <motion.div
+              key={member.address}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.05 }}
+              className="flex items-center gap-4 bg-white p-5 rounded-3xl border-2 border-gray-50 hover:border-black/5 transition-colors"
+            >
+              <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex-shrink-0 relative border-2 border-gray-100">
+                {member.avatarUrl ? (
+                  <img src={member.avatarUrl} alt="avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                    <Users size={20} />
+                  </div>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-bold text-gray-900 truncate">
+                    {member.username || `${member.address.slice(0, 6)}...${member.address.slice(-4)}`}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 text-xs font-bold text-gray-400 uppercase tracking-widest">
+                  <div className="flex items-center gap-1 text-yellow-600">
+                    <Trophy size={10} />
+                    {member.convictionScore} pts
+                  </div>
+                  <div className="w-1 h-1 rounded-full bg-gray-200" />
+                  <div className="flex items-center gap-1 opacity-70">
+                    {new Date(member.joinedAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
 
       <CreateMarketModal
         isOpen={isModalOpen}

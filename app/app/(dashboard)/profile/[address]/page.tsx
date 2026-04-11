@@ -43,6 +43,22 @@ export default function PublicProfilePage() {
     getGlobalProfile.execute(address);
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // 5MB size limit to prevent massive payload issues
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Image size exceeds 5MB limit. Please choose a smaller image.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditForm(prev => ({ ...prev, avatarUrl: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const stats = useMemo(() => {
     if (!profile) return [];
     return [
@@ -207,14 +223,33 @@ export default function PublicProfilePage() {
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Avatar URL (Optional)</label>
-              <input 
-                type="text" 
-                value={editForm.avatarUrl} 
-                onChange={(e) => setEditForm(prev => ({ ...prev, avatarUrl: e.target.value }))}
-                className="w-full px-5 py-3.5 rounded-2xl border-2 border-gray-200 bg-white focus:outline-none focus:border-mezo-teal text-sm font-bold text-black shadow-sm transition-colors"
-                placeholder="https://..."
-              />
+              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Avatar Image</label>
+              <div className="flex items-center gap-4 border-2 border-gray-200 rounded-2xl p-2 bg-white shadow-sm transition-colors focus-within:border-mezo-teal">
+                {editForm.avatarUrl ? (
+                   <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 bg-gray-50 border border-gray-100 flex items-center justify-center">
+                     <img src={editForm.avatarUrl} alt="Avatar Preview" className="w-full h-full object-cover" />
+                   </div>
+                ) : (
+                   <div className="w-12 h-12 rounded-xl bg-gray-50 border border-gray-100 shrink-0 flex items-center justify-center">
+                     <span className="material-symbols-outlined text-gray-300">person</span>
+                   </div>
+                )}
+                
+                <label className="cursor-pointer px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-xs font-bold text-gray-700 transition-colors border border-gray-200/50">
+                  Upload Image
+                  <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                </label>
+                
+                {editForm.avatarUrl && (
+                  <button 
+                    onClick={() => setEditForm(prev => ({ ...prev, avatarUrl: '' }))}
+                    className="p-2 text-red-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors ml-auto material-symbols-outlined text-sm flex items-center justify-center"
+                    title="Remove Image"
+                  >
+                    delete
+                  </button>
+                )}
+              </div>
             </div>
             <div className="md:col-span-2">
               <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Bio</label>

@@ -292,7 +292,7 @@ export default function GroupInvitePage({ params }: { params: Promise<{ groupId:
                   {values.map((v, i) => <LimonCard key={i} accent={accent} title={v.title} desc={v.desc} delay={0.3 + i * 0.07} />)}
                 </motion.div>
                 <SlideButton onClick={handleJoin} accent={accent} disabled={isJoining} delay={0.5}>
-                  {isJoining ? 'Joining...' : isAuthenticated ? 'Join Satoshi Circle →' : 'Join Satoshi Circle →'}
+                  {isJoining ? 'Joining...' : isAuthenticated ? `Join ${group?.name || 'Group'} →` : `Join ${group?.name || 'Group'} →`}
                 </SlideButton>
               </div>
             </div>

@@ -4,6 +4,8 @@ import React, { useState } from "react";
 
 interface WalletBadgeProps {
   address?: string;
+  username?: string;
+  avatarUrl?: string;
   className?: string;
 }
 
@@ -14,6 +16,8 @@ function truncateAddress(address: string): string {
 
 const WalletBadge: React.FC<WalletBadgeProps> = ({
   address = "0x0000000000000000000000000000000000000000",
+  username,
+  avatarUrl,
   className = "",
 }) => {
   const [copied, setCopied] = useState(false);
@@ -31,15 +35,18 @@ const WalletBadge: React.FC<WalletBadgeProps> = ({
       title={copied ? "Copied!" : address}
       className={`flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 border border-gray-200 transition-all active:scale-95 ${className}`}
     >
-      {/* Blockie-style avatar */}
-      <div
-        className="w-5 h-5 rounded-full flex-shrink-0"
-        style={{
-          background: `linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%)`,
-        }}
-      />
+      {avatarUrl ? (
+        <img src={avatarUrl} alt="Avatar" className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
+      ) : (
+        <div
+          className="w-5 h-5 rounded-full flex-shrink-0"
+          style={{
+            background: `linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%)`,
+          }}
+        />
+      )}
       <span className="text-xs font-bold text-black font-mono">
-        {truncateAddress(address)}
+        {username || truncateAddress(address)}
       </span>
       <span className="material-symbols-outlined text-[14px] text-gray-400" style={{ fontVariationSettings: "'wght' 300" }}>
         {copied ? "check" : "content_copy"}

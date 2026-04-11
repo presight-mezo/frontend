@@ -8,7 +8,6 @@ import { useSiweAuth } from "@/hooks/useSiweAuth";
 import { useYield, useMandate, useResolver, useGroups } from "@/hooks/useApi";
 import WalletBadge from "@/components/dashboard/WalletBadge";
 import YieldCounter from "@/components/dashboard/YieldCounter";
-import Image from "next/image";
 import { useEffect, useMemo } from "react";
 
 const TopBar = () => {
@@ -21,6 +20,7 @@ const TopBar = () => {
   const { getMandate } = useMandate(token);
   const { getNotifications } = useResolver(token);
   const { getGroup } = useGroups(token);
+  const { getProfile } = useProfile(token);
 
   // Extract group ID from pathname
   const groupId = useMemo(() => {
@@ -42,8 +42,9 @@ const TopBar = () => {
       getAccruedYield.execute();
       getMandate.execute();
       getNotifications.execute();
+      getProfile.execute();
     }
-  }, [isAuthenticated, token, getAccruedYield.execute, getMandate.execute, getNotifications.execute]);
+  }, [isAuthenticated, token, getAccruedYield.execute, getMandate.execute, getNotifications.execute, getProfile.execute]);
 
   // Simple breadcrumb logic based on pathname
   const getBreadcrumbs = () => {
@@ -133,7 +134,11 @@ const TopBar = () => {
           </>
         )}
 
-        <WalletBadge address={address || ""} />
+        <WalletBadge 
+          address={address || ""} 
+          username={(getProfile.data as any)?.username}
+          avatarUrl={(getProfile.data as any)?.avatarUrl}
+        />
 
         <div className="flex items-center gap-3 pl-3 border-l border-black/[0.05]">
           <div className="relative">
@@ -155,12 +160,10 @@ const TopBar = () => {
           <Link href={`/app/profile/${address}`} className="relative group cursor-pointer">
             <div className="w-10 h-10 rounded-xl p-[1px] bg-gradient-to-tr from-primary to-accent-blue transition-transform group-hover:scale-105">
               <div className="w-full h-full bg-white rounded-[11px] flex items-center justify-center overflow-hidden">
-                <Image
+                <img
                   alt="Avatar"
                   className="w-full h-full object-cover"
-                  src={`https://effigy.im/a/${address || '0x0000000000000000000000000000000000000000'}.png`}
-                  width={40}
-                  height={40}
+                  src={(getProfile.data as any)?.avatarUrl || `https://effigy.im/a/${address || '0x0000000000000000000000000000000000000000'}.png`}
                 />
               </div>
             </div>
