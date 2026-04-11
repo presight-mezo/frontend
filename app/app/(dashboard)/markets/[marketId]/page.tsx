@@ -19,15 +19,15 @@ const stagger = {
 };
 const fadeUp = {
   hidden: { opacity: 0, y: 28 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.58, ease: [0.25, 0.1, 0.25, 1] } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.58, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] } },
 };
 const fadeLeft = {
   hidden: { opacity: 0, x: -22 },
-  show: { opacity: 1, x: 0, transition: { duration: 0.55, ease: [0.25, 0.1, 0.25, 1] } },
+  show: { opacity: 1, x: 0, transition: { duration: 0.55, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] } },
 };
 const fadeScale = {
   hidden: { opacity: 0, scale: 0.88 },
-  show: { opacity: 1, scale: 1, transition: { duration: 0.52, ease: [0.25, 0.1, 0.25, 1] } },
+  show: { opacity: 1, scale: 1, transition: { duration: 0.52, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] } },
 };
 
 /* ── scroll-triggered section wrapper ───────────────────────── */

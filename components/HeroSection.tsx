@@ -204,15 +204,15 @@ const companyLogos = ['Mezo Testnet', 'Bitcoin', 'Zero Risk', 'Full Stake', 'Gas
 /* ─── LEFT side floating objects ─────────────────────────────── */
 const leftObjects = [
   { id: 'notepad', top: '4%', el: <img src="/4da498c9-1707-4559-b9fe-784a23b20ee6.png" alt="Icon" style={{ width: 250, height: 250, objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.15))' }} />, anim: 'float-1', rotate: '-8deg' },
-  { id: 'bnb', top: '32%', el: <img src="/986e7952-91f0-49c7-a6e1-32d9c46714be.png" alt="Bitcoin" style={{ width: 200, height: 200, objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.15))' }} />, anim: 'float-3', rotate: '-6deg' },
+  { id: 'bnb', top: '32%', left: -20, el: <img src="/986e7952-91f0-49c7-a6e1-32d9c46714be.png" alt="Bitcoin" style={{ width: 200, height: 200, objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.15))' }} />, anim: 'float-3', rotate: '-6deg' },
   { id: 'inv', top: '58%', el: <InvoiceFloat />, anim: 'float-2', rotate: '3deg' },
-  { id: 'tron', top: '82%', el: <img src="/0e18aa64-f55b-4a9f-aa47-2c7350e95110.png" alt="Tron" style={{ width: 180, height: 180, objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.15))' }} />, anim: 'float-4', rotate: '10deg' },
+  { id: 'tron', top: '82%', el: <img src="/0e18aa64-f55b-4a9f-aa47-2c7350e95110.png" alt="Tron" style={{ width: 200, height: 200, objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.15))' }} />, anim: 'float-4', rotate: '10deg' },
 ];
 
 /* ─── RIGHT side floating objects ────────────────────────────── */
 const rightObjects = [
-  { id: 'eth', top: '15%', el: <img src="/34a7a0c6-edfd-4eb7-870a-272b0ab91e8a.png" alt="ETH" style={{ width: 100, height: 100, objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.15))' }} />, anim: 'float-2', rotate: '10deg' },
-  { id: 'bills', top: '20%', el: <DollarBills />, anim: 'float-1', rotate: '-5deg' },
+  { id: 'eth', top: '10%', el: <img src="/34a7a0c6-edfd-4eb7-870a-272b0ab91e8a.png" alt="ETH" style={{ width: 100, height: 100, objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.15))' }} />, anim: 'float-2', rotate: '10deg' },
+  { id: 'bills', top: '18%', right: -40, el: <DollarBills />, anim: 'float-1', rotate: '-5deg' },
   { id: 'card', top: '52%', el: <PaymentCard />, anim: 'float-5', rotate: '4deg' },
   { id: 'usdc', top: '74%', el: <img src="/255f26d8-2fc5-4467-ad3d-66162077432a.png" alt="USDC" style={{ width: 140, height: 140, objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.15))' }} />, anim: 'float-3', rotate: '-8deg' },
   { id: 'notif', top: '86%', el: <NotificationBubble />, anim: 'float-4', rotate: '-3deg' },
@@ -270,7 +270,7 @@ export function HeroSection() {
             style={{
               position: 'absolute',
               top: obj.top,
-              left: 20,
+              left: obj.left ?? 20,
               transform: `rotate(${obj.rotate})`,
               ['--rotate' as string]: obj.rotate,
               filter: 'drop-shadow(0 12px 24px rgba(0,0,0,0.12))',
@@ -292,7 +292,7 @@ export function HeroSection() {
             style={{
               position: 'absolute',
               top: obj.top,
-              right: 20,
+              right: obj.right ?? 20,
               transform: `rotate(${obj.rotate})`,
               ['--rotate' as string]: obj.rotate,
               filter: 'drop-shadow(0 12px 24px rgba(0,0,0,0.12))',
