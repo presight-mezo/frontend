@@ -143,16 +143,29 @@ export function useSiweAuth() {
 
   // Automatically attempt to restore token on initialization when address settles
   useEffect(() => {
+    console.log('[useSiweAuth] Auth effect triggered:', { address, status, isAuthenticated: authState.isAuthenticated });
+    
     // If wagmi is still initializing, wait
-    if (status === 'connecting' || status === 'reconnecting') return;
+    if (status === 'connecting' || status === 'reconnecting') {
+      console.log('[useSiweAuth] Wagmi still connecting. Waiting...');
+      return;
+    }
 
     if (address && !authState.isAuthenticated) {
+      console.log('[useSiweAuth] Address detected, attempting token restoration...');
       restoreToken();
     } else if (status === 'disconnected') {
+      console.log('[useSiweAuth] Wallet disconnected. Clearing loading state.');
       // If no wallet is connected, we're definitely done loading auth
       setAuthState(prev => ({ ...prev, isLoading: false }));
+    } else {
+      console.log('[useSiweAuth] Auth settled or already authenticated. isLoading:', authState.isLoading);
+      // Ensure we stop loading if we reach a steady 'connected' state without needing restoration
+      if (authState.isLoading) {
+        setAuthState(prev => ({ ...prev, isLoading: false }));
+      }
     }
-  }, [address, status, restoreToken, authState.isAuthenticated]);
+  }, [address, status, restoreToken, authState.isAuthenticated, authState.isLoading]);
 
   return useMemo(
     () => ({
