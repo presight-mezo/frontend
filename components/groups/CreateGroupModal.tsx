@@ -17,6 +17,7 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
   const { createGroup } = useGroups(token || undefined);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [isPrivate, setIsPrivate] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,7 +28,7 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
     setIsSubmitting(true);
     setError(null);
 
-    const res = await createGroup.execute({ name, description });
+    const res = await createGroup.execute({ name, description, isPrivate });
     setIsSubmitting(false);
 
     if (res.error) {
@@ -109,6 +110,26 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
                   className="w-full px-4 py-3.5 bg-white/70 border border-white/80 rounded-[16px] text-[14px] font-medium text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-black/5 focus:border-gray-300 transition-all resize-none h-24 shadow-sm"
                   placeholder="What's this group about?"
                 />
+              </div>
+
+              {/* Private Group Toggle */}
+              <div className="flex items-center justify-between p-4 bg-white/40 rounded-2xl border border-white/60">
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">
+                    Private Group
+                  </label>
+                  <p className="text-[11px] text-gray-400 font-medium">Allow only invited members</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsPrivate(!isPrivate)}
+                  className={`w-12 h-6 rounded-full transition-colors relative ${isPrivate ? 'bg-[#0a0a0a]' : 'bg-gray-200'}`}
+                >
+                  <motion.div
+                    animate={{ x: isPrivate ? 26 : 2 }}
+                    className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm"
+                  />
+                </button>
               </div>
 
               {/* Error */}

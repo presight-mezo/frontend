@@ -107,7 +107,7 @@ export function useSiweAuth() {
    * Sign out
    */
   const signOut = useCallback(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined' && typeof localStorage.removeItem === 'function') {
       localStorage.removeItem('presight_token');
     }
     setAuthState({
@@ -123,7 +123,7 @@ export function useSiweAuth() {
    * Restore token from localStorage if available
    */
   const restoreToken = useCallback(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined' && typeof localStorage.getItem === 'function') {
       const token = localStorage.getItem('presight_token');
       if (token && address) {
         setAuthState({
@@ -141,9 +141,17 @@ export function useSiweAuth() {
     return null;
   }, [address]);
 
+  // Hydration safety: wagmi often starts as 'disconnected' for a few frames on refresh
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsHydrated(true), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Automatically attempt to restore token on initialization when address settles
   useEffect(() => {
-    console.log('[useSiweAuth] Auth effect triggered:', { address, status, isAuthenticated: authState.isAuthenticated });
+    console.log('[useSiweAuth] Auth effect triggered:', { address, status, isAuthenticated: authState.isAuthenticated, isHydrated });
     
     // If wagmi is still initializing, wait
     if (status === 'connecting' || status === 'reconnecting') {
@@ -151,21 +159,36 @@ export function useSiweAuth() {
       return;
     }
 
-    if (address && !authState.isAuthenticated) {
-      console.log('[useSiweAuth] Address detected, attempting token restoration...');
-      restoreToken();
-    } else if (status === 'disconnected') {
-      console.log('[useSiweAuth] Wallet disconnected. Clearing loading state.');
-      // If no wallet is connected, we're definitely done loading auth
-      setAuthState(prev => ({ ...prev, isLoading: false }));
-    } else {
-      console.log('[useSiweAuth] Auth settled or already authenticated. isLoading:', authState.isLoading);
-      // Ensure we stop loading if we reach a steady 'connected' state without needing restoration
-      if (authState.isLoading) {
-        setAuthState(prev => ({ ...prev, isLoading: false }));
+    // Handle potential delay in address population despite 'connected' status
+    if (status === 'connected') {
+      if (address) {
+        if (!authState.isAuthenticated) {
+          console.log('[useSiweAuth] Address detected, attempting token restoration...');
+          restoreToken();
+        } else {
+          console.log('[useSiweAuth] Already authenticated with address. Settling.');
+          if (authState.isLoading) {
+            setAuthState(prev => ({ ...prev, isLoading: false }));
+          }
+        }
+      } else {
+        console.log('[useSiweAuth] status is connected but address is still missing. Waiting...');
+        // We stay in isLoading: true state here
       }
+    } else if (status === 'disconnected') {
+      // Only clear loading state if we are hydrated, avoiding the initial 'disconnected' flash on refresh
+      if (isHydrated) {
+        console.log('[useSiweAuth] Wallet truly disconnected. Clearing loading state.');
+        if (authState.isLoading) {
+          setAuthState(prev => ({ ...prev, isLoading: false }));
+        }
+      } else {
+        console.log('[useSiweAuth] status is disconnected but not yet hydrated. Waiting for wagmi settle...');
+      }
+    } else {
+      // status 'idle' or others
     }
-  }, [address, status, restoreToken, authState.isAuthenticated, authState.isLoading]);
+  }, [address, status, restoreToken, authState.isAuthenticated, authState.isLoading, isHydrated]);
 
   return useMemo(
     () => ({

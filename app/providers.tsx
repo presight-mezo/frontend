@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { RainbowKitProvider, lightTheme } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
@@ -17,21 +17,30 @@ if (typeof globalThis !== 'undefined') {
 
 export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider 
-          theme={lightTheme({
-            accentColor: '#F7931A',
-            accentColorForeground: 'white',
-            borderRadius: 'large',
-          })}
-        >
-          <PresightApiProvider>
-            {children}
-          </PresightApiProvider>
-        </RainbowKitProvider>
+        {mounted ? (
+          <RainbowKitProvider 
+            theme={lightTheme({
+              accentColor: '#F7931A',
+              accentColorForeground: 'white',
+              borderRadius: 'large',
+            })}
+          >
+            <PresightApiProvider>
+              {children}
+            </PresightApiProvider>
+          </RainbowKitProvider>
+        ) : (
+          children
+        )}
       </QueryClientProvider>
     </WagmiProvider>
   );

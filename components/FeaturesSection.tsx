@@ -2,30 +2,31 @@
 
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
+import { Key, ShieldCheck, Gavel, Zap } from 'lucide-react';
 
 const features = [
   {
     id: 'gasless',
-    icon: '🔑',
+    icon: <Key size={18} className="text-blue-500" />,
     title: 'Gasless staking via Mezo Passport',
     items: ['Create Mandate', 'Sign Once', 'Stake with Zero Gas', 'Auto-renew Limits', 'Revoke Anytime'],
     colors: ['#00C2A8', '#F7931A', '#3b82f6', '#a855f7', '#ef4444'],
   },
   {
     id: 'yield',
-    icon: '🛡️',
+    icon: <ShieldCheck size={18} className="text-teal-500" />,
     title: 'Zero Risk Yield Staking',
     preview: 'market',
   },
   {
     id: 'resolver',
-    icon: '⚖️',
+    icon: <Gavel size={18} className="text-orange-500" />,
     title: 'Trusted Resolution',
     preview: 'market',
   },
   {
     id: 'feed',
-    icon: '⚡',
+    icon: <Zap size={18} className="text-yellow-500" />,
     title: 'Real-time Stake Feed',
     preview: 'ping',
   },
@@ -116,7 +117,7 @@ function PingNotification() {
         fontWeight: 500,
       }}
     >
-      <div style={{ fontWeight: 700, marginBottom: 3 }}>⚡ Stake placed!</div>
+      <div style={{ fontWeight: 700, marginBottom: 3, display: 'flex', alignItems: 'center', gap: 6 }}><Zap size={14} /> Stake placed!</div>
       <div>Maya backed YES with 500 MUSD on BTC &gt; $80k...</div>
     </motion.div>
   );
@@ -175,8 +176,8 @@ export function FeaturesSection() {
               minHeight: 240,
             }}
           >
-            <div style={{ fontSize: 14, color: '#1a6dff', marginBottom: 6 }}>
-              <span style={{ fontSize: 12 }}>●</span>
+            <div style={{ marginBottom: 12 }}>
+              {feat.icon}
             </div>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#0a0a0a', lineHeight: 1.3, marginBottom: 4 }}>
               {feat.title}

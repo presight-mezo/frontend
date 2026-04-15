@@ -5,8 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAccount } from "wagmi";
 import { useSiweAuth } from "@/hooks/useSiweAuth";
-import { useYield, useMandate, useResolver, useGroups } from "@/hooks/useApi";
-import WalletBadge from "@/components/dashboard/WalletBadge";
+import { useYield, useMandate, useResolver, useGroups, useProfile } from "@/hooks/useApi";
 import YieldCounter from "@/components/dashboard/YieldCounter";
 import { useEffect, useMemo } from "react";
 
@@ -51,21 +50,21 @@ const TopBar = () => {
     const segments = pathname.split("/").filter(Boolean);
     // Remove 'app' from segments for cleaner breadcrumbs
     let crumbs = segments.filter((s: string) => s !== "app" && s !== "(dashboard)");
-    
+
     // Replace group ID with group name
     if (groupId && getGroup.data) {
-      crumbs = crumbs.map((crumb: string) => 
+      crumbs = crumbs.map((crumb: string) =>
         crumb === groupId ? (getGroup.data as any)?.name || groupId : crumb
       );
     }
-    
+
     return (
       <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest leading-none">
         <span className="text-gray-400">Presight</span>
         <span className="text-gray-300">/</span>
         {crumbs.map((crumb: string, i: number) => (
           <React.Fragment key={crumb}>
-            <span 
+            <span
               className="text-black group-hover:text-primary transition-colors truncate max-w-[120px] md:max-w-[250px]"
               title={crumb}
             >
@@ -78,7 +77,7 @@ const TopBar = () => {
     );
   };
 
-  const notificationCount = getNotifications.data?.length || 0;
+  const notificationCount = (getNotifications.data as any)?.length || 0;
   const isMandateActive = !!getMandate.data;
   const accruedYield = (getAccruedYield.data as any)?.accruedAmount || 0;
 
@@ -104,43 +103,15 @@ const TopBar = () => {
             className="bg-transparent border-none focus:ring-0 text-sm ml-3 w-full text-black placeholder:text-gray-400 font-medium"
           />
           <div className="flex items-center gap-1 px-1.5 py-1 bg-black/[0.03] rounded-md border border-black/[0.05]">
-             <span className="text-[10px] font-black text-gray-400">⌘</span>
-             <span className="text-[10px] font-black text-gray-400">K</span>
+            <span className="text-[10px] font-black text-gray-400">⌘</span>
+            <span className="text-[10px] font-black text-gray-400">K</span>
           </div>
         </div>
       </div>
 
       {/* Right: Stats + Wallet + Avatar */}
       <div className="flex items-center gap-4">
-        {isAuthenticated && (
-          <>
-            {/* Yield Counter (Live) */}
-            <div className="hidden xl:block">
-              <YieldCounter 
-                initialAmount={accruedYield}
-                className="!bg-accent-green/5 !border-accent-green/10 !text-accent-green" 
-              />
-            </div>
-
-            {/* Mandate Status Pill */}
-            {isMandateActive && (
-              <Link href="/app/onboarding" className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-accent-orange/10 border border-accent-orange/20 rounded-full hover:bg-accent-orange/20 transition-all cursor-pointer group">
-                <span className="w-1.5 h-1.5 rounded-full bg-accent-orange animate-pulse" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-accent-orange group-hover:text-accent-orange/80">
-                  Mandate Active
-                </span>
-              </Link>
-            )}
-          </>
-        )}
-
-        <WalletBadge 
-          address={address || ""} 
-          username={(getProfile.data as any)?.username}
-          avatarUrl={(getProfile.data as any)?.avatarUrl}
-        />
-
-        <div className="flex items-center gap-3 pl-3 border-l border-black/[0.05]">
+        <div className="flex items-center gap-3 pl-3">
           <div className="relative">
             <button className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center hover:bg-white hover:shadow-sm border border-black/[0.03] transition-all group">
               <span

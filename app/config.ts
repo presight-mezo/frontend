@@ -41,12 +41,6 @@ const configOptions = {
   projectId,
   chains: [
     mezoTestnet,
-    mainnet,
-    polygon,
-    optimism,
-    arbitrum,
-    base,
-    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [sepolia] : []),
   ],
   ssr: true,
 } as const;

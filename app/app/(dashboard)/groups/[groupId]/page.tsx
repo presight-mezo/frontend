@@ -6,7 +6,8 @@ import { useGroups, useMarkets } from '@/hooks/useApi';
 import { useSiweAuth } from '@/hooks/useSiweAuth';
 import { MarketCard } from '@/components/markets/MarketCard';
 import { CreateMarketModal } from '@/components/markets/CreateMarketModal';
-import { Plus, Users, Share2, ArrowLeft, Loader2, Info, TrendingUp, Trophy } from 'lucide-react';
+import { GroupSettingsModal } from '@/components/groups/GroupSettingsModal';
+import { Plus, Users, Share2, ArrowLeft, Loader2, Info, TrendingUp, Trophy, Settings, LogOut, UserMinus, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function GroupLandingPage({ params }: { params: Promise<{ groupId: string }> }) {
@@ -18,50 +19,38 @@ export default function GroupLandingPage({ params }: { params: Promise<{ groupId
   const { listMarkets: { data: marketsData, execute: executeListMarkets, loading: marketsLoading } } = useMarkets(token || undefined);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     executeGetGroup(groupId);
     executeListMarkets(groupId);
-  }, [groupId]);
+  }, [groupId, executeGetGroup, executeListMarkets]);
 
-  const hardcodedMarkets = [
-    {
-      id: "1",
-      question: "Will sigma cat be rizz",
-      endTime: Math.floor(new Date('2026-03-14').getTime() / 1000),
-      stakeMode: 'zero-risk' as const,
-      yesAmount: "50000000000000000000000",
-      noAmount: "0",
-      resolverAddress: "0x1234567890abcdef1234567890abcdef12345678",
-      status: "OPEN"
-    },
-    {
-      id: "2",
-      question: "Will Bitcoin reach $100k by end of 2024?",
-      endTime: Math.floor(new Date('2026-03-14').getTime() / 1000),
-      stakeMode: 'full-stake' as const,
-      yesAmount: "30000000000000000000",
-      noAmount: "10000000000000000000",
-      resolverAddress: "0xabcdef1234567890abcdef1234567890abcdef12",
-      status: "OPEN"
-    }
-  ];
-
-  const markets = marketsData && (marketsData as any[]).length > 0 ? (marketsData as any[]) : hardcodedMarkets;
-
-  const hardcodedGroup = {
-    name: "Mezo Macro Predictions",
-    description: "High signal predictions on macroeconomic events and Bitcoin network metrics.",
-    _count: { members: 42 }
-  };
-  const activeGroup: any = group || hardcodedGroup;
+  const markets = (marketsData as any[]) || [];
+  const activeGroup = group as any;
 
   const handleCopyInvite = () => {
     const url = `${window.location.origin}/group/${groupId}`;
     navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const { address } = useSiweAuth();
+  const { leaveGroup, kickMember } = useGroups(token || undefined);
+  const isAdmin = (activeGroup?.adminAddress as string | undefined)?.toLowerCase() === address?.toLowerCase();
+  
+  const handleLeave = async () => {
+    if (!confirm('Are you sure you want to leave this group?')) return;
+    const res = await leaveGroup.execute(groupId);
+    if (!res.error) router.push('/app/groups');
+  };
+
+  const handleKick = async (memberAddress: string) => {
+    if (!confirm('Are you sure you want to kick this member?')) return;
+    const res = await kickMember.execute(groupId, memberAddress);
+    if (!res.error) executeGetGroup(groupId);
   };
 
   if (groupLoading && !group && !activeGroup) {
@@ -123,15 +112,15 @@ export default function GroupLandingPage({ params }: { params: Promise<{ groupId
             <motion.div className="max-w-2xl" variants={staggerContainer}>
               <motion.div className="flex items-center gap-3 mb-6" variants={fadeUp}>
                 <motion.div
-                  className="bg-[#0a0a0a] text-white px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest"
+                  className={`${activeGroup?.isPrivate ? 'bg-amber-100 text-amber-900' : 'bg-[#0a0a0a] text-white'} px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest`}
                   whileHover={{ scale: 1.06 }}
                   transition={{ type: 'spring', stiffness: 400 }}
                 >
-                  Public Group
+                  {activeGroup?.isPrivate ? 'Private Group' : 'Public Group'}
                 </motion.div>
                 <div className="flex items-center gap-1.5 text-gray-500 font-bold text-[11px] uppercase tracking-widest bg-white/60 px-3 py-1.5 rounded-full border border-white/80">
                   <Users size={14} className="text-gray-400" />
-                  {activeGroup?._count?.members || 1} Predictors
+                  {activeGroup?.memberCount as number || 1} Predictors
                 </div>
               </motion.div>
 
@@ -139,23 +128,43 @@ export default function GroupLandingPage({ params }: { params: Promise<{ groupId
                 className="text-[40px] md:text-[54px] font-bold text-gray-900 mb-4 tracking-tight leading-[1.05]"
                 variants={fadeUp}
               >
-                {activeGroup?.name || 'Loading Name...'}
+                {activeGroup?.name as string || 'Loading Name...'}
               </motion.h1>
 
               <motion.p className="text-[16px] text-gray-500 font-medium leading-relaxed max-w-xl" variants={fadeUp}>
-                {activeGroup?.description || 'Build your conviction profile and predict with friends.'}
+                {activeGroup?.description as string || 'Build your conviction profile and predict with friends.'}
               </motion.p>
             </motion.div>
 
             <motion.div className="flex flex-col sm:flex-row gap-4 shrink-0 mt-2" variants={fadeUp}>
+              {isAdmin ? (
+                <motion.button
+                  onClick={() => setIsSettingsOpen(true)}
+                  className="w-12 h-12 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-500 hover:text-black hover:border-gray-400 transition-all shadow-sm"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Settings size={20} />
+                </motion.button>
+              ) : (
+                <motion.button
+                  onClick={handleLeave}
+                  className="w-12 h-12 flex items-center justify-center rounded-full bg-white border border-gray-200 text-red-500 hover:bg-red-50 transition-all shadow-sm"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  title="Leave Group"
+                >
+                  <LogOut size={20} />
+                </motion.button>
+              )}
               <motion.button
                 onClick={handleCopyInvite}
                 className="flex items-center justify-center gap-2 bg-white border border-gray-200 hover:border-gray-400 text-gray-700 py-3.5 px-6 rounded-full font-bold text-[14px] transition-all shadow-sm"
                 whileHover={{ scale: 1.04, boxShadow: '0 4px 20px rgba(0,0,0,0.10)' }}
                 whileTap={{ scale: 0.97 }}
               >
-                <Share2 size={16} />
-                {copied ? '✓ Link Copied!' : 'Invite Friends'}
+                {copied ? <Check size={16} className="text-emerald-500" /> : <Share2 size={16} />}
+                {copied ? 'Link Copied!' : 'Invite Friends'}
               </motion.button>
               <motion.button
                 onClick={() => setIsModalOpen(true)}
@@ -210,9 +219,9 @@ export default function GroupLandingPage({ params }: { params: Promise<{ groupId
             className="grid grid-cols-1 md:grid-cols-2 gap-8"
             variants={staggerContainer}
           >
-            {markets.map((market, idx) => (
+            {markets.map((market) => (
               <motion.div
-                key={market.id}
+                key={market.id as string}
                 variants={fadeScale}
                 whileHover={{
                   y: -8,
@@ -254,22 +263,22 @@ export default function GroupLandingPage({ params }: { params: Promise<{ groupId
         <div className="flex items-baseline justify-between border-b-2 border-gray-50 pb-6">
           <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tight">Predictors</h2>
           <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-            {group?.members?.length || 0} Members
+            {activeGroup?.memberCount as number || 0} Members
           </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {group?.members?.map((member: any, idx: number) => (
+          {activeGroup?.members && (activeGroup.members as any[]).map((member: any, idx: number) => (
             <motion.div
               key={member.address}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05 }}
-              className="flex items-center gap-4 bg-white p-5 rounded-3xl border-2 border-gray-50 hover:border-black/5 transition-colors"
+              className="group flex items-center gap-4 bg-white p-5 rounded-3xl border-2 border-gray-50 hover:border-black/5 transition-colors"
             >
               <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex-shrink-0 relative border-2 border-gray-100">
                 {member.avatarUrl ? (
-                  <img src={member.avatarUrl} alt="avatar" className="w-full h-full object-cover" />
+                  <img src={member.avatarUrl as string} alt={(member.username as string) || 'User avatar'} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400">
                     <Users size={20} />
@@ -281,6 +290,15 @@ export default function GroupLandingPage({ params }: { params: Promise<{ groupId
                   <span className="font-bold text-gray-900 truncate">
                     {member.username || `${member.address.slice(0, 6)}...${member.address.slice(-4)}`}
                   </span>
+                  {member.address.toLowerCase() === activeGroup?.adminAddress?.toLowerCase() ? (
+                    <span className="bg-black text-white px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tighter">
+                      Admin
+                    </span>
+                  ) : (
+                    <span className="bg-gray-100 text-gray-500 px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-tighter">
+                      Predictor
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-3 text-xs font-bold text-gray-400 uppercase tracking-widest">
                   <div className="flex items-center gap-1 text-yellow-600">
@@ -293,6 +311,15 @@ export default function GroupLandingPage({ params }: { params: Promise<{ groupId
                   </div>
                 </div>
               </div>
+              {isAdmin && member.address.toLowerCase() !== activeGroup?.adminAddress?.toLowerCase() && (
+                <button
+                  onClick={() => handleKick(member.address)}
+                  className="w-8 h-8 flex shrink-0 items-center justify-center rounded-full bg-red-50 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-100"
+                  title="Kick Member"
+                >
+                  <UserMinus size={14} />
+                </button>
+              )}
             </motion.div>
           ))}
         </div>
@@ -304,6 +331,18 @@ export default function GroupLandingPage({ params }: { params: Promise<{ groupId
         onClose={() => setIsModalOpen(false)}
         onSuccess={() => executeListMarkets(groupId)}
       />
+
+      {activeGroup && (
+        <GroupSettingsModal
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+          groupId={groupId}
+          initialName={activeGroup.name}
+          initialDescription={activeGroup.description}
+          initialIsPrivate={activeGroup.isPrivate}
+          onSuccess={() => executeGetGroup(groupId)}
+        />
+      )}
     </motion.section>
   );
 }

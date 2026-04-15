@@ -60,7 +60,7 @@ function useApiCall<T, P extends any[]>(
 export function useGroups(token?: string) {
   const createGroup = useApiCall(
     useCallback(
-      (data: { name: string; description?: string }) =>
+      (data: { name: string; description?: string; isPrivate?: boolean }) =>
         groupApi.create(token || "", data),
       [token]
     ),
@@ -69,6 +69,26 @@ export function useGroups(token?: string) {
 
   const joinGroup = useApiCall(
     useCallback((groupId: string) => groupApi.join(token || "", groupId), [token]),
+    false
+  );
+
+  const leaveGroup = useApiCall(
+    useCallback((groupId: string) => groupApi.leave(token || "", groupId), [token]),
+    false
+  );
+
+  const kickMember = useApiCall(
+    useCallback((groupId: string, address: string) => groupApi.kickMember(token || "", groupId, address), [token]),
+    false
+  );
+
+  const updateGroup = useApiCall(
+    useCallback((groupId: string, data: { name?: string; description?: string; isPrivate?: boolean }) => groupApi.updateGroup(token || "", groupId, data), [token]),
+    false
+  );
+
+  const deleteGroup = useApiCall(
+    useCallback((groupId: string) => groupApi.deleteGroup(token || "", groupId), [token]),
     false
   );
 
@@ -91,11 +111,15 @@ export function useGroups(token?: string) {
     () => ({
       createGroup,
       joinGroup,
+      leaveGroup,
+      kickMember,
+      updateGroup,
+      deleteGroup,
       getGroup,
       getLeaderboard,
       listGroups,
     }),
-    [createGroup, joinGroup, getGroup, getLeaderboard, listGroups]
+    [createGroup, joinGroup, leaveGroup, kickMember, updateGroup, deleteGroup, getGroup, getLeaderboard, listGroups]
   );
 }
 

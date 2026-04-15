@@ -13,7 +13,7 @@ export type WebSocketEventType =
 
 export interface WebSocketEvent {
   type: WebSocketEventType;
-  data: any;
+  data: unknown;
   groupId?: string;
   timestamp: number;
 }
@@ -26,7 +26,7 @@ export class PresightWebSocket {
   private reconnectDelay = 3000;
   private listeners: Map<
     WebSocketEventType | "connected" | "disconnected" | "error",
-    Set<(data: any) => void>
+    Set<(data: unknown) => void>
   > = new Map();
 
   constructor(url: string = WS_URL) {
@@ -64,8 +64,8 @@ export class PresightWebSocket {
           this.emit("disconnected", null);
           this.attemptReconnect();
         };
-      } catch (error) {
-        reject(error);
+      } catch (_e) {
+        reject(_e);
       }
     });
   }
@@ -85,7 +85,7 @@ export class PresightWebSocket {
    */
   on(
     event: WebSocketEventType | "connected" | "disconnected" | "error",
-    callback: (data: any) => void
+    callback: (data: unknown) => void
   ): () => void {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());
@@ -129,9 +129,9 @@ export class PresightWebSocket {
   /**
    * Emit event to listeners
    */
-  private emit(event: string, data: any): void {
+  private emit(event: string, data: unknown): void {
     const handlers = this.listeners.get(
-      event as any
+      event as WebSocketEventType | 'connected' | 'disconnected' | 'error'
     );
     if (handlers) {
       handlers.forEach((handler) => handler(data));

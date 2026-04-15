@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Clock, ChevronRight } from 'lucide-react';
+import { Clock, ChevronRight, ShieldCheck, Flame, Scale, TrendingUp } from 'lucide-react';
 import { formatUnits } from 'viem';
 
 interface MarketCardProps {
@@ -43,113 +42,109 @@ export function MarketCard({ market, onClick }: MarketCardProps) {
   const yesAmount = BigInt(market.yesAmount || '0');
   const noAmount = BigInt(market.noAmount || '0');
   const totalAmount = yesAmount + noAmount;
-  const yesPercent = totalAmount > BigInt(0) ? Number((yesAmount * BigInt(100)) / totalAmount) : 50;
-  const noPercent = 100 - yesPercent;
-  const totalMUSD = parseFloat(formatUnits(totalAmount, 18)).toFixed(2);
-
+  
+  // Calculate exact percentages
+  let yesPercent = 50;
+  let noPercent = 50;
+  if (totalAmount > BigInt(0)) {
+    yesPercent = Number((yesAmount * BigInt(1000)) / totalAmount) / 10;
+    noPercent = 100 - yesPercent;
+  }
+  
+  const totalMUSD = parseFloat(formatUnits(totalAmount, 18)).toFixed(0);
   const isZeroRisk = market.stakeMode === 'zero-risk';
 
   return (
-    <motion.div
+    <div
       onClick={onClick}
-      className="glass-card cursor-pointer p-6 relative overflow-hidden group"
-      whileHover={{ y: -6, boxShadow: '0 20px 48px rgba(0,0,0,0.12)' }}
-      transition={{ type: 'spring', stiffness: 320, damping: 22 }}
+      className="group flex flex-col justify-between h-full cursor-pointer bg-white rounded-3xl p-6 border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] transition-all duration-300 hover:shadow-[0_8px_30px_-8px_rgba(0,0,0,0.1)] hover:border-gray-200"
     >
-      {/* Subtle gradient accent top strip */}
-      <div
-        className="absolute top-0 left-0 right-0 h-[3px]"
-        style={{
-          background: isZeroRisk
-            ? 'linear-gradient(90deg, #3b82f6, #60a5fa)'
-            : 'linear-gradient(90deg, #f97316, #fb923c)',
-        }}
-      />
-
-      {/* Header row */}
-      <div className="flex items-center justify-between mb-5">
-        {/* Stake mode badge */}
-        <div
-          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
-            isZeroRisk
-              ? 'bg-blue-50/80 text-blue-700 border-blue-200/60'
-              : 'bg-orange-50/80 text-orange-700 border-orange-200/60'
-          }`}
-        >
-          <span className="text-[12px]">{isZeroRisk ? '😎' : '🔥'}</span>
-          {isZeroRisk ? 'Zero Risk' : 'Full Stake'}
-        </div>
-
-        {/* Timer */}
-        <div className="flex items-center gap-1.5 text-gray-400 font-bold text-[10px] uppercase tracking-widest bg-white/50 px-2.5 py-1 rounded-full border border-white/70">
-          <Clock size={11} />
-          {timeLeft || '—'}
-        </div>
-      </div>
-
-      {/* Question */}
-      <h3 className="text-[18px] font-bold text-gray-900 mb-5 leading-snug tracking-tight group-hover:text-black transition-colors">
-        {market.question}
-      </h3>
-
-      {/* Progress bars */}
-      <div className="space-y-2.5 mb-5">
-        {/* YES */}
-        <div className="space-y-1.5">
-          <div className="flex justify-between items-center text-[11px] font-bold">
-            <span className="text-gray-500">Yes</span>
-            <span className="text-gray-800">{yesPercent}%</span>
-          </div>
-          <div className="h-[7px] w-full bg-white/60 rounded-full overflow-hidden border border-white/70">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${yesPercent}%` }}
-              transition={{ duration: 0.9, ease: [0.25, 0.1, 0.25, 1] as any }}
-              className="h-full bg-emerald-400 rounded-full"
-            />
-          </div>
-        </div>
-        {/* NO */}
-        <div className="space-y-1.5">
-          <div className="flex justify-between items-center text-[11px] font-bold">
-            <span className="text-gray-500">No</span>
-            <span className="text-gray-800">{noPercent}%</span>
-          </div>
-          <div className="h-[7px] w-full bg-white/60 rounded-full overflow-hidden border border-white/70">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${noPercent}%` }}
-              transition={{ duration: 0.9, ease: [0.25, 0.1, 0.25, 1] as any, delay: 0.08 }}
-              className="h-full bg-gray-300 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Footer row */}
-      <div className="flex items-center justify-between pt-3 border-t border-black/5">
-        <div className="flex items-center gap-4">
-          <div className="flex flex-col">
-            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Volume</span>
-            <span className="text-[13px] font-bold text-gray-900">{totalMUSD} MUSD</span>
-          </div>
-          <div className="h-4 w-px bg-black/8" />
-          <div className="flex flex-col">
-            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Resolver</span>
-            <span className="text-[13px] font-bold text-gray-900 truncate max-w-[72px]">
-              {market.resolverAddress === '0x' ? 'System' : market.resolverAddress?.slice(0, 6)}
+      <div className="flex-col flex h-full">
+        {/* Header Badges */}
+        <div className="flex items-start justify-between mb-5 gap-2">
+          {/* Mode Badge */}
+          <div className="flex bg-gray-50 border border-gray-100 rounded-full py-1.5 px-3 items-center gap-1.5">
+            {isZeroRisk ? (
+              <ShieldCheck size={14} className="text-emerald-600" />
+            ) : (
+              <Flame size={14} className="text-orange-600" />
+            )}
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-700 pt-[1px]">
+              {isZeroRisk ? 'Zero Risk' : 'Full Stake'}
             </span>
           </div>
+
+          {/* Timer Badge */}
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-100 rounded-full text-[10px] font-medium text-gray-500">
+            <Clock size={12} className="text-gray-400" />
+            <span className="pt-[1px]">{timeLeft || '—'}</span>
+          </div>
         </div>
 
-        <motion.div
-          className="w-8 h-8 rounded-full bg-white/70 border border-white flex items-center justify-center text-gray-300"
-          whileHover={{ scale: 1.15, backgroundColor: '#0a0a0a', color: '#fff' }}
-          transition={{ type: 'spring', stiffness: 380, damping: 20 }}
-        >
-          <ChevronRight size={15} />
-        </motion.div>
+        {/* Question Area */}
+        <div className="flex-1 mb-8">
+          <h3 className="text-xl font-semibold text-gray-900 leading-snug line-clamp-3">
+            {market.question}
+          </h3>
+        </div>
+
+        {/* Lower Section (Pools + Stats) */}
+        <div className="mt-auto space-y-6">
+          {/* Progress Split Bar */}
+          <div className="space-y-3">
+            <div className="flex justify-between items-end">
+              <span className="text-lg font-bold text-emerald-600 leading-none">
+                {yesPercent.toFixed(1)}<span className="text-sm font-medium text-emerald-600/70 ml-0.5">% Yes</span>
+              </span>
+              <span className="text-lg font-bold text-rose-500 leading-none">
+                {noPercent.toFixed(1)}<span className="text-sm font-medium text-rose-500/70 ml-0.5">% No</span>
+              </span>
+            </div>
+
+            {/* Split Track */}
+            <div className="h-2 w-full bg-gray-100 rounded-full flex overflow-hidden">
+              <div 
+                className="h-full bg-emerald-500 transition-all duration-500"
+                style={{ width: `${yesPercent}%` }}
+              />
+              <div 
+                className="h-full bg-rose-500 transition-all duration-500"
+                style={{ width: `${noPercent}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Footer Stats Row */}
+          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div className="flex items-center gap-5">
+              {/* Volume */}
+              <div className="flex items-center gap-2">
+                <TrendingUp size={16} className="text-gray-400" />
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-medium text-gray-500 leading-none mb-1">Volume</span>
+                  <span className="text-xs font-semibold text-gray-900 leading-none">{totalMUSD} MUSD</span>
+                </div>
+              </div>
+
+              {/* Resolver */}
+              <div className="flex items-center gap-2 hidden sm:flex">
+                <Scale size={16} className="text-gray-400" />
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-medium text-gray-500 leading-none mb-1">Oracle</span>
+                  <span className="text-xs font-semibold text-gray-900 leading-none truncate max-w-[80px]">
+                    {market.resolverAddress === '0x' || !market.resolverAddress ? 'Mezo' : market.resolverAddress?.slice(0, 6)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* CTA Button */}
+            <div className="w-8 h-8 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 group-hover:bg-gray-100 group-hover:text-gray-900 transition-colors">
+              <ChevronRight size={16} strokeWidth={2} />
+            </div>
+          </div>
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

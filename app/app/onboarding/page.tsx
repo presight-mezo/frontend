@@ -17,7 +17,6 @@ import {
   Wallet,
   TrendingUp,
   Activity,
-  UserCheck,
   CircleCheckBig,
   Smartphone
 } from 'lucide-react';
@@ -223,132 +222,7 @@ function FloatingTagsBackground({ continueSignal }: { continueSignal: number }) 
    A card with a left accent border that floods with the accent
    colour on hover (matching the limoncello.studio effect).
 ──────────────────────────────────────────────────────────────── */
-function LimonCard({
-  accent,
-  icon,
-  title,
-  desc,
-  delay = 0,
-  tags,
-}: {
-  accent: string;
-  icon?: string;
-  title: string;
-  desc?: string;
-  delay?: number;
-  tags?: string[];
-}) {
-  const hovered = false;
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay, duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
-      style={{
-        position: 'relative',
-        display: 'flex',
-        alignItems: 'flex-start',
-        gap: 14,
-        borderRadius: 0,
-        borderBottom: `1px solid rgba(0,0,0,0.08)`,
-        borderLeft: `4px solid ${accent}`,
-        padding: '18px 20px',
-        overflow: 'hidden',
-        cursor: 'default',
-        transition: 'background 0.35s cubic-bezier(0.25,0.1,0.25,1)',
-        background: hovered ? accent : '#f8f8f7',
-      }}
-    >
-      {/* Icon */}
-      {icon && (
-        <span
-          style={{
-            fontSize: 22,
-            flexShrink: 0,
-            marginTop: 2,
-            transition: 'filter 0.35s',
-            filter: hovered ? 'brightness(0) invert(1)' : 'none',
-          }}
-        >
-          {icon}
-        </span>
-      )}
-
-      {/* Text block */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div
-          style={{
-            fontSize: 14,
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            color: hovered ? '#0a0a0a' : '#0a0a0a',
-            marginBottom: desc ? 3 : 0,
-            transition: 'color 0.35s',
-          }}
-        >
-          {title}
-        </div>
-        {desc && (
-          <div
-            style={{
-              fontSize: 13,
-              lineHeight: 1.55,
-              color: hovered ? 'rgba(0,0,0,0.65)' : '#666',
-              transition: 'color 0.35s',
-            }}
-          >
-            {desc}
-          </div>
-        )}
-        {tags && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
-            {tags.map((t) => (
-              <span
-                key={t}
-                style={{
-                  fontSize: 10,
-                  fontWeight: 700,
-                  letterSpacing: '0.06em',
-                  textTransform: 'uppercase',
-                  border: `1px solid ${hovered ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.2)'}`,
-                  borderRadius: 3,
-                  padding: '3px 7px',
-                  color: hovered ? '#0a0a0a' : '#555',
-                  transition: 'all 0.35s',
-                  background: 'transparent',
-                }}
-              >
-                {t}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Arrow icon */}
-      <div
-        style={{
-          flexShrink: 0,
-          width: 28,
-          height: 28,
-          borderRadius: '50%',
-          border: `1.5px solid ${hovered ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.18)'}`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 13,
-          color: hovered ? '#0a0a0a' : '#555',
-          transition: 'all 0.35s',
-          alignSelf: 'center',
-          marginLeft: 8,
-        }}
-      >
-        ↗
-      </div>
-    </motion.div>
-  );
-}
 
 /* ─── Step Indicator ─────────────────────────────────────────── */
 function StepDots({
@@ -749,31 +623,14 @@ function Screen3({ onNext, accent }: { onNext: () => void; accent: string }) {
   const { token } = useSiweAuth();
   const { data: balance, isLoading: isBalanceLoading } = useBalance({
     address,
-    token: '0x507Ac33B7B1332b4488AE772fB116cb2E0EA0511', // mUSD Address on Mezo Testnet
+    token: '0x507Ac33B7B1332b4488AE772fB116cb2E0EA0511' as `0x${string}`,
   });
 
-  const { data: troveData, isLoading: isTroveLoading } = useTrove(token);
+  const { data: troveData, isLoading: isTroveLoading } = useTrove(token) as any;
 
   const musdBalance = balance ? parseFloat(formatUnits(balance.value, balance.decimals)) : 0;
-  const btcCollateral = troveData ? parseFloat(troveData.troveBalance) : 0.5;
+  const btcCollateral = troveData ? parseFloat(troveData.troveBalance as string) : 0.5;
   const hasMusd = musdBalance > 0;
-
-  const infoCards = [
-    {
-      title: 'BTC Collateral',
-      desc: isTroveLoading ? 'Loading vault...' : `${btcCollateral.toFixed(2)} BTC locked in Mezo vault · ≈ $${(btcCollateral * 67000).toLocaleString()}`,
-    },
-    {
-      title: isBalanceLoading ? 'Checking balance...' : hasMusd ? `${musdBalance.toFixed(2)} MUSD available` : 'You have 0 MUSD',
-      desc: hasMusd
-        ? "You're ready to stake in prediction markets."
-        : 'Mint MUSD against your BTC collateral to join any market.',
-    },
-    {
-      title: 'Mint MUSD',
-      desc: `From your ${btcCollateral} BTC · instant, gasless`,
-    },
-  ];
 
   const handleAction = () => {
     if (!hasMusd && !isBalanceLoading) {
@@ -928,14 +785,14 @@ function Screen4({ onNext, accent }: { onNext: () => void; accent: string }) {
   // Sync existing mandate on mount
   useEffect(() => {
     if (token) {
-      getMandate.execute().then(res => {
+      getMandate.execute().then((res: any) => {
         if (res.data?.limitPerMarket) {
           const formatted = parseFloat(formatUnits(BigInt(res.data.limitPerMarket), 18));
           setLimit(Math.min(formatted, MAX));
         }
       });
     }
-  }, [token]);
+  }, [token, getMandate]);
 
   const handleApprove = async () => {
     setIsSubmitting(true);
@@ -948,18 +805,14 @@ function Screen4({ onNext, accent }: { onNext: () => void; accent: string }) {
       } else {
         onNext();
       }
-    } catch (e) {
+    } catch {
       setErrorMsg("Failed to approve mandate");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const benefits = [
-    { title: 'Gasless Staking', desc: 'Protocol covers your fees' },
-    { title: 'One-Click UX', desc: 'No transaction prompts' },
-    { title: 'Total Control', desc: 'Revoke limit anytime' }
-  ];
+
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
@@ -1113,17 +966,14 @@ function Screen4({ onNext, accent }: { onNext: () => void; accent: string }) {
 /* ─── Screen 5 — Mode preference ────────────────────────────── */
 
 function OnboardingModeCard({
-  modeKey,
   title,
   price,
   priceStyle,
-  suffix,
-  buttonLabel,
-  usageItems,
-  featureItems,
   variant,
   isSelected,
   onClick,
+  usageItems,
+  featureItems,
 }: {
   modeKey: string;
   title: string;
@@ -1324,7 +1174,7 @@ function OnboardingContent() {
 
   const handleDone = async () => {
     if (selectedMode) {
-      await onboardProfile.execute({ defaultRiskMode: selectedMode as any });
+      await onboardProfile.execute({ defaultRiskMode: selectedMode as 'zero-risk' | 'full-stake' });
     }
 
     if (groupId) {

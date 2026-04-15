@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useMarkets } from '@/hooks/useApi';
 import { useSiweAuth } from '@/hooks/useSiweAuth';
 import { useAccount } from 'wagmi';
-import { X, HelpCircle, Loader2 } from 'lucide-react';
+import { X, HelpCircle, Loader2, ShieldCheck, Flame } from 'lucide-react';
 
 interface CreateMarketModalProps {
   isOpen: boolean;
@@ -147,26 +147,28 @@ export function CreateMarketModal({ isOpen, groupId, onClose, onSuccess }: Creat
                     <motion.button
                       type="button"
                       onClick={() => setStakeMode('zero-risk')}
-                      className={`flex-1 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-[12px] transition-all ${
+                      className={`flex-1 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-[12px] flex items-center justify-center gap-2 transition-all ${
                         stakeMode === 'zero-risk'
                           ? 'bg-white shadow text-blue-600 border border-blue-100/60'
                           : 'text-gray-400 hover:text-gray-600'
                       }`}
                       whileTap={{ scale: 0.96 }}
                     >
-                      😎 Zero
+                      <ShieldCheck size={12} />
+                      Zero
                     </motion.button>
                     <motion.button
                       type="button"
                       onClick={() => setStakeMode('full-stake')}
-                      className={`flex-1 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-[12px] transition-all ${
+                      className={`flex-1 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-[12px] flex items-center justify-center gap-2 transition-all ${
                         stakeMode === 'full-stake'
                           ? 'bg-white shadow text-orange-600 border border-orange-100/60'
                           : 'text-gray-400 hover:text-gray-600'
                       }`}
                       whileTap={{ scale: 0.96 }}
                     >
-                      🔥 Full
+                      <Flame size={12} />
+                      Full
                     </motion.button>
                   </div>
                 </div>
@@ -188,11 +190,21 @@ export function CreateMarketModal({ isOpen, groupId, onClose, onSuccess }: Creat
               {/* Info box */}
               <div className="flex gap-3 items-start p-4 bg-white/50 rounded-[16px] border border-white/80">
                 <HelpCircle size={16} className="text-gray-400 shrink-0 mt-0.5" />
-                <p className="text-[11px] leading-relaxed text-gray-500 font-medium">
-                  <strong className="text-gray-700">😎 Zero Risk</strong> stakes only your accrued yield — principal stays safe.{' '}
-                  <strong className="text-gray-700">🔥 Full Stake</strong> locks your actual MUSD.{' '}
-                  The <strong className="text-gray-700">Resolver</strong> calls the outcome when the deadline hits.
-                </p>
+                <div className="text-[11px] leading-relaxed text-gray-500 font-medium">
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <ShieldCheck size={10} className="text-blue-500" />
+                    <strong className="text-gray-700">Zero Risk</strong>
+                    <span className="ml-1">stakes only your accrued yield — principal stays safe.</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <Flame size={10} className="text-orange-500" />
+                    <strong className="text-gray-700">Full Stake</strong>
+                    <span className="ml-1">locks your actual MUSD.</span>
+                  </div>
+                  <div className="pl-4">
+                    The <strong className="text-gray-700">Resolver</strong> calls the outcome when the deadline hits.
+                  </div>
+                </div>
               </div>
 
               {/* Error */}

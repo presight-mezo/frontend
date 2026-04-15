@@ -10,8 +10,8 @@ import { useSiweAuth } from '@/hooks/useSiweAuth';
 export default function PublicProfilePage() {
   const params = useParams();
   const address = params.address as string;
-  const { getGlobalProfile, updateProfile } = useProfile();
-  const { address: currentUserAddress } = useSiweAuth();
+  const { token, address: currentUserAddress } = useSiweAuth();
+  const { getGlobalProfile, updateProfile } = useProfile(token);
   
   const isOwner = currentUserAddress?.toLowerCase() === address.toLowerCase();
   const [isEditing, setIsEditing] = useState(false);
@@ -21,9 +21,9 @@ export default function PublicProfilePage() {
     if (address) {
       getGlobalProfile.execute(address);
     }
-  }, [address]);
+  }, [address, getGlobalProfile]);
 
-  const profile: any = getGlobalProfile.data;
+  const profile = getGlobalProfile.data as any;
   const loading = getGlobalProfile.loading;
 
   useEffect(() => {
@@ -38,9 +38,24 @@ export default function PublicProfilePage() {
   }, [profile]);
 
   const handleSaveProfile = async () => {
-    await updateProfile.execute(editForm);
-    setIsEditing(false);
-    getGlobalProfile.execute(address);
+    const { error } = await updateProfile.execute(editForm);
+    if (!error) {
+      setIsEditing(false);
+      getGlobalProfile.execute(address);
+    }
+  };
+
+  const toggleEditing = () => {
+    if (!isEditing && profile) {
+      // Reset form to current profile data before opening
+      setEditForm({
+        username: profile.username || '',
+        bio: profile.bio || '',
+        avatarUrl: profile.avatarUrl || '',
+        twitter: profile.twitter || '',
+      });
+    }
+    setIsEditing(!isEditing);
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -118,7 +133,7 @@ export default function PublicProfilePage() {
       <section className="p-8 flex flex-col items-center justify-center h-[60vh]">
         <span className="material-symbols-outlined text-6xl text-gray-200 mb-4">person_off</span>
         <h2 className="text-xl font-bold text-gray-500">Profile not found</h2>
-        <p className="text-sm text-gray-400 mt-2">This address hasn't participated in any prediction markets yet.</p>
+        <p className="text-sm text-gray-400 mt-2">This address hasn&apos;t participated in any prediction markets yet.</p>
       </section>
     );
   }
@@ -126,64 +141,76 @@ export default function PublicProfilePage() {
   return (
     <section className="p-8 animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-12 pb-8 border-b border-gray-100/50">
-        <div className="flex items-start gap-6">
-          <div className="w-24 h-24 rounded-3xl overflow-hidden shadow-lg border-4 border-white shrink-0 bg-gray-50 flex items-center justify-center">
-            {profile?.avatarUrl ? (
-              <img src={profile.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-            ) : (
-              <Jazzicon address={address} />
-            )}
-          </div>
-          <div>
-            <h1 className="font-headline text-4xl font-extrabold tracking-tight text-black uppercase">
-              {profile?.username || `${address.slice(0, 6)}...${address.slice(-4)}`}
-            </h1>
-            <div className="flex items-center gap-3 mt-3">
-              <span className="text-xs font-mono text-gray-500 bg-gray-50 px-2 py-1 rounded-md border border-gray-100 shadow-sm">
-                {address}
-              </span>
-              <button 
-                onClick={copyToClipboard}
-                className="p-1.5 text-gray-400 hover:text-mezo-teal transition-colors"
-                title="Copy profile link"
-              >
-                <span className="material-symbols-outlined text-[16px]">content_copy</span>
-              </button>
-              {profile?.twitter && (
-                <a href={`https://twitter.com/${profile.twitter.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-[11px] font-bold text-blue-500 hover:text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-100 shadow-sm transition-colors">
-                  <span className="material-symbols-outlined text-[14px]">tag</span>
-                  {profile.twitter}
-                </a>
+          <div className="flex items-start gap-8">
+            <div className="relative group">
+              <div className="w-28 h-28 rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white shrink-0 bg-gray-50 flex items-center justify-center transition-transform duration-500 group-hover:scale-[1.02]">
+                {profile?.avatarUrl ? (
+                  <img src={profile.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full transform scale-150">
+                    <Jazzicon address={address} />
+                  </div>
+                )}
+              </div>
+              <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-white rounded-xl shadow-lg border border-gray-100 flex items-center justify-center">
+                <span className="material-symbols-outlined text-mezo-teal text-sm font-black">verified</span>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <div className="flex items-center gap-3 mb-2">
+                <h1 className="font-headline text-5xl font-black tracking-tight text-black leading-none">
+                  {profile?.username || (isOwner ? "Name your profile" : `${address.slice(0, 6)}...${address.slice(-4)}`)}
+                </h1>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 text-[10px] font-mono text-gray-400 bg-gray-50/50 px-3 py-1.5 rounded-full border border-gray-100/50 shadow-inner">
+                  <div className="w-1.5 h-1.5 rounded-full bg-mezo-teal/60" />
+                  {address}
+                  <button 
+                    onClick={copyToClipboard}
+                    className="ml-1 text-gray-300 hover:text-mezo-teal transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[14px]">content_copy</span>
+                  </button>
+                </div>
+
+                {profile?.twitter && (
+                  <a href={`https://twitter.com/${profile.twitter.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-[10px] font-black text-blue-500 hover:text-blue-600 bg-blue-50/50 px-3 py-1.5 rounded-full border border-blue-100/50 transition-all hover:scale-105 active:scale-95">
+                    <span className="material-symbols-outlined text-[14px]">tag</span>
+                    {profile.twitter}
+                  </a>
+                )}
+              </div>
+
+              {profile?.bio && (
+                <p className="mt-6 text-base text-gray-600 max-w-2xl leading-relaxed font-medium tracking-tight">
+                  {profile.bio}
+                </p>
               )}
-            </div>
-            {profile?.bio && (
-              <p className="mt-4 text-sm text-gray-600 max-w-xl leading-relaxed font-medium">
-                {profile.bio}
-              </p>
-            )}
-            
-            {/* Dynamic Badges */}
-            <div className="flex flex-wrap gap-2 mt-5">
-               <div className="px-3 py-1.5 bg-mezo-teal/10 rounded-full border border-mezo-teal/20 shadow-sm">
-                 <span className="text-[10px] font-black text-mezo-teal uppercase tracking-wider flex items-center gap-1.5">
-                   <span className="material-symbols-outlined text-[13px]">verified</span>
-                   Mezo Pioneer
-                 </span>
-               </div>
-               <div className={`px-3 py-1.5 rounded-full border shadow-sm ${profile?.defaultRiskMode === 'zero-risk' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-orange-50 border-orange-200 text-orange-700'}`}>
-                 <span className="text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
-                   <span className="material-symbols-outlined text-[13px]">{profile?.defaultRiskMode === 'zero-risk' ? 'shield' : 'local_fire_department'}</span>
-                   {profile?.defaultRiskMode === 'zero-risk' ? 'Zero-Risk Staker' : 'Full-Stake Degen'}
-                 </span>
-               </div>
+              
+              <div className="flex flex-wrap gap-3 mt-6">
+                 <div className="px-4 py-2 bg-mezo-teal/5 rounded-2xl border border-mezo-teal/10 shadow-sm transition-colors hover:bg-mezo-teal/10">
+                   <span className="text-[10px] font-black text-mezo-teal uppercase tracking-[0.15em] flex items-center gap-2">
+                     <span className="material-symbols-outlined text-[14px] leading-none">workspace_premium</span>
+                     Mezo Pioneer
+                   </span>
+                 </div>
+                 <div className={`px-4 py-2 rounded-2xl border shadow-sm transition-colors ${profile?.defaultRiskMode === 'zero-risk' ? 'bg-green-50/50 border-green-100 text-green-700 hover:bg-green-50' : 'bg-orange-50/50 border-orange-100 text-orange-700 hover:bg-orange-50'}`}>
+                   <span className="text-[10px] font-black uppercase tracking-[0.15em] flex items-center gap-2">
+                     <span className="material-symbols-outlined text-[14px] leading-none">{profile?.defaultRiskMode === 'zero-risk' ? 'shield' : 'local_fire_department'}</span>
+                     {profile?.defaultRiskMode === 'zero-risk' ? 'Zero-Risk Staker' : 'Full-Stake Degen'}
+                   </span>
+                 </div>
+              </div>
             </div>
           </div>
-        </div>
         
         {isOwner && (
           <div className="shrink-0 mt-2 md:mt-0">
             <button 
-              onClick={() => setIsEditing(!isEditing)}
+              onClick={toggleEditing}
               className="px-5 py-2.5 border-2 border-black rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all shadow-sm active:scale-95"
             >
               {isEditing ? 'Cancel Edit' : 'Edit Profile'}
@@ -201,6 +228,13 @@ export default function PublicProfilePage() {
              </div>
              <h2 className="text-xl font-black uppercase tracking-tight text-black">Edit Profile Details</h2>
           </div>
+
+          {updateProfile.error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3">
+              <span className="material-symbols-outlined text-red-500">error</span>
+              <p className="text-sm font-bold text-red-600">{updateProfile.error}</p>
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mb-8">
             <div>
               <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Username</label>

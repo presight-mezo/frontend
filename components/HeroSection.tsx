@@ -103,6 +103,7 @@ function InvoiceFloat() {
   );
 }
 
+import { ShieldCheck, Flame, Key, User, PartyPopper, UserCircle, Globe } from 'lucide-react';
 function PaymentCard() {
   return (
     <div style={{
@@ -115,13 +116,13 @@ function PaymentCard() {
     }}>
       <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.08em', marginBottom: 6 }}>PAYMENT OPTIONS</div>
       {[
-        { label: 'Full Stake', icon: '🔥', sub: 'MUSD' },
-        { label: 'Zero Risk', icon: '😎', sub: 'Yield' },
-        { label: 'Passport', icon: '🔑', sub: 'Gasless' },
+        { label: 'Full Stake', icon: <Flame size={10} className="text-orange-400" />, sub: 'MUSD' },
+        { label: 'Zero Risk', icon: <ShieldCheck size={10} className="text-teal-400" />, sub: 'Yield' },
+        { label: 'Passport', icon: <Key size={10} className="text-blue-400" />, sub: 'Gasless' },
       ].map((item) => (
         <div key={item.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <span style={{ fontSize: 10 }}>{item.icon}</span>
+            <span style={{ display: 'flex' }}>{item.icon}</span>
             <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.7)' }}>{item.label}</span>
           </div>
           <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)' }}>{item.sub}</span>
@@ -143,7 +144,7 @@ function NotificationBubble() {
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
         <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'linear-gradient(135deg, #f97316, #ef4444)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <span style={{ fontSize: 12 }}>👤</span>
+          <User size={14} className="text-white" />
         </div>
         <div>
           <div style={{ fontSize: 11, fontWeight: 700, color: '#111' }}>Christian K.</div>
@@ -153,8 +154,8 @@ function NotificationBubble() {
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#22c55e' }} />
         </div>
       </div>
-      <div style={{ fontSize: 10, color: '#555', lineHeight: 1.4 }}>
-        Hey squad, I just claimed my winnings. Wow, that was cool! 🎉
+      <div style={{ fontSize: 10, color: '#555', lineHeight: 1.4, display: 'flex', alignItems: 'center', gap: 2 }}>
+        Hey squad, I just claimed my winnings. Wow, that was cool! <PartyPopper size={12} className="text-orange-500" />
       </div>
       <div style={{ marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
         <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#00C2A8' }} />
@@ -318,20 +319,20 @@ export function HeroSection() {
           {[
             {
               id: 1,
-              name: 'Damini Ogulu', flag: '🇳🇬', text: '', time: '',
-              avatarBg: '#dbeafe', emoji: '👲🏽',
+              name: 'Damini Ogulu', country: 'Nigeria', text: '', time: '',
+              avatarBg: '#dbeafe', icon: <UserCircle size={24} className="text-blue-600" />,
               top: 0, left: '56%', rotate: '-6deg', zIndex: 1, width: 220
             },
             {
               id: 2,
-              name: 'Sidi Mansour', flag: '🇦🇪', text: 'Staking 100 MUSD of yield', time: '',
-              avatarBg: '#fce7f3', emoji: '👳🏽‍♂️',
+              name: 'Sidi Mansour', country: 'UAE', text: 'Staking 100 MUSD of yield', time: '',
+              avatarBg: '#fce7f3', icon: <UserCircle size={24} className="text-pink-600" />,
               top: 36, left: '46%', rotate: '-3deg', zIndex: 2, width: 260
             },
             {
               id: 3,
-              name: 'Simone Perele', flag: '🇺🇸', text: 'Backed YES on BTC closing > $70k', time: 'now',
-              avatarBg: '#fef3c7', emoji: '👩🏽',
+              name: 'Simone Perele', country: 'USA', text: 'Backed YES on BTC closing > $70k', time: 'now',
+              avatarBg: '#fef3c7', icon: <UserCircle size={24} className="text-amber-600" />,
               top: 76, left: '50%', rotate: '2deg', zIndex: 3, width: 340
             }
           ].map(t => (
@@ -347,8 +348,8 @@ export function HeroSection() {
               }}
             >
               <div style={{ position: 'relative', flexShrink: 0 }}>
-                <div style={{ width: 40, height: 40, borderRadius: '50%', background: t.avatarBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>
-                  {t.emoji}
+                <div style={{ width: 40, height: 40, borderRadius: '50%', background: t.avatarBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {t.icon}
                 </div>
               </div>
               <div style={{ flex: 1, textAlign: 'left', overflow: 'hidden' }}>

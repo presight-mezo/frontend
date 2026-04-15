@@ -42,15 +42,15 @@ function UnderlineWord({ children }: { children: string }) {
 }
 
 const marqueeItems = [
-  'Backed YES with 50 MUSD 📈',
-  'Claimed 100 MUSD Yield 💰',
-  'Resolved Market: BTC > 70k ✅',
-  'Yield auto-accrued (+1.2 MUSD) 🛡️',
-  'Ranked #1 on Leaderboard 🏆',
-  'Backed NO with 25 MUSD 📉',
-  'Passport mandate approved 🔑',
-  'Prize pool distributed 💸',
-  'Win rate increased to 80% 🔥',
+  'Backed YES with 50 MUSD',
+  'Claimed 100 MUSD Yield',
+  'Resolved Market: BTC > 70k',
+  'Yield auto-accrued (+1.2 MUSD)',
+  'Ranked #1 on Leaderboard',
+  'Backed NO with 25 MUSD',
+  'Passport mandate approved',
+  'Prize pool distributed',
+  'Win rate increased to 80%',
 ];
 
 export function CurrencySection() {

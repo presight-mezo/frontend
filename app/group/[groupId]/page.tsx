@@ -231,7 +231,7 @@ export default function GroupInvitePage({ params }: { params: Promise<{ groupId:
     getGroup.execute(groupId);
   }, [groupId]);
 
-  const group = getGroup.data;
+  const group = getGroup.data as any;
 
   const handleJoin = async () => {
     if (!isAuthenticated) {

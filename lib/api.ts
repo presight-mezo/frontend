@@ -15,11 +15,11 @@ export type ApiResponse<T> = {
 /**
  * Make authenticated API request with Bearer token (SIWE)
  */
-export async function apiRequest<T = any>(
+export async function apiRequest<T = unknown>(
   endpoint: string,
   options: {
     method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-    body?: any;
+    body?: unknown;
     headers?: Record<string, string>;
     token?: string;
   } = {}
@@ -80,7 +80,7 @@ export function encodeSignatureAsToken(
  * Group API endpoints
  */
 export const groupApi = {
-  create: (token: string, data: { name: string; description?: string }) =>
+  create: (token: string, data: { name: string; description?: string; isPrivate?: boolean }) =>
     apiRequest("/api/v1/groups", {
       method: "POST",
       body: data,
@@ -100,6 +100,31 @@ export const groupApi = {
     apiRequest(`/api/v1/groups/${groupId}/leaderboard`),
 
   list: (token: string) => apiRequest("/api/v1/groups", { token }),
+
+  leave: (token: string, groupId: string) =>
+    apiRequest(`/api/v1/groups/${groupId}/leave`, {
+      method: "DELETE",
+      token,
+    }),
+
+  kickMember: (token: string, groupId: string, address: string) =>
+    apiRequest(`/api/v1/groups/${groupId}/members/${address}`, {
+      method: "DELETE",
+      token,
+    }),
+
+  updateGroup: (token: string, groupId: string, data: { name?: string; description?: string; isPrivate?: boolean }) =>
+    apiRequest(`/api/v1/groups/${groupId}`, {
+      method: "PUT",
+      body: data,
+      token,
+    }),
+
+  deleteGroup: (token: string, groupId: string) =>
+    apiRequest(`/api/v1/groups/${groupId}`, {
+      method: "DELETE",
+      token,
+    }),
 };
 
 /**

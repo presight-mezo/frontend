@@ -2,6 +2,7 @@
 
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
+import { Check, ArrowUp, Heart } from 'lucide-react';
 
 function InvoicePreview() {
   const ref = useRef<HTMLDivElement>(null);
@@ -30,9 +31,9 @@ function InvoicePreview() {
     >
       <div style={{ fontSize: 18, lineHeight: 1.3, fontWeight: 600 }}>
         Yield accruing<br />
-        <span style={{ fontSize: 22 }}>0.42 MUSD ↑</span>
+        <span style={{ fontSize: 22, display: 'flex', alignItems: 'center', gap: 6 }}>0.42 MUSD <ArrowUp size={18} className="text-white" /></span>
       </div>
-      <div style={{ fontSize: 18, marginTop: 4, fontWeight: 700 }}>Principal Safe! ♥</div>
+      <div style={{ fontSize: 18, marginTop: 4, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>Principal Safe! <Heart size={16} fill="white" /></div>
     </motion.div>
   );
 }
@@ -196,7 +197,7 @@ function PricingCard({
           <div style={{ fontSize: 12, fontWeight: 600, color: '#0a0a0a', marginBottom: 8 }}>Usage</div>
           {usageItems.map((item) => (
             <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-              <span style={{ color: '#22c55e', fontSize: 13, fontWeight: 700 }}>✓</span>
+              <Check size={14} className="text-emerald-500" />
               <span style={{ fontSize: 13, color: '#444' }}>{item}</span>
             </div>
           ))}
@@ -207,7 +208,7 @@ function PricingCard({
           <div style={{ fontSize: 12, fontWeight: 600, color: '#0a0a0a', marginBottom: 8 }}>Features</div>
           {featureItems.map((item) => (
             <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-              <span style={{ color: '#22c55e', fontSize: 13, fontWeight: 700 }}>✓</span>
+              <Check size={14} className="text-emerald-500" />
               <span style={{ fontSize: 13, color: '#444' }}>{item}</span>
             </div>
           ))}
