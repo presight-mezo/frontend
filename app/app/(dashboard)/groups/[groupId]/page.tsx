@@ -7,15 +7,16 @@ import { useSiweAuth } from '@/hooks/useSiweAuth';
 import { MarketCard } from '@/components/markets/MarketCard';
 import { CreateMarketModal } from '@/components/markets/CreateMarketModal';
 import { GroupSettingsModal } from '@/components/groups/GroupSettingsModal';
-import { Plus, Users, Share2, ArrowLeft, Loader2, Info, TrendingUp, Trophy, Settings, LogOut, UserMinus, Check } from 'lucide-react';
+import { Plus, Users, Share2, ArrowLeft, Loader2, Info, TrendingUp, Trophy, Settings, LogOut, UserMinus, Check, Award } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { SCORE_BANDS, getBand, fmt } from '@/app/app/(dashboard)/leaderboard/page';
 
 export default function GroupLandingPage({ params }: { params: Promise<{ groupId: string }> }) {
   const { groupId } = use(params);
   const router = useRouter();
   const { token } = useSiweAuth();
 
-  const { getGroup: { data: group, execute: executeGetGroup, loading: groupLoading, error: groupError } } = useGroups(token || undefined);
+  const { getGroup: { data: group, execute: executeGetGroup, loading: groupLoading, error: groupError }, getLeaderboard, leaveGroup, kickMember } = useGroups(token || undefined);
   const { listMarkets: { data: marketsData, execute: executeListMarkets, loading: marketsLoading } } = useMarkets(token || undefined);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,7 +26,8 @@ export default function GroupLandingPage({ params }: { params: Promise<{ groupId
   useEffect(() => {
     executeGetGroup(groupId);
     executeListMarkets(groupId);
-  }, [groupId, executeGetGroup, executeListMarkets]);
+    getLeaderboard.execute(groupId);
+  }, [groupId, executeGetGroup, executeListMarkets, getLeaderboard.execute]);
 
   const markets = (marketsData as any[]) || [];
   const activeGroup = group as any;
@@ -38,7 +40,6 @@ export default function GroupLandingPage({ params }: { params: Promise<{ groupId
   };
 
   const { address } = useSiweAuth();
-  const { leaveGroup, kickMember } = useGroups(token || undefined);
   const isAdmin = (activeGroup?.adminAddress as string | undefined)?.toLowerCase() === address?.toLowerCase();
   
   const handleLeave = async () => {
@@ -91,7 +92,7 @@ export default function GroupLandingPage({ params }: { params: Promise<{ groupId
 
   return (
     <motion.section
-      className="p-4 md:p-8 max-w-5xl mx-auto space-y-14 bg-transparent font-sans overflow-hidden"
+      className="py-10 space-y-10 bg-transparent font-sans overflow-hidden"
       initial="hidden"
       animate="show"
       variants={staggerContainer}
@@ -258,11 +259,142 @@ export default function GroupLandingPage({ params }: { params: Promise<{ groupId
         )}
       </motion.div>
 
-      {/* Members Section */}
-      <div className="space-y-10">
-        <div className="flex items-baseline justify-between border-b-2 border-gray-50 pb-6">
-          <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tight">Predictors</h2>
-          <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+      {/* Group Leaderboard Section */}
+      <div className="space-y-6 pt-4">
+        <div className="flex items-baseline justify-between border-b border-black/5 pb-5 px-1">
+          <motion.h2 className="text-[24px] font-bold text-gray-900 tracking-tight">Group Leaderboard</motion.h2>
+          <span className="text-[12px] font-bold text-gray-400 uppercase tracking-widest bg-white/60 px-3 py-1 rounded-full border border-white/80">
+            {activeGroup?.memberCount as number || 0} Members
+          </span>
+        </div>
+
+        {getLeaderboard.loading && (!getLeaderboard.data) ? (
+          <div className="py-20 flex flex-col items-center justify-center bg-white rounded-[32px] border border-gray-100">
+            <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-4" />
+            <div className="text-sm font-bold text-gray-400 uppercase tracking-widest">Compiling group scores...</div>
+          </div>
+        ) : (
+          <div className="bg-white rounded-[32px] border border-gray-100 p-6 sm:p-8 shadow-sm">
+            {/* Header row */}
+            <div className="grid gap-2 px-4 py-3 mb-2 bg-gray-50 rounded-2xl border border-gray-100"
+              style={{ gridTemplateColumns: isAdmin ? '40px 44px 1fr 80px 80px 100px 32px' : '40px 44px 1fr 80px 80px 100px' }}>
+              {['', '', 'PREDICTOR', 'WIN RATE', 'W / TOTAL', 'SCORE'].map((h, i) => (
+                <div key={i} className={`text-[10px] font-bold text-gray-400 uppercase tracking-widest ${i >= 3 ? 'text-center' : 'text-left'}`}>
+                  {h}
+                </div>
+              ))}
+              {isAdmin && <div></div>}
+            </div>
+
+            <div className="space-y-2">
+              {((getLeaderboard.data as any)?.entries || []).map((entry: any) => {
+                const band = getBand(entry.convictionScore);
+                const pct = Math.min((entry.convictionScore / 1600) * 100, 100);
+                const showMedal = entry.rank <= 3;
+                const medalColor = entry.rank === 1 ? 'text-yellow-500' : entry.rank === 2 ? 'text-gray-400' : 'text-orange-500';
+                const isCurrentUser = entry.address.toLowerCase() === address?.toLowerCase();
+                const isGroupAdmin = entry.address.toLowerCase() === activeGroup?.adminAddress?.toLowerCase();
+
+                let rankComponent = <span className={`text-xs font-bold ${isCurrentUser ? 'text-blue-700' : 'text-gray-400'}`}>#{entry.rank}</span>;
+                if (showMedal && !isCurrentUser) {
+                   rankComponent = <Award size={20} className={`mx-auto ${medalColor}`} />;
+                }
+
+                return (
+                  <div
+                    key={entry.rank}
+                    className={`group grid gap-2 items-center px-4 py-3 rounded-2xl transition-all duration-200 hover:bg-gray-50 border ${
+                      isCurrentUser 
+                        ? 'bg-blue-50/50 border-blue-100 relative overflow-hidden' 
+                        : 'bg-white border-transparent hover:border-gray-100'
+                    }`}
+                    style={{ gridTemplateColumns: isAdmin ? '40px 44px 1fr 80px 80px 100px 32px' : '40px 44px 1fr 80px 80px 100px' }}
+                  >
+                    {isCurrentUser && (
+                      <div className="absolute top-0 left-0 bottom-0 w-1" style={{ background: band.accent }} />
+                    )}
+
+                    {/* Rank */}
+                    <div className="text-center">{rankComponent}</div>
+                    {/* Avatar */}
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-50 border border-gray-100 overflow-hidden">
+                      <img 
+                        src={entry.avatarUrl || `https://api.dicebear.com/7.x/identicon/svg?seed=${entry.address}`} 
+                        alt="avatar" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+
+                    {/* Name + bar */}
+                    <div className="pl-2 pr-2">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`text-xs font-bold font-mono truncate ${isCurrentUser ? 'text-blue-900' : 'text-gray-900'}`}>
+                          {entry.username || fmt(entry.address)}
+                        </span>
+                        {isCurrentUser && (
+                          <span className="text-[9px] font-bold tracking-wider text-white bg-blue-500 rounded-lg px-2 py-0.5 shrink-0">YOU</span>
+                        )}
+                        {isGroupAdmin && !isCurrentUser && (
+                          <span className="text-[9px] font-bold tracking-wider text-white bg-black rounded-lg px-2 py-0.5 shrink-0">ADMIN</span>
+                        )}
+                      </div>
+                      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden w-full max-w-[200px]">
+                        <div
+                          className="h-full rounded-full transition-all duration-1000"
+                          style={{ width: `${pct}%`, background: band.accent }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Win rate */}
+                    <div className="text-center">
+                      <div className={`text-base font-bold ${isCurrentUser ? 'text-blue-900' : 'text-gray-900'}`}>{entry.winRate}%</div>
+                    </div>
+
+                    {/* W / Total */}
+                    <div className="text-center">
+                      <div className={`text-sm font-bold ${isCurrentUser ? 'text-blue-700/80' : 'text-gray-500'}`}>
+                        {Math.floor((entry.winRate / 100) * entry.marketsPlayed)}/{entry.marketsPlayed}
+                      </div>
+                    </div>
+
+                    {/* Score */}
+                    <div className="text-right sm:text-center">
+                      <div className={`text-lg font-bold tracking-tight ${isCurrentUser ? 'text-blue-900' : 'text-gray-900'}`}>
+                        {entry.convictionScore.toLocaleString()}
+                      </div>
+                      <span className={`inline-flex mt-1 items-center gap-1 text-[9px] font-bold tracking-widest px-2 py-0.5 rounded-lg border uppercase ${band.badgeBg} ${band.badgeText} ${band.border}`}>
+                         <band.icon size={10} /> {band.label}
+                      </span>
+                    </div>
+
+                    {/* Admin Kick Button */}
+                    {isAdmin && (
+                      <div className="text-right">
+                         {!isGroupAdmin && (
+                           <button
+                             onClick={() => handleKick(entry.address)}
+                             className="w-8 h-8 flex shrink-0 items-center justify-center rounded-full bg-red-50 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-100"
+                             title="Kick Member"
+                           >
+                             <UserMinus size={14} />
+                           </button>
+                         )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Predictors Member Directory */}
+      <div className="space-y-10 pt-10">
+        <div className="flex items-baseline justify-between border-b border-black/5 pb-6">
+          <h2 className="text-[24px] font-bold text-gray-900 tracking-tight">Predictors</h2>
+          <span className="text-[12px] font-bold text-gray-400 uppercase tracking-widest bg-white/60 px-3 py-1 rounded-full border border-white/80">
             {activeGroup?.memberCount as number || 0} Members
           </span>
         </div>
@@ -274,40 +406,34 @@ export default function GroupLandingPage({ params }: { params: Promise<{ groupId
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05 }}
-              className="group flex items-center gap-4 bg-white p-5 rounded-3xl border-2 border-gray-50 hover:border-black/5 transition-colors"
+              className="group flex items-center gap-4 bg-white p-5 rounded-3xl border border-gray-100 hover:border-black/5 transition-colors shadow-sm"
             >
-              <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex-shrink-0 relative border-2 border-gray-100">
-                {member.avatarUrl ? (
-                  <img src={member.avatarUrl as string} alt={(member.username as string) || 'User avatar'} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    <Users size={20} />
-                  </div>
-                )}
+              <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-50 flex-shrink-0 relative border border-gray-100">
+                <img 
+                  src={member.avatarUrl || `https://api.dicebear.com/7.x/identicon/svg?seed=${member.address}`} 
+                  alt="avatar" 
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-bold text-gray-900 truncate">
-                    {member.username || `${member.address.slice(0, 6)}...${member.address.slice(-4)}`}
+                    {member.username || fmt(member.address)}
                   </span>
-                  {member.address.toLowerCase() === activeGroup?.adminAddress?.toLowerCase() ? (
+                  {member.address.toLowerCase() === activeGroup?.adminAddress?.toLowerCase() && (
                     <span className="bg-black text-white px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tighter">
                       Admin
                     </span>
-                  ) : (
-                    <span className="bg-gray-100 text-gray-500 px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-tighter">
-                      Predictor
-                    </span>
                   )}
                 </div>
-                <div className="flex items-center gap-3 text-xs font-bold text-gray-400 uppercase tracking-widest">
-                  <div className="flex items-center gap-1 text-yellow-600">
+                <div className="flex items-center gap-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                  <div className="flex items-center gap-1 text-emerald-600">
                     <Trophy size={10} />
                     {member.convictionScore} pts
                   </div>
                   <div className="w-1 h-1 rounded-full bg-gray-200" />
-                  <div className="flex items-center gap-1 opacity-70">
-                    {new Date(member.joinedAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
+                  <div className="flex items-center gap-1">
+                    Joined {new Date(member.joinedAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
                   </div>
                 </div>
               </div>

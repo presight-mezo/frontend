@@ -82,7 +82,8 @@ const TopBar = () => {
   const accruedYield = (getAccruedYield.data as any)?.accruedAmount || 0;
 
   return (
-    <header className="sticky top-0 flex justify-between items-center w-full !pl-[140px] !pr-[32px] h-20 bg-white/80 backdrop-blur-xl border-b border-black/[0.05] font-headline z-30">
+    <header className="sticky top-0 w-full h-20 bg-white/80 backdrop-blur-xl border-b border-black/[0.05] font-headline z-30 transition-all duration-500">
+      <div className="h-full w-full pl-[120px] pr-6 md:pl-[140px] md:pr-10 max-w-[1600px] mx-auto flex justify-between items-center">
       {/* Left: Breadcrumbs */}
       <div className="flex items-center gap-8 flex-1">
         <div className="group cursor-default pt-0.5">
@@ -140,6 +141,7 @@ const TopBar = () => {
             </div>
           </Link>
         </div>
+      </div>
       </div>
     </header>
   );

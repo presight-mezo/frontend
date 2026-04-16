@@ -306,7 +306,7 @@ export function useProfile(token?: string) {
   );
   const updateProfile = useApiCall(
     useCallback(
-      (data: { username?: string; bio?: string; avatarUrl?: string; twitter?: string }) =>
+      (data: { username?: string; bio?: string; avatarUrl?: string; twitter?: string; defaultRiskMode?: string }) =>
         profileApi.update(token || "", data),
       [token]
     ),
@@ -318,13 +318,19 @@ export function useProfile(token?: string) {
     false
   );
 
+  const getLeaderboard = useApiCall(
+    useCallback(() => profileApi.getLeaderboard(), []),
+    false
+  );
+
   return useMemo(
     () => ({
       getProfile,
       onboardProfile,
       updateProfile,
       getGlobalProfile,
+      getLeaderboard,
     }),
-    [getProfile, onboardProfile, updateProfile, getGlobalProfile]
+    [getProfile, onboardProfile, updateProfile, getGlobalProfile, getLeaderboard]
   );
 }

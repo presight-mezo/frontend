@@ -209,7 +209,7 @@ export const profileApi = {
     apiRequest("/api/v1/profile", {
       token,
     }),
-  update: (token: string, data: { username?: string; bio?: string; avatarUrl?: string; twitter?: string }) =>
+  update: (token: string, data: { username?: string; bio?: string; avatarUrl?: string; twitter?: string; defaultRiskMode?: string }) =>
     apiRequest("/api/v1/profile", {
       method: "PATCH",
       body: data,
@@ -223,6 +223,8 @@ export const profileApi = {
     }),
   getGlobal: (address: string) =>
     apiRequest(`/api/v1/profile/${address}/global`),
+  getLeaderboard: () =>
+    apiRequest("/api/v1/profile/leaderboard"),
 };
 
 /**

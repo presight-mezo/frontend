@@ -14,8 +14,10 @@ export default function DashboardShell({ children }: { children: React.ReactNode
       {/* Main */}
       <main className="flex flex-col min-h-screen relative">
         <TopBar />
-        <div className="flex-1 w-full relative !pl-[140px] !pr-[32px]">
-          {children}
+        <div className="flex-1 w-full relative transition-all duration-500">
+          <div className="pl-[120px] pr-6 md:pl-[140px] md:pr-10 max-w-[1600px] mx-auto">
+            {children}
+          </div>
         </div>
       </main>
     </div>

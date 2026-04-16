@@ -32,7 +32,7 @@ export default function GroupsPage() {
   }, [groupsLoading, groups]);
 
   return (
-    <section className="p-8 animate-in fade-in duration-700 max-w-6xl mx-auto">
+    <section className="py-10 space-y-10 animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-gray-100 mb-8">
         <div>
           <h1 className="font-headline text-3xl font-bold tracking-tight text-black uppercase">My Groups</h1>

@@ -134,8 +134,8 @@ export default function MarketDetailPage({ params }: { params: Promise<{ marketI
   ];
 
   return (
-    <div className="font-sans min-h-screen pb-20">
-      <div className="p-4 md:p-8 max-w-[1200px] mx-auto">
+    <div className="font-sans min-h-screen py-10 space-y-10">
+      <div>
         
         {/* Back Button */}
         <button

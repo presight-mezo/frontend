@@ -139,7 +139,7 @@ export default function PublicProfilePage() {
   }
 
   return (
-    <section className="p-8 animate-in fade-in duration-700">
+    <section className="py-10 space-y-10 animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-12 pb-8 border-b border-gray-100/50">
           <div className="flex items-start gap-8">
             <div className="relative group">

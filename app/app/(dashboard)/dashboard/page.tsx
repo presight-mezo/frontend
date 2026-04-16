@@ -19,7 +19,7 @@ const MOCK_PROFILE = {
 
 export default function DashboardPage() {
   return (
-    <section className="p-8 space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+    <section className="py-10 space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
 
       {/* ── Page Header ─────────────────────────────────────────── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-2 border-b border-black/[0.03]">
