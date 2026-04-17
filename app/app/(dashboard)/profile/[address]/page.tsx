@@ -21,7 +21,7 @@ export default function PublicProfilePage() {
     if (address) {
       getGlobalProfile.execute(address);
     }
-  }, [address, getGlobalProfile]);
+  }, [address, getGlobalProfile.execute]);
 
   const profile = getGlobalProfile.data as any;
   const loading = getGlobalProfile.loading;

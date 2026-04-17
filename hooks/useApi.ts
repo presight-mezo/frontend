@@ -51,7 +51,10 @@ function useApiCall<T, P extends any[]>(
     []
   );
 
-  return { data, loading, error, execute };
+  return useMemo(
+    () => ({ data, loading, error, execute }),
+    [data, loading, error, execute]
+  );
 }
 
 /**
