@@ -12,7 +12,7 @@ interface ApiContextType {
   error?: string;
   address?: string;
   ws?: PresightWebSocket;
-  signIn: (signer: any) => Promise<string | void>;
+  signIn: () => Promise<string | void>;
   signOut: () => void;
   restoreSession: () => boolean;
 }

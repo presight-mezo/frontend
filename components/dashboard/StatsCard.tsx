@@ -6,38 +6,23 @@ import React, { useState } from "react";
 
 interface StatsCardProps {
   title: string;
-  value: string;
+  value: string | number;
   unit: string;
-  change: string;
-  isUp: boolean;
-  subtext: string;
+  change?: string;
+  isUp?: boolean;
+  subtext?: string;
   type: "sparkline" | "bars";
   color?: "primary" | "secondary" | "purple" | "green";
   className?: string;
+  loading?: boolean;
 }
 
-// ─── Mock data (swap for live API responses) ──────────────────────────────────
-
-const MOCK_MARKETS: Array<{ label: string; yes: number; no: number }> = [
-  { label: "BTC > $120K?",  yes: 92, no: 28 },
-  { label: "ETH Flip?",     yes: 40, no: 96 },
-  { label: "Halving rally?", yes: 80, no: 49 },
-  { label: "MUSD peg?",     yes: 67, no: 34 },
-  { label: "Mezo TVL?",     yes: 58, no: 20 },
-  { label: "BTC > $100K?",  yes: 84, no: 39 },
-  { label: "ETF flows?",    yes: 48, no: 51 },
-  { label: "Macro pump?",   yes: 72, no: 36 },
-  { label: "OP staking?",   yes: 52, no: 81 },
-];
-
 const colorMap = {
-  primary: { text: "text-primary", bg: "bg-primary", hex: "var(--color-primary)" },
-  secondary: { text: "text-secondary", bg: "bg-secondary", hex: "var(--color-secondary)" },
-  purple: { text: "text-accent-purple", bg: "bg-accent-purple", hex: "var(--color-accent-purple)" },
-  green: { text: "text-accent-green", bg: "bg-accent-green", hex: "var(--color-accent-green)" },
+  primary: { text: "text-primary", bg: "bg-primary", hex: "#F7931A" },
+  secondary: { text: "text-secondary", bg: "bg-secondary", hex: "#000000" },
+  purple: { text: "text-accent-purple", bg: "bg-accent-purple", hex: "#A855F7" },
+  green: { text: "text-accent-green", bg: "bg-accent-green", hex: "#22C55E" },
 };
-
-// ─── StatsCard ────────────────────────────────────────────────────────────────
 
 const StatsCard: React.FC<StatsCardProps> = ({
   title,
@@ -49,6 +34,7 @@ const StatsCard: React.FC<StatsCardProps> = ({
   type,
   color = "primary",
   className = "",
+  loading = false,
 }) => {
   const meta = colorMap[color];
 
@@ -60,72 +46,74 @@ const StatsCard: React.FC<StatsCardProps> = ({
       </div>
 
       <div className="space-y-1">
-        <div className="flex items-baseline gap-1">
-          <span className="text-5xl font-headline font-bold text-black tabular-nums tracking-tighter">
-            {value}
-          </span>
-          <span className={`text-2xl font-headline font-bold ${meta.text}`}>{unit}</span>
-        </div>
-        <div className="flex items-center gap-1 text-gray-600">
-          <span className={`material-symbols-outlined text-sm ${meta.text}`} style={{ fontVariationSettings: "'wght' 500" }}>
-            {isUp ? "arrow_drop_up" : "arrow_drop_down"}
-          </span>
-          <span className="text-xs font-bold">{change}</span>
-        </div>
-        <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{subtext}</div>
+        {loading ? (
+          <div className="space-y-3">
+            <div className="h-10 w-32 bg-gray-100 animate-pulse rounded-lg" />
+            <div className="h-3 w-24 bg-gray-50 animate-pulse rounded-full" />
+          </div>
+        ) : (
+          <>
+            <div className="flex items-baseline gap-1 flex-wrap">
+              <span className="text-4xl font-headline font-bold text-black tabular-nums tracking-tight">
+                {value}
+              </span>
+              <span className={`text-xl font-headline font-bold ${meta.text}`}>{unit}</span>
+            </div>
+            {change && (
+              <div className="flex items-center gap-1 text-gray-600">
+                <span className={`material-symbols-outlined text-sm ${meta.text}`} style={{ fontVariationSettings: "'wght' 500" }}>
+                  {isUp ? "arrow_drop_up" : "arrow_drop_down"}
+                </span>
+                <span className="text-xs font-bold">{change}</span>
+              </div>
+            )}
+            <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{subtext}</div>
+          </>
+        )}
       </div>
 
-      {type === "sparkline" && (
-        <div className="h-16 w-full mt-2">
+      <div className="h-16 w-full mt-2 relative">
+        {type === "sparkline" ? (
           <svg className="w-full h-full overflow-visible" viewBox="0 0 100 30">
-            <defs>
-              <linearGradient id={`sparkGrad-${color}`} x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor={meta.hex} stopOpacity="0.2" />
-                <stop offset="100%" stopColor={meta.hex} stopOpacity="1" />
-              </linearGradient>
-            </defs>
             <path
               d="M0 25 L10 18 L20 22 L30 12 L40 16 L50 9 L60 14 L70 6 L80 11 L90 4 L100 8"
               fill="none"
-              stroke={`url(#sparkGrad-${color})`}
+              stroke={meta.hex}
               strokeWidth="2.5"
               strokeLinejoin="round"
               strokeLinecap="round"
+              className={loading ? "opacity-10" : "opacity-30"}
             />
           </svg>
-        </div>
-      )}
-
-      {type === "bars" && (
-        <div className="grid grid-cols-8 gap-1 items-end h-12 mt-2">
-          {[
-            { h: 30, c: "secondary" },
-            { h: 60, c: "primary" },
-            { h: 40, c: "gray-100" },
-            { h: 80, c: "secondary" },
-            { h: 50, c: "accent-purple" },
-            { h: 70, c: "primary" },
-            { h: 45, c: "gray-100" },
-            { h: 90, c: "secondary" },
-          ].map((bar, i) => (
-            <div
-              key={i}
-              className={`rounded-full bg-${bar.c} transition-all opacity-80 hover:opacity-100`}
-              style={{ height: `${bar.h}%` }}
-            />
-          ))}
-        </div>
-      )}
+        ) : (
+          <div className="grid grid-cols-8 gap-1 items-end h-12">
+            {[30, 60, 40, 80, 50, 70, 45, 90].map((h, i) => (
+              <div
+                key={i}
+                className={`rounded-full ${meta.bg} transition-all opacity-20`}
+                style={{ height: `${h}%` }}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
 // ─── Markets Activity (Volume Chart) ─────────────────────────────────────────
 
-export const MarketsActivity = () => {
-  const [markets] = useState(MOCK_MARKETS);
-  const totalMUSD = markets.reduce((acc, m) => acc + m.yes + m.no, 0);
-  const maxTotal = Math.max(...markets.map((m) => m.yes + m.no));
+interface MarketData {
+  id: string;
+  question: string;
+  yes_pool: string | number;
+  no_pool: string | number;
+}
+
+export const MarketsActivity = ({ markets = [], loading = false }: { markets?: MarketData[]; loading?: boolean }) => {
+  const displayMarkets = markets.slice(0, 9);
+  const totalMUSD = displayMarkets.reduce((acc, m) => acc + Number(m.yes_pool) + Number(m.no_pool), 0);
+  const maxTotal = Math.max(...displayMarkets.map((m) => Number(m.yes_pool) + Number(m.no_pool)), 1);
 
   return (
     <div className="col-span-2 bg-white rounded-3xl p-8 shadow-sm border border-black/[0.05]">
@@ -142,33 +130,48 @@ export const MarketsActivity = () => {
       </div>
 
       <div className="grid grid-cols-9 gap-3 h-52 items-end justify-items-center border-b border-gray-50 pb-3">
-        {markets.map((market, i) => {
-          const total = market.yes + market.no;
-          const scale = total / maxTotal; 
-          const yesH = Math.round(market.yes * scale);
-          const noH = Math.round(market.no * scale);
-
-          return (
-            <div
-              key={i}
-              className="flex flex-col items-center gap-1.5 h-full justify-end group cursor-pointer"
-              title={market.label}
-            >
-              <div
-                className="w-10 rounded-full bg-primary flex items-center justify-center text-white text-[9px] font-bold transition-all group-hover:scale-105"
-                style={{ height: `${Math.max(yesH, 14)}%`, minHeight: "18px" }}
-              >
-                {market.yes > 30 ? market.yes : ""}
-              </div>
-              <div
-                className="w-10 rounded-full bg-secondary flex items-center justify-center text-white text-[9px] font-bold transition-all group-hover:scale-105"
-                style={{ height: `${Math.max(noH, 10)}%`, minHeight: "14px" }}
-              >
-                {market.no > 30 ? market.no : ""}
-              </div>
+        {loading ? (
+          Array.from({ length: 9 }).map((_, i) => (
+            <div key={i} className="flex flex-col gap-1 w-10 h-full justify-end animate-pulse">
+              <div className="bg-gray-100 rounded-full w-full h-[40%]" />
+              <div className="bg-gray-50 rounded-full w-full h-[20%]" />
             </div>
-          );
-        })}
+          ))
+        ) : displayMarkets.length === 0 ? (
+          <div className="col-span-9 h-full flex items-center justify-center text-[10px] font-bold text-gray-300 uppercase tracking-widest">
+            No active markets found
+          </div>
+        ) : (
+          displayMarkets.map((market, i) => {
+            const yes = Number(market.yes_pool);
+            const no = Number(market.no_pool);
+            const total = yes + no;
+            const scale = total / maxTotal; 
+            const yesH = Math.round((yes / total) * 100 * scale);
+            const noH = Math.round((no / total) * 100 * scale);
+
+            return (
+              <div
+                key={market.id || i}
+                className="flex flex-col items-center gap-1.5 h-full justify-end group cursor-pointer"
+                title={market.question}
+              >
+                <div
+                  className="w-10 rounded-full bg-primary flex items-center justify-center text-white text-[9px] font-bold transition-all group-hover:scale-105"
+                  style={{ height: `${Math.max(yesH, 14)}%`, minHeight: "18px" }}
+                >
+                  {yes > 100 ? Math.round(yes) : ""}
+                </div>
+                <div
+                  className="w-10 rounded-full bg-secondary flex items-center justify-center text-white text-[9px] font-bold transition-all group-hover:scale-105"
+                  style={{ height: `${Math.max(noH, 10)}%`, minHeight: "14px" }}
+                >
+                  {no > 100 ? Math.round(no) : ""}
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
 
       <div className="mt-5 flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-gray-400">
@@ -181,13 +184,9 @@ export const MarketsActivity = () => {
             <span className="w-2 h-2 rounded-full bg-secondary inline-block" />
             NO Pool
           </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-gray-100 inline-block" />
-            Pending
-          </span>
         </div>
         <span className="text-gray-400">
-          Total: <span className="text-black font-bold">{totalMUSD.toLocaleString()} MUSD</span>
+          Platform Volume: <span className="text-black font-bold">{Math.round(totalMUSD).toLocaleString()} MUSD</span>
         </span>
       </div>
     </div>

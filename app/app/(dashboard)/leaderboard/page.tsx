@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sprout, TrendingUp, Target, Zap, Sparkles, Dices, Scale, Ban, Coins, ClipboardList, Loader2, Award } from 'lucide-react';
-import { useSiweAuth } from '@/hooks/useSiweAuth';
+import { usePresightApi } from '@/lib/ApiProvider';
 import { useProfile } from '@/hooks/useApi';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -47,7 +47,7 @@ export default function LeaderboardPage() {
   const [showAll, setShowAll] = useState(false);
   const [formulaOpen, setFormulaOpen] = useState(false);
 
-  const { address, token } = useSiweAuth();
+  const { address, token } = usePresightApi();
   const { getLeaderboard } = useProfile(token || undefined);
 
   useEffect(() => {

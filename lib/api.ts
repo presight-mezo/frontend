@@ -3,6 +3,8 @@
  * Handles all API requests with SIWE authentication
  */
 
+import { Market, TroveData, MandateData, YieldData, Notification } from "@/types/api";
+
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
@@ -148,11 +150,11 @@ export const marketApi = {
     }),
 
   getMarket: (marketId: string) =>
-    apiRequest(`/api/v1/markets/${marketId}`),
+    apiRequest<Market>(`/api/v1/markets/${marketId}`),
 
   list: (groupId?: string) => {
     const query = groupId ? `?groupId=${groupId}` : "";
-    return apiRequest(`/api/v1/markets${query}`);
+    return apiRequest<{ markets: Market[] }>(`/api/v1/markets${query}`);
   },
 };
 
@@ -190,7 +192,7 @@ export const mandateApi = {
     }),
 
   get: (token: string) =>
-    apiRequest("/api/v1/mandate", {
+    apiRequest<MandateData>("/api/v1/mandate", {
       token,
     }),
 
@@ -232,7 +234,7 @@ export const profileApi = {
  */
 export const yieldApi = {
   getAccrued: (token: string) =>
-    apiRequest("/api/v1/yield/accrued", {
+    apiRequest<YieldData>("/api/v1/yield/accrued", {
       token,
     }),
 };
@@ -242,7 +244,7 @@ export const yieldApi = {
  */
 export const troveApi = {
   get: (token: string) =>
-    apiRequest("/api/v1/trove", {
+    apiRequest<TroveData>("/api/v1/trove", {
       token,
     }),
 };
@@ -252,7 +254,7 @@ export const troveApi = {
  */
 export const resolverApi = {
   getNotifications: (token: string) =>
-    apiRequest("/api/v1/resolver/notifications", {
+    apiRequest<{ notifications: Notification[] }>("/api/v1/resolver/notifications", {
       token,
     }),
 

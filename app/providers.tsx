@@ -26,21 +26,21 @@ export function Providers({ children }: { children: ReactNode }) {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        {mounted ? (
-          <RainbowKitProvider 
-            theme={lightTheme({
-              accentColor: '#F7931A',
-              accentColorForeground: 'white',
-              borderRadius: 'large',
-            })}
-          >
-            <PresightApiProvider>
+        <PresightApiProvider>
+          {mounted ? (
+            <RainbowKitProvider 
+              theme={lightTheme({
+                accentColor: '#F7931A',
+                accentColorForeground: 'white',
+                borderRadius: 'large',
+              })}
+            >
               {children}
-            </PresightApiProvider>
-          </RainbowKitProvider>
-        ) : (
-          children
-        )}
+            </RainbowKitProvider>
+          ) : (
+            children
+          )}
+        </PresightApiProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

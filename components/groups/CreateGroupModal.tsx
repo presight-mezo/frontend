@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGroups } from '@/hooks/useApi';
-import { useSiweAuth } from '@/hooks/useSiweAuth';
+import { usePresightApi } from '@/lib/ApiProvider';
 import { X, Loader2 } from 'lucide-react';
 
 interface CreateGroupModalProps {
@@ -13,7 +13,7 @@ interface CreateGroupModalProps {
 }
 
 export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModalProps) {
-  const { token } = useSiweAuth();
+  const { token } = usePresightApi();
   const { createGroup } = useGroups(token || undefined);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');

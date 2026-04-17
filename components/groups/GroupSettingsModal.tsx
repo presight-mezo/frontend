@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Settings, Loader2, AlertCircle } from 'lucide-react';
 import { useGroups } from '@/hooks/useApi';
-import { useSiweAuth } from '@/hooks/useSiweAuth';
+import { usePresightApi } from '@/lib/ApiProvider';
 
 interface GroupSettingsModalProps {
   isOpen: boolean;
@@ -27,7 +27,7 @@ export function GroupSettingsModal({
   const [description, setDescription] = useState(initialDescription || '');
   const [isPrivate, setIsPrivate] = useState(initialIsPrivate);
   
-  const { token } = useSiweAuth();
+  const { token } = usePresightApi();
   const { updateGroup, deleteGroup } = useGroups(token || undefined);
 
   const handleUpdate = async () => {

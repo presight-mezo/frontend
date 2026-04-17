@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAccount } from "wagmi";
-import { useSiweAuth } from "@/hooks/useSiweAuth";
+import { usePresightApi } from "@/lib/ApiProvider";
 import { useYield, useMandate, useResolver, useGroups, useProfile } from "@/hooks/useApi";
 import YieldCounter from "@/components/dashboard/YieldCounter";
 import { useEffect, useMemo } from "react";
@@ -12,7 +12,7 @@ import { useEffect, useMemo } from "react";
 const TopBar = () => {
   const pathname = usePathname();
   const { address } = useAccount();
-  const { token, isAuthenticated } = useSiweAuth();
+  const { token, isAuthenticated } = usePresightApi();
 
   // Data hooks
   const { getAccruedYield } = useYield(token);

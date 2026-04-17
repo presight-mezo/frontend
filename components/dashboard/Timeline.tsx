@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import { usePresightApi } from "@/lib/ApiProvider";
+import { useAccount } from "wagmi";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -10,24 +12,10 @@ interface StakeEvent {
   id: string;
   time: string;       
   direction: StakeDirection;
-  amount: number;     
+  amount: string | number;     
   walletInitial: string;
-  walletColor: string;
   marketLabel: string;
 }
-
-// ─── Mock live stake feed ───
-
-const MOCK_STAKES: StakeEvent[] = [
-  { id: "s1", time: "16:52", direction: "YES",       amount: 50,  walletInitial: "R", walletColor: "#3b82f6", marketLabel: "BTC > $120K?" },
-  { id: "s2", time: "16:48", direction: "NO",        amount: 25,  walletInitial: "M", walletColor: "#f97316", marketLabel: "ETH Flip?" },
-  { id: "s3", time: "16:41", direction: "YES",       amount: 100, walletInitial: "A", walletColor: "#3b82f6", marketLabel: "Halving rally?" },
-  { id: "s4", time: "16:35", direction: "ZERO_RISK", amount: 8,   walletInitial: "K", walletColor: "#22c55e", marketLabel: "MUSD peg?" },
-  { id: "s5", time: "16:22", direction: "NO",        amount: 30,  walletInitial: "T", walletColor: "#f97316", marketLabel: "BTC > $120K?" },
-  { id: "s6", time: "16:09", direction: "YES",       amount: 75,  walletInitial: "D", walletColor: "#3b82f6", marketLabel: "Mezo TVL?" },
-];
-
-const MAX_STAKE = Math.max(...MOCK_STAKES.map((s) => s.amount));
 
 const directionMeta: Record<StakeDirection, { color: string; bg: string; icon: string }> = {
   YES:       { color: "#3b82f6", bg: "bg-primary",        icon: "check_circle" },
@@ -38,15 +26,35 @@ const directionMeta: Record<StakeDirection, { color: string; bg: string; icon: s
 // ─── Live Stake Feed ──────────────────────────────────────────────────────────
 
 const LiveStakeFeed = () => {
-  const [stakes, setStakes] = useState<StakeEvent[]>(MOCK_STAKES);
+  const { ws } = usePresightApi();
+  const [stakes, setStakes] = useState<StakeEvent[]>([]);
+
+  const handleNewStake = useCallback((data: any) => {
+    const newEvent: StakeEvent = {
+      id: data.txHash || Math.random().toString(),
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      direction: data.direction as StakeDirection,
+      amount: data.amount === "???" ? "Masked" : data.amount,
+      walletInitial: "0x",
+      marketLabel: data.marketId ? `Market: ${data.marketId.slice(0, 10)}...` : "New Stake Placed",
+    };
+
+    setStakes(prev => [newEvent, ...prev].slice(0, 6));
+  }, []);
 
   useEffect(() => {
-    let idx = 0;
-    const timer = setInterval(() => {
-      idx++;
-    }, 12000);
-    return () => clearInterval(timer);
-  }, []);
+    if (!ws) return;
+
+    // Use the custom .on() method from PresightWebSocket
+    const unsubscribe = ws.on("stake:placed", (message: any) => {
+      // The message is already the full event object from the server broadcast
+      if (message.data) {
+        handleNewStake(message.data);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [ws, handleNewStake]);
 
   return (
     <div className="col-span-12 lg:col-span-12 xl:col-span-5 bg-white rounded-3xl p-8 flex flex-col h-full min-h-[584px] shadow-sm border border-black/[0.05]">
@@ -79,61 +87,76 @@ const LiveStakeFeed = () => {
 
       {/* Stakes timeline */}
       <div className="flex-1 relative border-l border-gray-100 ml-12 space-y-6">
-        {stakes.map((stake) => {
-          const meta = directionMeta[stake.direction];
-          const barWidthPct = Math.round((stake.amount / MAX_STAKE) * 100);
-          const isZeroRisk = stake.direction === "ZERO_RISK";
+        {stakes.length === 0 ? (
+          <div className="h-full flex flex-col items-center justify-center text-center px-4 py-20">
+             <div className="relative mb-6">
+               <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center animate-pulse">
+                 <span className="material-symbols-outlined text-gray-300 text-3xl">sensors</span>
+               </div>
+               <div className="absolute inset-0 w-16 h-16 rounded-full border-2 border-primary/20 animate-ping opacity-20" />
+             </div>
+             <p className="text-[11px] font-black text-black/50 uppercase tracking-[0.2em] leading-relaxed">
+               Scanning for<br/>Market Activity
+             </p>
+             <p className="text-[10px] text-black/20 font-bold uppercase tracking-widest mt-2">
+               New events will stream here
+             </p>
+          </div>
+        ) : (
+          stakes.map((stake) => {
+            const meta = directionMeta[stake.direction] || directionMeta.YES;
+            const isZeroRisk = stake.direction === "ZERO_RISK";
 
-          return (
-            <div key={stake.id} className="relative py-1.5">
-              <span className="absolute -left-[4.5rem] top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-300 tabular-nums">
-                {stake.time}
-              </span>
+            return (
+              <div key={stake.id} className="relative py-1.5 animate-in slide-in-from-left-4 fade-in duration-500">
+                <span className="absolute -left-[4.5rem] top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-300 tabular-nums">
+                  {stake.time}
+                </span>
 
-              <div style={{ width: `${Math.max(barWidthPct, 35)}%` }}>
-                <div
-                  className="w-full h-8 rounded-full flex items-center justify-between px-2 transition-all hover:scale-[1.02] cursor-pointer"
-                  style={{ 
-                    background: isZeroRisk ? "rgba(34, 197, 94, 0.1)" : meta.color,
-                    border: isZeroRisk ? "1px solid rgba(34, 197, 94, 0.2)" : "none"
-                  }}
-                >
+                <div className="w-full">
                   <div
-                    className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-black"
-                    style={{
-                      background: isZeroRisk ? "#22c55e" : "rgba(0,0,0,0.1)",
-                      color: isZeroRisk ? "#fff" : "rgba(255,255,255,0.9)",
+                    className="w-full h-10 rounded-full flex items-center justify-between px-3 transition-all hover:scale-[1.02] cursor-pointer shadow-sm border border-black/[0.03]"
+                    style={{ 
+                      background: isZeroRisk ? "rgba(34, 197, 94, 0.05)" : "white",
                     }}
                   >
-                    {stake.walletInitial}
-                  </div>
-
-                  <div className="flex items-center gap-1">
-                    <span
-                      className="text-[10px] font-bold"
-                      style={{ color: isZeroRisk ? "#22c55e" : "#fff" }}
-                    >
-                      {stake.amount} MUSD
-                    </span>
-                    <span
-                      className="material-symbols-outlined text-[12px]"
+                    <div
+                      className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-black"
                       style={{
-                        fontVariationSettings: "'wght' 600",
-                        color: isZeroRisk ? "#22c55e" : "#fff",
+                        background: isZeroRisk ? "#22c55e" : meta.color,
+                        color: "#fff",
                       }}
                     >
-                      {meta.icon}
-                    </span>
+                      {stake.walletInitial}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="text-[11px] font-black tracking-tight"
+                        style={{ color: isZeroRisk ? "#22c55e" : "#000" }}
+                      >
+                        {typeof stake.amount === 'number' ? stake.amount.toLocaleString() : stake.amount} MUSD
+                      </span>
+                      <span
+                        className="material-symbols-outlined text-[14px]"
+                        style={{
+                          fontVariationSettings: "'wght' 700",
+                          color: isZeroRisk ? "#22c55e" : meta.color,
+                        }}
+                      >
+                        {meta.icon}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-1.5 pl-3 truncate">
+                    {stake.marketLabel}
                   </div>
                 </div>
-
-                <div className="text-[9px] text-gray-400 font-medium mt-0.5 pl-1 truncate">
-                  {stake.marketLabel}
-                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
 
       {/* Footer legend */}
@@ -152,7 +175,7 @@ const LiveStakeFeed = () => {
             Zero Risk
           </span>
         </div>
-        <span className="text-gray-300">Last 6 events</span>
+        <span className="text-gray-300">Live Stream</span>
       </div>
     </div>
   );

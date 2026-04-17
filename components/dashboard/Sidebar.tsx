@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useSiweAuth } from "@/hooks/useSiweAuth";
+import { usePresightApi } from "@/lib/ApiProvider";
 import { useDisconnect } from "wagmi";
 
 const navItems = [
@@ -16,7 +16,7 @@ const navItems = [
 const Sidebar = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const { signOut } = useSiweAuth();
+  const { signOut } = usePresightApi();
   const { disconnect } = useDisconnect();
 
   return (

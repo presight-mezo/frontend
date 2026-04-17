@@ -5,12 +5,12 @@ import { useParams } from 'next/navigation';
 import { useProfile } from '@/hooks/useApi';
 import { formatUnits } from 'viem';
 import { Jazzicon } from '@ukstv/jazzicon-react';
-import { useSiweAuth } from '@/hooks/useSiweAuth';
+import { usePresightApi } from '@/lib/ApiProvider';
 
 export default function PublicProfilePage() {
   const params = useParams();
   const address = params.address as string;
-  const { token, address: currentUserAddress } = useSiweAuth();
+  const { token, address: currentUserAddress } = usePresightApi();
   const { getGlobalProfile, updateProfile } = useProfile(token);
   
   const isOwner = currentUserAddress?.toLowerCase() === address.toLowerCase();

@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useSiweAuth } from '@/hooks/useSiweAuth';
+import { usePresightApi } from '@/lib/ApiProvider';
 import { useProfile } from '@/hooks/useApi';
 
 export function OnboardingGuard({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, token, isLoading: isAuthLoading } = useSiweAuth();
+  const { isAuthenticated, token, isLoading: isAuthLoading } = usePresightApi();
   const { getProfile } = useProfile(token || undefined);
   const router = useRouter();
   const pathname = usePathname();
@@ -91,7 +91,7 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
   // While checking the backend profile status, show a beautiful loading state
   if (!isReady) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white" suppressHydrationWarning>
         <div className="flex flex-col items-center gap-6">
           {/* Branded loading animation */}
           <div className="relative w-16 h-16">

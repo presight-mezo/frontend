@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useGroups } from '@/hooks/useApi';
-import { useSiweAuth } from '@/hooks/useSiweAuth';
+import { usePresightApi } from '@/lib/ApiProvider';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { CreateGroupModal } from '@/components/groups/CreateGroupModal';
@@ -12,7 +12,7 @@ import { motion } from 'framer-motion';
 
 export default function GroupsPage() {
   const router = useRouter();
-  const { token } = useSiweAuth();
+  const { token } = usePresightApi();
   const { listGroups: { data: groupsData, execute: executeListGroups, loading: groupsLoading } } = useGroups(token || undefined);
   const [isModalOpen, setIsModalOpen] = useState(false);
 

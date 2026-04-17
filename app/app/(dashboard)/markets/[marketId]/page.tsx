@@ -3,14 +3,14 @@
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMarkets, useStakes } from '@/hooks/useApi';
-import { useSiweAuth } from '@/hooks/useSiweAuth';
+import { usePresightApi } from '@/lib/ApiProvider';
 import { Loader2, ArrowLeft, ShieldCheck, Flame, CircleDollarSign, ShieldAlert, CheckCircle2 } from 'lucide-react';
 import { parseUnits, formatUnits } from 'viem';
 
 export default function MarketDetailPage({ params }: { params: Promise<{ marketId: string }> }) {
   const { marketId } = use(params);
   const router = useRouter();
-  const { token, address } = useSiweAuth();
+  const { token, address } = usePresightApi();
 
   const { getMarket: { data: marketData, execute: executeGetMarket } } = useMarkets(token || undefined);
   const { placeStake: { execute: executeStake, error: stakeError }, getStakes: { data: stakesResponse, execute: executeGetStakes } } = useStakes(token || undefined);

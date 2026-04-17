@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMarkets } from '@/hooks/useApi';
-import { useSiweAuth } from '@/hooks/useSiweAuth';
+import { usePresightApi } from '@/lib/ApiProvider';
 import { useAccount } from 'wagmi';
 import { X, HelpCircle, Loader2, ShieldCheck, Flame } from 'lucide-react';
 
@@ -15,7 +15,7 @@ interface CreateMarketModalProps {
 }
 
 export function CreateMarketModal({ isOpen, groupId, onClose, onSuccess }: CreateMarketModalProps) {
-  const { token } = useSiweAuth();
+  const { token } = usePresightApi();
   const { address } = useAccount();
   const { createMarket } = useMarkets(token || undefined);
 

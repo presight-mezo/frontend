@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useProfile, useMandate } from '@/hooks/useApi';
-import { useSiweAuth } from '@/hooks/useSiweAuth';
+import { usePresightApi } from '@/lib/ApiProvider';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -24,7 +24,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function SettingsPage() {
-  const { token, address, signOut } = useSiweAuth();
+  const { token, address, signOut } = usePresightApi();
   const { getProfile, updateProfile } = useProfile(token);
   const { getMandate, setMandate, revokeMandate } = useMandate(token);
 

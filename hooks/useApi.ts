@@ -11,6 +11,7 @@ import {
   troveApi,
   profileApi,
 } from '@/lib/api';
+import { Market, TroveData, MandateData, YieldData, Notification } from '@/types/api';
 
 /**
  * Generic hook for API calls with loading and error states
@@ -144,12 +145,12 @@ export function useMarkets(token?: string) {
     false
   );
 
-  const getMarket = useApiCall(
+  const getMarket = useApiCall<Market, [string]>(
     useCallback((marketId: string) => marketApi.getMarket(marketId), []),
     false
   );
 
-  const listMarkets = useApiCall(
+  const listMarkets = useApiCall<{ markets: Market[] }, [string?]>(
     useCallback((groupId?: string) => marketApi.list(groupId), []),
     false
   );
@@ -203,7 +204,7 @@ export function useMandate(token?: string) {
     false
   );
 
-  const getMandate = useApiCall(
+  const getMandate = useApiCall<MandateData, []>(
     useCallback(() => mandateApi.get(token || ""), [token]),
     false
   );
@@ -227,7 +228,7 @@ export function useMandate(token?: string) {
  * Hook for yield operations
  */
 export function useYield(token?: string) {
-  const getAccruedYield = useApiCall(
+  const getAccruedYield = useApiCall<YieldData, []>(
     useCallback(() => yieldApi.getAccrued(token || ""), [token]),
     false
   );
@@ -244,7 +245,7 @@ export function useYield(token?: string) {
  * Hook for resolver operations
  */
 export function useResolver(token?: string) {
-  const getNotifications = useApiCall(
+  const getNotifications = useApiCall<{ notifications: Notification[] }, []>(
     useCallback(() => resolverApi.getNotifications(token || ""), [token]),
     false
   );
@@ -271,7 +272,7 @@ export function useResolver(token?: string) {
  * Hook for trove operations
  */
 export function useTrove(token?: string) {
-  const getTrove = useApiCall(
+  const getTrove = useApiCall<TroveData, []>(
     useCallback(() => troveApi.get(token || ""), [token]),
     false
   );

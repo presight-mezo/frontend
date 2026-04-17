@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAccount, useBalance } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useSiweAuth } from '@/hooks/useSiweAuth';
+import { usePresightApi } from '@/lib/ApiProvider';
 import { useMandate, useTrove, useProfile, useGroups } from '@/hooks/useApi';
 import { parseEther, formatUnits } from 'viem';
 import {
@@ -456,7 +456,7 @@ function Screen1({ onNext, accent, inviter, groupName }: { onNext: () => void; a
 /* ─── Screen 2 — Passport Connect ───────────────────────────── */
 function Screen2({ onNext, accent }: { onNext: () => void; accent: string }) {
   const { isConnected, address } = useAccount();
-  const { isAuthenticated, signIn, isLoading, error } = useSiweAuth();
+  const { isAuthenticated, signIn, isLoading, error } = usePresightApi();
 
   const handleSignIn = async () => {
     console.log('--- handleSignIn triggered ---');
@@ -620,7 +620,7 @@ function Screen2({ onNext, accent }: { onNext: () => void; accent: string }) {
 /* ─── Screen 3 — MUSD Balance ────────────────────────────────── */
 function Screen3({ onNext, accent }: { onNext: () => void; accent: string }) {
   const { address } = useAccount();
-  const { token } = useSiweAuth();
+  const { token } = usePresightApi();
   const { data: balance, isLoading: isBalanceLoading } = useBalance({
     address,
     token: '0x507Ac33B7B1332b4488AE772fB116cb2E0EA0511' as `0x${string}`,
@@ -777,7 +777,7 @@ function Screen4({ onNext, accent }: { onNext: () => void; accent: string }) {
   const [limit, setLimit] = useState(200);
   const MAX = 1000;
 
-  const { token } = useSiweAuth();
+  const { token } = usePresightApi();
   const { setMandate, getMandate } = useMandate(token);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -1162,7 +1162,7 @@ function OnboardingContent() {
         ? '#EF476F'
         : accent;
 
-  const { token } = useSiweAuth();
+  const { token } = usePresightApi();
   const { onboardProfile } = useProfile(token || undefined);
   const { joinGroup } = useGroups(token || undefined);
 

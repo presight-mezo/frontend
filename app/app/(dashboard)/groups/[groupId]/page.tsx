@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { useGroups, useMarkets } from '@/hooks/useApi';
-import { useSiweAuth } from '@/hooks/useSiweAuth';
+import { usePresightApi } from '@/lib/ApiProvider';
 import { MarketCard } from '@/components/markets/MarketCard';
 import { CreateMarketModal } from '@/components/markets/CreateMarketModal';
 import { GroupSettingsModal } from '@/components/groups/GroupSettingsModal';
@@ -14,7 +14,7 @@ import { SCORE_BANDS, getBand, fmt } from '@/app/app/(dashboard)/leaderboard/pag
 export default function GroupLandingPage({ params }: { params: Promise<{ groupId: string }> }) {
   const { groupId } = use(params);
   const router = useRouter();
-  const { token } = useSiweAuth();
+  const { token, address } = usePresightApi();
 
   const { getGroup: { data: group, execute: executeGetGroup, loading: groupLoading, error: groupError }, getLeaderboard, leaveGroup, kickMember } = useGroups(token || undefined);
   const { listMarkets: { data: marketsData, execute: executeListMarkets, loading: marketsLoading } } = useMarkets(token || undefined);
@@ -29,7 +29,7 @@ export default function GroupLandingPage({ params }: { params: Promise<{ groupId
     getLeaderboard.execute(groupId);
   }, [groupId, executeGetGroup, executeListMarkets, getLeaderboard.execute]);
 
-  const markets = (marketsData as any[]) || [];
+  const markets = marketsData?.markets || [];
   const activeGroup = group as any;
 
   const handleCopyInvite = () => {
@@ -39,7 +39,7 @@ export default function GroupLandingPage({ params }: { params: Promise<{ groupId
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const { address } = useSiweAuth();
+
   const isAdmin = (activeGroup?.adminAddress as string | undefined)?.toLowerCase() === address?.toLowerCase();
   
   const handleLeave = async () => {
