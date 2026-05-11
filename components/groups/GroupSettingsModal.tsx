@@ -10,6 +10,7 @@ interface GroupSettingsModalProps {
   groupId: string;
   initialName: string;
   initialDescription?: string;
+  initialAvatarUrl?: string;
   initialIsPrivate?: boolean;
   onSuccess: () => void;
 }
@@ -20,19 +21,36 @@ export function GroupSettingsModal({
   groupId,
   initialName,
   initialDescription = '',
+  initialAvatarUrl = '',
   initialIsPrivate = false,
   onSuccess,
 }: GroupSettingsModalProps) {
   const [name, setName] = useState(initialName);
   const [description, setDescription] = useState(initialDescription || '');
+  const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl || '');
   const [isPrivate, setIsPrivate] = useState(initialIsPrivate);
   
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Image size exceeds 5MB limit. Please choose a smaller image.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const { token } = usePresightApi();
   const { updateGroup, deleteGroup } = useGroups(token || undefined);
 
   const handleUpdate = async () => {
     if (!name.trim()) return;
-    const res = await updateGroup.execute(groupId, { name, description, isPrivate });
+    const res = await updateGroup.execute(groupId, { name, description, isPrivate, avatarUrl });
     if (!res.error) {
       onSuccess();
       onClose();
@@ -110,6 +128,42 @@ export function GroupSettingsModal({
                   placeholder="e.g. Mezo Alpha Testers"
                   className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-4 text-[15px] font-bold text-gray-900 focus:outline-none focus:border-black focus:bg-white transition-all"
                 />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">
+                  Group Image
+                </label>
+                <div className="flex items-center gap-4 w-full p-3 bg-gray-50 border-2 border-gray-100 rounded-2xl shadow-sm">
+                  {avatarUrl ? (
+                    <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 border border-black/5 relative group/avatar">
+                      <img src={avatarUrl} alt="Avatar Preview" className="w-full h-full object-cover" />
+                      <button 
+                        type="button"
+                        onClick={() => setAvatarUrl('')}
+                        className="absolute inset-0 bg-black/60 text-white opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-14 h-14 rounded-xl bg-gray-200 border border-black/5 shrink-0 flex items-center justify-center text-gray-500">
+                      <span className="material-symbols-outlined text-[24px]">image</span>
+                    </div>
+                  )}
+                  
+                  <label className="flex-1">
+                    <div className="cursor-pointer w-full py-3 bg-black text-white hover:bg-gray-800 rounded-xl text-xs font-bold uppercase tracking-widest transition-all text-center shadow-md active:scale-[0.98]">
+                      {avatarUrl ? 'Replace Image' : 'Upload New Photo'}
+                    </div>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      className="hidden" 
+                      onChange={handleImageUpload} 
+                    />
+                  </label>
+                </div>
               </div>
 
               <div>

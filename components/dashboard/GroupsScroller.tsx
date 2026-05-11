@@ -8,7 +8,7 @@ import { CreateGroupModal } from "@/components/groups/CreateGroupModal";
 import { Loader2 } from "lucide-react";
 
 // Helper to generate consistent colors and images based on group ID
-const getGroupVisuals = (id: string, name: string) => {
+export const getGroupVisuals = (id: string, name: string) => {
   const hash = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const colors = [
     "bg-primary",
@@ -82,6 +82,7 @@ const GroupsScroller = () => {
         ) : (
           groups.map((group) => {
             const { color, image } = getGroupVisuals(group.id, group.name);
+            const displayImage = group.avatarUrl || image;
             return (
               <Link
                 key={group.id}
@@ -90,7 +91,7 @@ const GroupsScroller = () => {
               >
                 <div className="relative w-12 h-12 rounded-2xl overflow-hidden shadow-md">
                   <img
-                    src={image}
+                    src={displayImage}
                     alt={group.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />

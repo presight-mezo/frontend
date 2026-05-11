@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { usePresightApi } from '@/lib/ApiProvider';
 import { useProfile } from '@/hooks/useApi';
 
@@ -10,6 +10,7 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
   const { getProfile } = useProfile(token || undefined);
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [isProfileChecking, setIsProfileChecking] = useState(false);
   const [isReady, setIsReady] = useState(false);
 
@@ -60,12 +61,15 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
           // As per the user's request, we auto-skip if they already have a mandate from before (e.g. on new device)
           const isOnboarded = onboardingCompleted || hasMandate;
           
+          const currentQuery = searchParams.toString();
+          const queryString = currentQuery ? `?${currentQuery}` : '';
+
           if (!isOnboarded && !pathname.startsWith('/app/onboarding')) {
             console.log('[OnboardingGuard] Not onboarded. Redirecting to onboarding...');
-            router.push('/app/onboarding');
+            router.push(`/app/onboarding${queryString}`);
           } else if (isOnboarded && pathname.startsWith('/app/onboarding')) {
             console.log('[OnboardingGuard] Already onboarded. Redirecting to dashboard...');
-            router.push('/app/dashboard');
+            router.push(`/app/dashboard${queryString}`);
           } else {
             console.log('[OnboardingGuard] State matches path. Ready.');
             setIsReady(true);
@@ -86,7 +90,7 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
     return () => {
       isMounted = false;
     };
-  }, [isAuthenticated, token, isAuthLoading, pathname, router]);
+  }, [isAuthenticated, token, isAuthLoading, pathname, router, searchParams]);
 
   // While checking the backend profile status, show a beautiful loading state
   if (!isReady) {

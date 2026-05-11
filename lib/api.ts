@@ -82,7 +82,7 @@ export function encodeSignatureAsToken(
  * Group API endpoints
  */
 export const groupApi = {
-  create: (token: string, data: { name: string; description?: string; isPrivate?: boolean }) =>
+  create: (token: string, data: { name: string; description?: string; isPrivate?: boolean; avatarUrl?: string }) =>
     apiRequest("/api/v1/groups", {
       method: "POST",
       body: data,
@@ -115,7 +115,7 @@ export const groupApi = {
       token,
     }),
 
-  updateGroup: (token: string, groupId: string, data: { name?: string; description?: string; isPrivate?: boolean }) =>
+  updateGroup: (token: string, groupId: string, data: { name?: string; description?: string; isPrivate?: boolean; avatarUrl?: string }) =>
     apiRequest(`/api/v1/groups/${groupId}`, {
       method: "PUT",
       body: data,

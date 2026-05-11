@@ -5,6 +5,7 @@ import Link from "next/link";
 
 interface PendingMarket {
   id: string;
+  marketId?: string;
   question: string;
   groupName?: string;
   totalMUSD?: string | number;
@@ -50,7 +51,7 @@ const ResolverQueue = ({ markets = [], loading = false }: { markets?: PendingMar
         ) : (
           markets.map((market) => (
             <div 
-              key={market.id} 
+              key={market.id || market.marketId} 
               className="p-5 rounded-2xl bg-gray-50 border border-black/[0.03] flex flex-col gap-4 hover:border-orange-500 transition-all hover:bg-white active:scale-95 cursor-pointer group/card"
             >
               <div className="flex justify-between items-start">
@@ -74,7 +75,7 @@ const ResolverQueue = ({ markets = [], loading = false }: { markets?: PendingMar
                   <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Total Pool</span>
                   <span className="text-xs font-bold text-black tabular-nums">{market.totalMUSD || "0.00"} MUSD</span>
                 </div>
-                <Link href={`/app/markets/${market.id}`}>
+                <Link href={`/app/markets/${market.id || market.marketId}`}>
                   <button className="px-4 py-2 bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-full hover:scale-105 active:scale-95 transition-all shadow-md">
                     Resolve Now
                   </button>

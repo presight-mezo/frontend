@@ -64,7 +64,7 @@ function useApiCall<T, P extends any[]>(
 export function useGroups(token?: string) {
   const createGroup = useApiCall(
     useCallback(
-      (data: { name: string; description?: string; isPrivate?: boolean }) =>
+      (data: { name: string; description?: string; isPrivate?: boolean; avatarUrl?: string }) =>
         groupApi.create(token || "", data),
       [token]
     ),
@@ -87,7 +87,7 @@ export function useGroups(token?: string) {
   );
 
   const updateGroup = useApiCall(
-    useCallback((groupId: string, data: { name?: string; description?: string; isPrivate?: boolean }) => groupApi.updateGroup(token || "", groupId, data), [token]),
+    useCallback((groupId: string, data: { name?: string; description?: string; isPrivate?: boolean; avatarUrl?: string }) => groupApi.updateGroup(token || "", groupId, data), [token]),
     false
   );
 

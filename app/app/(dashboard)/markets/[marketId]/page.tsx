@@ -105,6 +105,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ marketI
   const isZeroRisk = market.stakeMode === 'zero-risk';
   const rawStakes = (stakesResponse as any)?.stakes || [];
   const participantCount = market.participantCount || 0;
+  const isResolver = market.resolverAddress?.toLowerCase() === address?.toLowerCase();
 
   // Determine stake amounts bounds
   let minStake = '0';
@@ -260,91 +261,109 @@ export default function MarketDetailPage({ params }: { params: Promise<{ marketI
             <div className="sticky top-28 flex flex-col gap-6">
               
               {/* Prediction Form */}
-              <div className="bg-white rounded-[32px] p-8 border border-gray-200 shadow-xl shadow-black/[0.03]">
-                <div className="mb-6">
-                  <h2 className="text-xl font-bold text-gray-900 tracking-tight">Make Your Prediction</h2>
-                  <p className="text-sm text-gray-500 mt-1">Choose your stance and confirm your stake.</p>
-                </div>
-
-                {/* YES/NO Selection */}
-                <div className="flex gap-3 mb-6">
-                  {(['YES', 'NO'] as const).map((opt) => (
-                    <button
-                      key={opt}
-                      onClick={() => setOutcome(opt)}
-                      className={`flex-1 py-4 px-6 rounded-2xl text-sm font-bold transition-all duration-200 ${
-                        outcome === opt
-                          ? opt === 'YES' 
-                            ? 'bg-emerald-500 text-white shadow-md' 
-                            : 'bg-rose-500 text-white shadow-md'
-                          : 'bg-gray-50 text-gray-600 border border-gray-200 hover:border-gray-300 hover:bg-gray-100'
-                      }`}
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Amount Input */}
-                <div className="mb-6">
-                  {isZeroRisk ? (
-                    <div className="flex flex-col items-center justify-center p-6 bg-teal-50 border border-teal-100 rounded-2xl">
-                      <div className="text-[11px] font-bold text-teal-700 uppercase tracking-widest mb-2 flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
-                        Yield Accruing
-                      </div>
-                      <div className="text-2xl font-black text-teal-900 tracking-tight flex items-center gap-2">
-                        {simulatedYield.toFixed(8)} <span className="text-lg text-teal-600 font-bold">MUSD</span>
-                      </div>
-                      <p className="text-xs text-teal-600 font-medium mt-2 text-center">
-                        Principal is safe. You are only staking accrued yield.
-                      </p>
+              {isResolver ? (
+                <div className="bg-white rounded-[32px] p-8 border border-amber-200 shadow-xl shadow-black/[0.03] relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 mb-5">
+                      <ShieldAlert size={28} />
                     </div>
-                  ) : (
-                    <div>
-                      <label className="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2 px-1">
-                        Stake Amount (MUSD)
-                      </label>
-                      <input
-                        type="number"
-                        placeholder="1.0"
-                        value={stakeAmount}
-                        onChange={(e) => setStakeAmount(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-4 text-center text-xl font-bold text-gray-900 focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-400 transition-colors"
-                      />
+                    <h2 className="text-xl font-bold text-gray-900 tracking-tight mb-2">Locked for Arbitration</h2>
+                    <p className="text-[13px] text-gray-500 leading-relaxed mb-6">
+                      As this market's assigned Trusted Resolver, you are legally restricted from participating in predictions to maintain platform objectivity.
+                    </p>
+                    <div className="w-full p-3 bg-gray-50 rounded-xl text-[11px] font-bold text-gray-500 uppercase tracking-widest border border-gray-100">
+                      Resolver Restricted Access
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-white rounded-[32px] p-8 border border-gray-200 shadow-xl shadow-black/[0.03]">
+                  <div className="mb-6">
+                    <h2 className="text-xl font-bold text-gray-900 tracking-tight">Make Your Prediction</h2>
+                    <p className="text-sm text-gray-500 mt-1">Choose your stance and confirm your stake.</p>
+                  </div>
+
+                  {/* YES/NO Selection */}
+                  <div className="flex gap-3 mb-6">
+                    {(['YES', 'NO'] as const).map((opt) => (
+                      <button
+                        key={opt}
+                        onClick={() => setOutcome(opt)}
+                        className={`flex-1 py-4 px-6 rounded-2xl text-sm font-bold transition-all duration-200 ${
+                          outcome === opt
+                            ? opt === 'YES' 
+                              ? 'bg-emerald-500 text-white shadow-md' 
+                              : 'bg-rose-500 text-white shadow-md'
+                            : 'bg-gray-50 text-gray-600 border border-gray-200 hover:border-gray-300 hover:bg-gray-100'
+                        }`}
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Amount Input */}
+                  <div className="mb-6">
+                    {isZeroRisk ? (
+                      <div className="flex flex-col items-center justify-center p-6 bg-teal-50 border border-teal-100 rounded-2xl">
+                        <div className="text-[11px] font-bold text-teal-700 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
+                          Yield Accruing
+                        </div>
+                        <div className="text-2xl font-black text-teal-900 tracking-tight flex items-center gap-2">
+                          {simulatedYield.toFixed(8)} <span className="text-lg text-teal-600 font-bold">MUSD</span>
+                        </div>
+                        <p className="text-xs text-teal-600 font-medium mt-2 text-center">
+                          Principal is safe. You are only staking accrued yield.
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <label className="block text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2 px-1">
+                          Stake Amount (MUSD)
+                        </label>
+                        <input
+                          type="number"
+                          placeholder="1.0"
+                          value={stakeAmount}
+                          onChange={(e) => setStakeAmount(e.target.value)}
+                          className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-4 text-center text-xl font-bold text-gray-900 focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-400 transition-colors"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    onClick={handleStake}
+                    disabled={!outcome || isSubmitting}
+                    className={`flex items-center justify-center w-full py-4 text-[15px] font-bold rounded-2xl transition-all duration-200 ${
+                      (!outcome || isSubmitting)
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-black text-white hover:bg-gray-900 shadow-md'
+                    }`}
+                  >
+                    {isSubmitting ? (
+                      <span className="flex items-center gap-2"><Loader2 size={16} className="animate-spin" /> Staking...</span>
+                    ) : (
+                      'Confirm Stake'
+                    )}
+                  </button>
+
+                  {/* Status Messages */}
+                  {success && (
+                    <div className="mt-4 p-4 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-2xl flex items-center justify-center gap-2 text-sm font-bold">
+                      <CheckCircle2 size={16} /> Stake successful!
+                    </div>
+                  )}
+                  {stakeError && (
+                    <div className="mt-4 p-4 bg-red-50 border border-red-100 text-red-600 rounded-2xl text-center text-sm font-bold">
+                      {stakeError}
                     </div>
                   )}
                 </div>
-
-                {/* Submit Button */}
-                <button
-                  onClick={handleStake}
-                  disabled={!outcome || isSubmitting}
-                  className={`flex items-center justify-center w-full py-4 text-[15px] font-bold rounded-2xl transition-all duration-200 ${
-                    (!outcome || isSubmitting)
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-black text-white hover:bg-gray-900 shadow-md'
-                  }`}
-                >
-                  {isSubmitting ? (
-                    <span className="flex items-center gap-2"><Loader2 size={16} className="animate-spin" /> Staking...</span>
-                  ) : (
-                    'Confirm Stake'
-                  )}
-                </button>
-
-                {/* Status Messages */}
-                {success && (
-                  <div className="mt-4 p-4 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-2xl flex items-center justify-center gap-2 text-sm font-bold">
-                    <CheckCircle2 size={16} /> Stake successful!
-                  </div>
-                )}
-                {stakeError && (
-                  <div className="mt-4 p-4 bg-red-50 border border-red-100 text-red-600 rounded-2xl text-center text-sm font-bold">
-                    {stakeError}
-                  </div>
-                )}
-              </div>
+              )}
 
               {/* Resolver Panel */}
               {market.status === 'OPEN' && address && market.resolverAddress?.toLowerCase() === address.toLowerCase() && (

@@ -17,9 +17,25 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
   const { createGroup } = useGroups(token || undefined);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Image size exceeds 5MB limit. Please choose a smaller image.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +44,7 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
     setIsSubmitting(true);
     setError(null);
 
-    const res = await createGroup.execute({ name, description, isPrivate });
+    const res = await createGroup.execute({ name, description, isPrivate, avatarUrl });
     setIsSubmitting(false);
 
     if (res.error) {
@@ -38,6 +54,7 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
       onClose();
       setName('');
       setDescription('');
+      setAvatarUrl('');
     }
   };
 
@@ -97,6 +114,43 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
                   required
                   className="w-full px-4 py-3.5 bg-white/70 border border-white/80 rounded-[16px] text-[14px] font-medium text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-black/5 focus:border-gray-300 transition-all shadow-sm"
                 />
+              </div>
+
+              {/* Group Avatar Upload */}
+              <div className="space-y-2">
+                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1">
+                  Group Cover Image <span className="text-gray-400 font-medium normal-case tracking-normal">(optional)</span>
+                </label>
+                <div className="flex items-center gap-4 w-full px-4 py-3 bg-white/70 border border-white/80 rounded-[16px] shadow-sm">
+                  {avatarUrl ? (
+                    <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-black/5 relative group/avatar">
+                      <img src={avatarUrl} alt="Avatar Preview" className="w-full h-full object-cover" />
+                      <button 
+                        type="button"
+                        onClick={() => setAvatarUrl('')}
+                        className="absolute inset-0 bg-black/60 text-white opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-12 h-12 rounded-xl bg-gray-100 border border-black/5 shrink-0 flex items-center justify-center text-gray-400">
+                      <span className="material-symbols-outlined text-[20px]">image</span>
+                    </div>
+                  )}
+                  
+                  <label className="flex-1">
+                    <div className="cursor-pointer px-4 py-2 bg-black text-white hover:bg-gray-800 rounded-xl text-[11px] font-bold uppercase tracking-widest transition-all text-center shadow-sm active:scale-95">
+                      {avatarUrl ? 'Change Image' : 'Upload Photo'}
+                    </div>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      className="hidden" 
+                      onChange={handleImageUpload} 
+                    />
+                  </label>
+                </div>
               </div>
 
               {/* Description */}

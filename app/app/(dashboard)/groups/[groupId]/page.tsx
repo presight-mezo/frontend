@@ -10,6 +10,7 @@ import { GroupSettingsModal } from '@/components/groups/GroupSettingsModal';
 import { Plus, Users, Share2, ArrowLeft, Loader2, Info, TrendingUp, Trophy, Settings, LogOut, UserMinus, Check, Award } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SCORE_BANDS, getBand, fmt } from '@/app/app/(dashboard)/leaderboard/page';
+import { getGroupVisuals } from '@/components/dashboard/GroupsScroller';
 
 export default function GroupLandingPage({ params }: { params: Promise<{ groupId: string }> }) {
   const { groupId } = use(params);
@@ -110,31 +111,52 @@ export default function GroupLandingPage({ params }: { params: Promise<{ groupId
           </button>
 
           <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-10">
-            <motion.div className="max-w-2xl" variants={staggerContainer}>
-              <motion.div className="flex items-center gap-3 mb-6" variants={fadeUp}>
-                <motion.div
-                  className={`${activeGroup?.isPrivate ? 'bg-amber-100 text-amber-900' : 'bg-[#0a0a0a] text-white'} px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest`}
-                  whileHover={{ scale: 1.06 }}
-                  transition={{ type: 'spring', stiffness: 400 }}
-                >
-                  {activeGroup?.isPrivate ? 'Private Group' : 'Public Group'}
+            <motion.div className="max-w-3xl flex flex-col md:flex-row gap-8 items-start" variants={staggerContainer}>
+              {/* Group Image / Avatar */}
+              {activeGroup && (() => {
+                const { color, image } = getGroupVisuals(groupId, activeGroup.name || '');
+                const displayImage = activeGroup.avatarUrl || image;
+                return (
+                  <motion.div 
+                    variants={fadeScale}
+                    className="w-24 h-24 md:w-32 md:h-32 rounded-[2rem] overflow-hidden shadow-xl shadow-black/10 flex-shrink-0 relative border border-white/50"
+                  >
+                    <img 
+                      src={displayImage} 
+                      alt={activeGroup.name} 
+                      className="w-full h-full object-cover"
+                    />
+                    <div className={`absolute inset-0 ${color} mix-blend-overlay opacity-30`} />
+                  </motion.div>
+                );
+              })()}
+
+              <div>
+                <motion.div className="flex items-center gap-3 mb-6" variants={fadeUp}>
+                  <motion.div
+                    className={`${activeGroup?.isPrivate ? 'bg-amber-100 text-amber-900' : 'bg-[#0a0a0a] text-white'} px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest`}
+                    whileHover={{ scale: 1.06 }}
+                    transition={{ type: 'spring', stiffness: 400 }}
+                  >
+                    {activeGroup?.isPrivate ? 'Private Group' : 'Public Group'}
+                  </motion.div>
+                  <div className="flex items-center gap-1.5 text-gray-500 font-bold text-[11px] uppercase tracking-widest bg-white/60 px-3 py-1.5 rounded-full border border-white/80">
+                    <Users size={14} className="text-gray-400" />
+                    {activeGroup?.memberCount as number || 1} Predictors
+                  </div>
                 </motion.div>
-                <div className="flex items-center gap-1.5 text-gray-500 font-bold text-[11px] uppercase tracking-widest bg-white/60 px-3 py-1.5 rounded-full border border-white/80">
-                  <Users size={14} className="text-gray-400" />
-                  {activeGroup?.memberCount as number || 1} Predictors
-                </div>
-              </motion.div>
 
-              <motion.h1
-                className="text-[40px] md:text-[54px] font-bold text-gray-900 mb-4 tracking-tight leading-[1.05]"
-                variants={fadeUp}
-              >
-                {activeGroup?.name as string || 'Loading Name...'}
-              </motion.h1>
+                <motion.h1
+                  className="text-[40px] md:text-[54px] font-bold text-gray-900 mb-4 tracking-tight leading-[1.05]"
+                  variants={fadeUp}
+                >
+                  {activeGroup?.name as string || 'Loading Name...'}
+                </motion.h1>
 
-              <motion.p className="text-[16px] text-gray-500 font-medium leading-relaxed max-w-xl" variants={fadeUp}>
-                {activeGroup?.description as string || 'Build your conviction profile and predict with friends.'}
-              </motion.p>
+                <motion.p className="text-[16px] text-gray-500 font-medium leading-relaxed max-w-xl" variants={fadeUp}>
+                  {activeGroup?.description as string || 'Build your conviction profile and predict with friends.'}
+                </motion.p>
+              </div>
             </motion.div>
 
             <motion.div className="flex flex-col sm:flex-row gap-4 shrink-0 mt-2" variants={fadeUp}>
@@ -465,6 +487,7 @@ export default function GroupLandingPage({ params }: { params: Promise<{ groupId
           groupId={groupId}
           initialName={activeGroup.name}
           initialDescription={activeGroup.description}
+          initialAvatarUrl={activeGroup.avatarUrl}
           initialIsPrivate={activeGroup.isPrivate}
           onSuccess={() => executeGetGroup(groupId)}
         />
