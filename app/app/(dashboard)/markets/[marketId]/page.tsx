@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { useMarkets, useStakes } from '@/hooks/useApi';
+import { useMarkets, useStakes, useResolver } from '@/hooks/useApi';
 import { usePresightApi } from '@/lib/ApiProvider';
 import { Loader2, ArrowLeft, ShieldCheck, Flame, CircleDollarSign, ShieldAlert, CheckCircle2 } from 'lucide-react';
 import { parseUnits, formatUnits } from 'viem';
@@ -14,6 +14,7 @@ export default function MarketDetailPage({ params }: { params: Promise<{ marketI
 
   const { getMarket: { data: marketData, execute: executeGetMarket } } = useMarkets(token || undefined);
   const { placeStake: { execute: executeStake, error: stakeError }, getStakes: { data: stakesResponse, execute: executeGetStakes } } = useStakes(token || undefined);
+  const { resolveMarket: { execute: executeResolve } } = useResolver(token || undefined);
 
   const [stakeAmount, setStakeAmount] = useState('1');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,17 +46,10 @@ export default function MarketDetailPage({ params }: { params: Promise<{ marketI
 
   const handleResolve = async (outcomeResult: 'YES' | 'NO') => {
     try {
-      const res = await fetch(`/api/v1/markets/${marketId}/resolve`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ outcome: outcomeResult })
-      });
-      const json = await res.json();
-      if (!res.ok) alert(json.message);
-      else {
+      const res = await executeResolve(marketId, { outcome: outcomeResult });
+      if (res.error) {
+        alert(res.error);
+      } else {
         alert("Market Resolved Successfully!");
         executeGetMarket(marketId);
         executeGetStakes(marketId);
