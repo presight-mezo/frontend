@@ -4,11 +4,13 @@ import { Suspense } from "react";
 
 export default function AppRootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <OnboardingGuard>
-      <Suspense fallback={null}>
-        <JoinGroupListener />
-      </Suspense>
-      {children}
-    </OnboardingGuard>
+    <Suspense fallback={null}>
+      <OnboardingGuard>
+        <Suspense fallback={null}>
+          <JoinGroupListener />
+        </Suspense>
+        {children}
+      </OnboardingGuard>
+    </Suspense>
   );
 }

@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/Card';
 import { CreateGroupModal } from '@/components/groups/CreateGroupModal';
 import { Plus, Users, ArrowRight, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { getGroupVisuals } from '@/components/dashboard/GroupsScroller';
 
 export default function GroupsPage() {
   const router = useRouter();
@@ -66,9 +67,20 @@ export default function GroupsPage() {
                 className="group cursor-pointer hover:border-black/20 hover:shadow-xl hover:shadow-black/5 transition-all duration-300 p-6 flex flex-col h-full bg-white border-gray-100"
               >
                 <div className="flex items-start justify-between mb-4">
-                  <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-black group-hover:text-white transition-colors duration-300">
-                    <Users size={24} />
-                  </div>
+                  {(() => {
+                    const { color, image } = getGroupVisuals(group.id || '', group.name || '');
+                    const displayImage = group.avatarUrl || image;
+                    return (
+                      <div className="relative w-12 h-12 rounded-2xl overflow-hidden shadow-sm flex-shrink-0 border border-black/[0.03]">
+                        <img
+                          src={displayImage}
+                          alt={group.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div className={`absolute inset-0 ${color} mix-blend-overlay opacity-30`} />
+                      </div>
+                    );
+                  })()}
                   <div className="text-xs font-bold text-gray-300 uppercase tracking-widest bg-gray-50 px-2 py-1 rounded">
                     {group._count?.members || 1} Members
                   </div>
